@@ -1,0 +1,26 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ee85ffd..7daf18e 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -38,7 +38,7 @@ set(CMAKE_CXX_COMPILER_WORKS 1)
+ 
+ 
+ #read our config file...
+-file(READ "./codal.json" codal_json)
++file(READ "../../src/codal_app/codal.json" codal_json)
+ sbeParseJson(codal codal_json)
+ 
+ set(CODAL_APP_OUTPUT_DIR ".")
+@@ -262,4 +262,10 @@ endif()
+ set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
+ set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
+ set(CMAKE_EXE_EXPORTS_C_FLAG "")
+-set(CMAKE_EXE_EXPORTS_CXX_FLAG "")
+\ No newline at end of file
++set(CMAKE_EXE_EXPORTS_CXX_FLAG "")
++
++add_library(micropython STATIC IMPORTED)
++set_target_properties(micropython PROPERTIES
++    IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/../../src/codal_port/libmicropython.a"
++)
++target_link_libraries("MICROBIT" micropython)
