@@ -110,7 +110,7 @@ mp_obj_t microbit_pin_write_analog(mp_obj_t self_in, mp_obj_t value_in) {
     }
     if (microbit_obj_pin_acquire(self, microbit_pin_mode_write_analog)) {
     }
-    // TODO
+    microbit_hal_pin_write_analog_u10(self->name, set_value);
     if (set_value == 0) {
         microbit_obj_pin_acquire(self, microbit_pin_mode_unused);
     }
@@ -121,17 +121,14 @@ MP_DEFINE_CONST_FUN_OBJ_2(microbit_pin_write_analog_obj, microbit_pin_write_anal
 mp_obj_t microbit_pin_read_analog(mp_obj_t self_in) {
     microbit_pin_obj_t *self = (microbit_pin_obj_t*)self_in;
     microbit_obj_pin_acquire(self, microbit_pin_mode_unused);
-    // TODO
-    int val = 0;
-    return mp_obj_new_int(val);
+    return mp_obj_new_int(microbit_hal_pin_read_analog_u10(self->name));
 }
 MP_DEFINE_CONST_FUN_OBJ_1(microbit_pin_read_analog_obj, microbit_pin_read_analog);
 
 mp_obj_t microbit_pin_set_analog_period(mp_obj_t self_in, mp_obj_t period_in) {
-    (void)self_in;
-    // TODO
-    int err = 0;
-    if (err) {
+    microbit_pin_obj_t *self = (microbit_pin_obj_t*)self_in;
+    mp_int_t period = mp_obj_get_int(period_in) * 1000;
+    if (microbit_hal_pin_set_analog_period_us(self->name, period) == -1) {
         mp_raise_ValueError("invalid period");
     }
     return mp_const_none;
@@ -139,10 +136,9 @@ mp_obj_t microbit_pin_set_analog_period(mp_obj_t self_in, mp_obj_t period_in) {
 MP_DEFINE_CONST_FUN_OBJ_2(microbit_pin_set_analog_period_obj, microbit_pin_set_analog_period);
 
 mp_obj_t microbit_pin_set_analog_period_microseconds(mp_obj_t self_in, mp_obj_t period_in) {
-    (void)self_in;
-    // TODO
-    int err = 0;
-    if (err) {
+    microbit_pin_obj_t *self = (microbit_pin_obj_t*)self_in;
+    mp_int_t period = mp_obj_get_int(period_in);
+    if (microbit_hal_pin_set_analog_period_us(self->name, period) == -1) {
         mp_raise_ValueError("invalid period");
     }
     return mp_const_none;
@@ -150,9 +146,8 @@ mp_obj_t microbit_pin_set_analog_period_microseconds(mp_obj_t self_in, mp_obj_t 
 MP_DEFINE_CONST_FUN_OBJ_2(microbit_pin_set_analog_period_microseconds_obj, microbit_pin_set_analog_period_microseconds);
 
 mp_obj_t microbit_pin_get_analog_period_microseconds(mp_obj_t self_in) {
-    (void)self_in;
-    // TODO
-    int32_t period = 0;
+    microbit_pin_obj_t *self = (microbit_pin_obj_t*)self_in;
+    mp_int_t period = microbit_hal_pin_get_analog_period_us(self->name);
     return mp_obj_new_int(period);
 }
 MP_DEFINE_CONST_FUN_OBJ_1(microbit_pin_get_analog_period_microseconds_obj, microbit_pin_get_analog_period_microseconds);
@@ -200,6 +195,7 @@ STATIC const mp_rom_map_elem_t microbit_ann_pin_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_read_analog), MP_ROM_PTR(&microbit_pin_read_analog_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_analog_period), MP_ROM_PTR(&microbit_pin_set_analog_period_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_analog_period_microseconds), MP_ROM_PTR(&microbit_pin_set_analog_period_microseconds_obj) },
+    { MP_ROM_QSTR(MP_QSTR_get_analog_period_microseconds), MP_ROM_PTR(&microbit_pin_get_analog_period_microseconds_obj) },
     PULL_CONSTANTS,
     { MP_ROM_QSTR(MP_QSTR_get_pull), MP_ROM_PTR(&microbit_pin_get_pull_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_pull), MP_ROM_PTR(&microbit_pin_set_pull_obj) },
@@ -220,6 +216,7 @@ STATIC const mp_rom_map_elem_t microbit_touch_pin_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_read_analog), MP_ROM_PTR(&microbit_pin_read_analog_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_analog_period), MP_ROM_PTR(&microbit_pin_set_analog_period_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_analog_period_microseconds), MP_ROM_PTR(&microbit_pin_set_analog_period_microseconds_obj) },
+    { MP_ROM_QSTR(MP_QSTR_get_analog_period_microseconds), MP_ROM_PTR(&microbit_pin_get_analog_period_microseconds_obj) },
     { MP_ROM_QSTR(MP_QSTR_is_touched), MP_ROM_PTR(&microbit_pin_is_touched_obj) },
     PULL_CONSTANTS,
     { MP_ROM_QSTR(MP_QSTR_get_pull), MP_ROM_PTR(&microbit_pin_get_pull_obj) },

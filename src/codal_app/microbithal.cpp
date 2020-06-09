@@ -112,12 +112,37 @@ int microbit_hal_pin_get_pull(int pin) {
     return pin_pull_state[pin];
 }
 
+int microbit_hal_pin_set_analog_period_us(int pin, int period) {
+    if (pin_obj[pin]->setAnalogPeriodUs(period) == DEVICE_OK) {
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
+int microbit_hal_pin_get_analog_period_us(int pin) {
+    int period = pin_obj[pin]->getAnalogPeriodUs();
+    if (period != DEVICE_NOT_SUPPORTED) {
+        return period;
+    } else {
+        return -1;
+    }
+}
+
 int microbit_hal_pin_read(int pin) {
     return pin_obj[pin]->getDigitalValue();
 }
 
 void microbit_hal_pin_write(int pin, int value) {
     pin_obj[pin]->setDigitalValue(value);
+}
+
+int microbit_hal_pin_read_analog_u10(int pin) {
+    return pin_obj[pin]->getAnalogValue();
+}
+
+void microbit_hal_pin_write_analog_u10(int pin, int value) {
+    pin_obj[pin]->setAnalogValue(value);
 }
 
 int microbit_hal_pin_is_touched(int pin) {

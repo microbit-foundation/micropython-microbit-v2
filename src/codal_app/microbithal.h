@@ -59,8 +59,12 @@ int microbit_hal_temperature(void);
 
 void microbit_hal_pin_set_pull(int pin, int pull);
 int microbit_hal_pin_get_pull(int pin);
+int microbit_hal_pin_set_analog_period_us(int pin, int period);
+int microbit_hal_pin_get_analog_period_us(int pin);
 int microbit_hal_pin_read(int pin);
 void microbit_hal_pin_write(int pin, int value);
+int microbit_hal_pin_read_analog_u10(int pin);
+void microbit_hal_pin_write_analog_u10(int pin, int value);
 int microbit_hal_pin_is_touched(int pin);
 
 int microbit_hal_button_state(int button, int *was_pressed, int *num_presses);
