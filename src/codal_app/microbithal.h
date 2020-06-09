@@ -46,12 +46,19 @@
 #define MICROBIT_HAL_PIN_P19    (26)
 #define MICROBIT_HAL_PIN_P20    (32)
 
+// These match the micro:bit v1 constants.
+#define MICROBIT_HAL_PIN_PULL_UP (0)
+#define MICROBIT_HAL_PIN_PULL_DOWN (1)
+#define MICROBIT_HAL_PIN_PULL_NONE (2)
+
 void microbit_hal_idle(void);
 
 void microbit_hal_reset(void);
 void microbit_hal_panic(int);
 int microbit_hal_temperature(void);
 
+void microbit_hal_pin_set_pull(int pin, int pull);
+int microbit_hal_pin_get_pull(int pin);
 int microbit_hal_pin_read(int pin);
 void microbit_hal_pin_write(int pin, int value);
 int microbit_hal_pin_is_touched(int pin);

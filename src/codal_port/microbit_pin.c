@@ -75,19 +75,15 @@ mp_obj_t microbit_pin_read_digital(mp_obj_t self_in) {
 }
 MP_DEFINE_CONST_FUN_OBJ_1(microbit_pin_read_digital_obj, microbit_pin_read_digital);
 
-#define SHIFT_PULL_MASK ((1<<NRF_GPIO_PIN_PULLDOWN) | (1<<NRF_GPIO_PIN_PULLUP) | (1<<NRF_GPIO_PIN_NOPULL))
-
 mp_obj_t microbit_pin_set_pull(mp_obj_t self_in, mp_obj_t pull_in) {
     microbit_pin_obj_t *self = (microbit_pin_obj_t*)self_in;
-    //int pull = mp_obj_get_int(pull_in);
+    int pull = mp_obj_get_int(pull_in);
     // Pull only applies in an read digital mode
     microbit_obj_pin_acquire(self, microbit_pin_mode_read_digital);
-    // TODO
+    microbit_hal_pin_set_pull(self->name, pull);
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_2(microbit_pin_set_pull_obj, microbit_pin_set_pull);
-
-#define PULL_MASK (NRF_GPIO_PIN_PULLDOWN | NRF_GPIO_PIN_NOPULL | NRF_GPIO_PIN_PULLUP)
 
 mp_obj_t microbit_pin_get_pull(mp_obj_t self_in) {
     microbit_pin_obj_t *self = (microbit_pin_obj_t*)self_in;
@@ -96,9 +92,7 @@ mp_obj_t microbit_pin_get_pull(mp_obj_t self_in) {
     if (mode != microbit_pin_mode_read_digital && mode != microbit_pin_mode_button) {
         pinmode_error(self);
     }
-    // TODO
-    uint32_t pull = 0;
-    return mp_obj_new_int(pull);
+    return mp_obj_new_int(microbit_hal_pin_get_pull(self->name));
 }
 MP_DEFINE_CONST_FUN_OBJ_1(microbit_pin_get_pull_obj, microbit_pin_get_pull);
 
@@ -175,9 +169,9 @@ mp_obj_t microbit_pin_is_touched(mp_obj_t self_in) {
 MP_DEFINE_CONST_FUN_OBJ_1(microbit_pin_is_touched_obj, microbit_pin_is_touched);
 
 #define PULL_CONSTANTS \
-    { MP_OBJ_NEW_QSTR(MP_QSTR_PULL_UP), MP_OBJ_NEW_SMALL_INT(0) }, \
-    { MP_OBJ_NEW_QSTR(MP_QSTR_PULL_DOWN), MP_OBJ_NEW_SMALL_INT(1) }, \
-    { MP_OBJ_NEW_QSTR(MP_QSTR_NO_PULL), MP_OBJ_NEW_SMALL_INT(2) }
+    { MP_ROM_QSTR(MP_QSTR_PULL_UP), MP_ROM_INT(MICROBIT_HAL_PIN_PULL_UP) }, \
+    { MP_ROM_QSTR(MP_QSTR_PULL_DOWN), MP_ROM_INT(MICROBIT_HAL_PIN_PULL_DOWN) }, \
+    { MP_ROM_QSTR(MP_QSTR_NO_PULL), MP_ROM_INT(MICROBIT_HAL_PIN_PULL_NONE) }
 
 STATIC const mp_map_elem_t microbit_dig_pin_locals_dict_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR_write_digital), (mp_obj_t)&microbit_pin_write_digital_obj },

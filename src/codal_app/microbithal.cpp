@@ -78,6 +78,13 @@ static Button *const button_obj[] = {
     &uBit.buttonB,
 };
 
+static const PullMode pin_pull_mode_mapping[] = {
+    PullMode::Up,
+    PullMode::Down,
+    PullMode::None,
+};
+
+static uint8_t pin_pull_state[32 + 6];
 static uint16_t button_state[2];
 
 void microbit_hal_idle(void) {
@@ -94,6 +101,15 @@ void microbit_hal_panic(int code) {
 
 int microbit_hal_temperature(void) {
     return uBit.thermometer.getTemperature();
+}
+
+void microbit_hal_pin_set_pull(int pin, int pull) {
+    pin_obj[pin]->setPull(pin_pull_mode_mapping[pull]);
+    pin_pull_state[pin] = pull;
+}
+
+int microbit_hal_pin_get_pull(int pin) {
+    return pin_pull_state[pin];
 }
 
 int microbit_hal_pin_read(int pin) {
