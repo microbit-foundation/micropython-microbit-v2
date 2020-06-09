@@ -49,6 +49,8 @@ SRC_C += \
 	microbit_pin.c \
 	microbit_pinmode.c \
 	modmicrobit.c \
+	modmusic.c \
+	modmusictunes.c \
 	mphalport.c \
 
 SRC_C += \

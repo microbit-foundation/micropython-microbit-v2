@@ -35,6 +35,7 @@
 #define MICROPY_KBD_EXCEPTION                   (1)
 #define MICROPY_HELPER_REPL                     (1)
 #define MICROPY_REPL_AUTO_INDENT                (1)
+#define MICROPY_MODULE_BUILTIN_INIT             (1)
 #define MICROPY_PY_BUILTINS_MEMORYVIEW          (1)
 #define MICROPY_PY___FILE__                     (0)
 #define MICROPY_PY_SYS_MAXSIZE                  (1)
@@ -57,13 +58,16 @@
 #define MP_STATE_PORT MP_STATE_VM
 
 extern const struct _mp_obj_module_t microbit_module;
+extern const struct _mp_obj_module_t music_module;
 
 #define MICROPY_PORT_BUILTIN_MODULES \
     { MP_ROM_QSTR(MP_QSTR_microbit), MP_ROM_PTR(&microbit_module) }, \
+    { MP_ROM_QSTR(MP_QSTR_music), MP_ROM_PTR(&music_module) }, \
 
 #define MICROPY_PORT_ROOT_POINTERS \
     const char *readline_hist[8]; \
     void *async_data[2]; \
+    struct _music_data_t *music_data; \
 
 #define MP_SSIZE_MAX (0x7fffffff)
 

@@ -48,6 +48,8 @@ const microbit_pin_obj_t microbit_p16_obj = {{&microbit_dig_pin_type},  16, MICR
 const microbit_pin_obj_t microbit_p19_obj = {{&microbit_dig_pin_type},  19, MICROBIT_HAL_PIN_P19, MODE_I2C};
 const microbit_pin_obj_t microbit_p20_obj = {{&microbit_dig_pin_type},  20, MICROBIT_HAL_PIN_P20, MODE_I2C};
 
+const microbit_pin_obj_t microbit_pin_speaker_obj = {{&microbit_dig_pin_type}, 100, 0, MODE_UNUSED};
+
 static mp_obj_t microbit_pin_get_mode_func(mp_obj_t self_in) {
     microbit_pin_obj_t *self = (microbit_pin_obj_t*)self_in;
     return MP_OBJ_NEW_QSTR(microbit_pin_get_mode(self)->name);

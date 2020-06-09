@@ -110,6 +110,7 @@ STATIC const mp_rom_map_elem_t microbit_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_pin16), MP_ROM_PTR(&microbit_p16_obj) },
     { MP_ROM_QSTR(MP_QSTR_pin19), MP_ROM_PTR(&microbit_p19_obj) },
     { MP_ROM_QSTR(MP_QSTR_pin20), MP_ROM_PTR(&microbit_p20_obj) },
+    { MP_ROM_QSTR(MP_QSTR_pin_speaker), MP_ROM_PTR(&microbit_pin_speaker_obj) },
 };
 
 STATIC MP_DEFINE_CONST_DICT(microbit_module_globals, microbit_module_globals_table);

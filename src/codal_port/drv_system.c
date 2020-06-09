@@ -26,12 +26,14 @@
 
 #include "py/runtime.h"
 #include "drv_display.h"
+#include "modmusic.h"
 
 // Called every 6ms
 // TODO: should only enable this when system is ready
 // TODO: perhaps only schedule the callback when we need it
 void microbit_hal_timer_callback(void) {
     microbit_display_update();
+    microbit_music_tick();
 }
 
 void microbit_hal_serial_interrupt_callback(void) {

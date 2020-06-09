@@ -94,6 +94,7 @@ extern const struct _microbit_pin_obj_t microbit_p15_obj;
 extern const struct _microbit_pin_obj_t microbit_p16_obj;
 extern const struct _microbit_pin_obj_t microbit_p19_obj;
 extern const struct _microbit_pin_obj_t microbit_p20_obj;
+extern const struct _microbit_pin_obj_t microbit_pin_speaker_obj;
 
 extern const struct _monochrome_5by5_t microbit_const_image_heart_obj;
 extern const struct _monochrome_5by5_t microbit_const_image_heart_small_obj;
@@ -165,6 +166,8 @@ extern struct _microbit_display_obj_t microbit_display_obj;
 extern const struct _microbit_accelerometer_obj_t microbit_accelerometer_obj;
 extern const struct _microbit_button_obj_t microbit_button_a_obj;
 extern const struct _microbit_button_obj_t microbit_button_b_obj;
+
+const microbit_pin_obj_t *microbit_obj_get_pin(mp_obj_t o);
 
 // Release pin for use by other modes. Safe to call in an interrupt.
 // If pin is NULL or pin already unused, then this is a no-op

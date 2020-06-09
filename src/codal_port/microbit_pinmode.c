@@ -81,7 +81,7 @@ void pinmode_error(const microbit_pin_obj_t *pin) {
 }
 
 static void analog_release(const microbit_pin_obj_t *pin) {
-    // TODO: pwm release
+    // TODO: pwm_release()
 }
 
 const microbit_pinmode_t microbit_pinmodes[] = {
