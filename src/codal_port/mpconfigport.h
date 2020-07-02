@@ -40,13 +40,9 @@
 #define MICROPY_PY___FILE__                     (0)
 #define MICROPY_PY_SYS_MAXSIZE                  (1)
 #define MICROPY_PY_SYS_PLATFORM                 "microbit"
-#define MICROPY_VFS                             (1)
-#define MICROPY_READER_VFS                      (1)
 
-// use vfs's functions for import stat and builtin open
-#define mp_import_stat mp_vfs_import_stat
-//#define mp_builtin_open mp_vfs_open
-#define mp_builtin_open_obj mp_vfs_open_obj
+#define MICROPY_HW_ENABLE_RNG                   (1)
+#define MICROPY_MBFS                            (1)
 
 // extra built in names to add to the global namespace
 #define MICROPY_PORT_BUILTINS \
@@ -59,10 +55,12 @@
 
 extern const struct _mp_obj_module_t microbit_module;
 extern const struct _mp_obj_module_t music_module;
+extern const struct _mp_obj_module_t os_module;
 
 #define MICROPY_PORT_BUILTIN_MODULES \
     { MP_ROM_QSTR(MP_QSTR_microbit), MP_ROM_PTR(&microbit_module) }, \
     { MP_ROM_QSTR(MP_QSTR_music), MP_ROM_PTR(&music_module) }, \
+    { MP_ROM_QSTR(MP_QSTR_os), MP_ROM_PTR(&os_module) }, \
 
 #define MICROPY_PORT_ROOT_POINTERS \
     const char *readline_hist[8]; \

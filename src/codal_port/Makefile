@@ -14,9 +14,18 @@ QSTR_DEFS = qstrdefsport.h
 # Include py core make definitions.
 include $(TOP)/py/py.mk
 
+CMSIS_DIR = ../../lib/codal/libraries/codal-nrf52/inc/cmsis
+NRFX_DIR = ../../lib/codal/libraries/codal-nrf52/nrfx
+
 INC += -I.
 INC += -I../codal_app
+INC += -I$(CMSIS_DIR)
+INC += -I$(NRFX_DIR)
+INC += -I$(NRFX_DIR)/drivers/include
+INC += -I$(NRFX_DIR)/hal
+INC += -I$(NRFX_DIR)/mdk
 INC += -I$(TOP)
+INC += -I$(TOP)/ports/nrf
 INC += -I$(BUILD)
 
 # Compiler settings.
@@ -51,6 +60,7 @@ SRC_C += \
 	modmicrobit.c \
 	modmusic.c \
 	modmusictunes.c \
+	modos.c \
 	mphalport.c \
 
 SRC_C += \
@@ -58,6 +68,9 @@ SRC_C += \
 	lib/utils/gchelper_native.c \
 	lib/utils/pyexec.c \
 	lib/utils/stdout_helpers.c \
+	ports/nrf/drivers/rng.c \
+	ports/nrf/modules/uos/microbitfs.c \
+	$(abspath $(NRFX_DIR)/drivers/src/nrfx_nvmc.c) \
 
 SRC_O += \
 	lib/utils/gchelper_m3.o \

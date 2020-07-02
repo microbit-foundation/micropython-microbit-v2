@@ -33,6 +33,7 @@
 #include "py/stackctrl.h"
 #include "lib/utils/gchelper.h"
 #include "lib/utils/pyexec.h"
+#include "ports/nrf/modules/uos/microbitfs.h"
 #include "drv_display.h"
 
 // Use a fixed static buffer for the heap.
@@ -44,6 +45,7 @@ void mp_main(void) {
 
     for (;;) {
         microbit_display_init();
+        microbit_filesystem_init();
 
         gc_init(heap, heap + sizeof(heap));
         mp_init();
@@ -74,6 +76,21 @@ void mp_main(void) {
         mp_deinit();
     }
 }
+
+#if MICROPY_MBFS
+mp_lexer_t *mp_lexer_new_from_file(const char *filename) {
+    return uos_mbfs_new_reader(filename);
+}
+
+mp_import_stat_t mp_import_stat(const char *path) {
+    return uos_mbfs_import_stat(path);
+}
+
+STATIC mp_obj_t mp_builtin_open(size_t n_args, const mp_obj_t *args) {
+    return uos_mbfs_open(n_args, args);
+}
+MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_builtin_open_obj, 1, 2, mp_builtin_open);
+#endif
 
 void gc_collect(void) {
     gc_collect_start();
