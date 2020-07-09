@@ -31,7 +31,8 @@ INC += -I$(BUILD)
 # Compiler settings.
 CWARN = -Wall -Werror
 CWARN += -Wpointer-arith -Wuninitialized
-CFLAGS = $(INC) $(CWARN) -std=c99 $(CFLAGS_MOD) $(COPT) $(CFLAGS_EXTRA)
+CFLAGS_ARCH += -DNRF52833_XXAA
+CFLAGS = $(INC) $(CWARN) -std=c99 $(CFLAGS_MOD) $(CFLAGS_ARCH) $(COPT) $(CFLAGS_EXTRA)
 
 # Debugging/Optimization
 ifdef DEBUG
@@ -47,6 +48,7 @@ LDFLAGS = $(LDFLAGS_MOD) $(LDFLAGS_ARCH) -lm $(LDFLAGS_EXTRA)
 SRC_C += \
 	drv_display.c \
 	drv_image.c \
+	drv_radio.c \
 	drv_system.c \
 	iters.c \
 	main.c \
@@ -61,6 +63,7 @@ SRC_C += \
 	modmusic.c \
 	modmusictunes.c \
 	modos.c \
+	modradio.c \
 	mphalport.c \
 
 SRC_C += \
