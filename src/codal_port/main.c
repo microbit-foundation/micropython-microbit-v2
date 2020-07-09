@@ -55,8 +55,14 @@ void mp_main(void) {
         mp_obj_list_init(MP_OBJ_TO_PTR(mp_sys_argv), 0);
 
         if (pyexec_mode_kind == PYEXEC_MODE_FRIENDLY_REPL) {
-            // from microbit import *
-            mp_import_all(mp_import_name(MP_QSTR_microbit, mp_const_empty_tuple, MP_OBJ_NEW_SMALL_INT(0)));
+            const char *main_py = "main.py";
+            if (mp_import_stat(main_py) == MP_IMPORT_STAT_FILE) {
+                // exec("main.py")
+                pyexec_file(main_py);
+            } else {
+                // from microbit import *
+                mp_import_all(mp_import_name(MP_QSTR_microbit, mp_const_empty_tuple, MP_OBJ_NEW_SMALL_INT(0)));
+            }
         }
 
         for (;;) {
