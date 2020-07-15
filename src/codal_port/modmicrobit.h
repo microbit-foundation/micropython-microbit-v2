@@ -173,6 +173,9 @@ const microbit_pin_obj_t *microbit_obj_get_pin(mp_obj_t o);
 // If pin is NULL or pin already unused, then this is a no-op
 void microbit_obj_pin_free(const microbit_pin_obj_t *pin);
 
+// Test if a pin can be acquired.
+bool microbit_obj_pin_can_be_acquired(const microbit_pin_obj_t *pin);
+
 // Acquire pin (causing analog/digital modes to release) for mode.
 // If pin is already in specified mode, this is a no-op and returns "false".
 // Otherwise if the acquisition succeeds then it returns "true".

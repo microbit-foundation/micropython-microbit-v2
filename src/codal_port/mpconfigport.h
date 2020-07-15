@@ -36,6 +36,7 @@
 #define MICROPY_HELPER_REPL                     (1)
 #define MICROPY_REPL_AUTO_INDENT                (1)
 #define MICROPY_MODULE_BUILTIN_INIT             (1)
+#define MICROPY_ENABLE_SCHEDULER                (1)
 #define MICROPY_PY_BUILTINS_MEMORYVIEW          (1)
 #define MICROPY_PY___FILE__                     (0)
 #define MICROPY_PY_SYS_MAXSIZE                  (1)

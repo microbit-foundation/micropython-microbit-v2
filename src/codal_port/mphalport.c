@@ -27,6 +27,15 @@
 #include "py/runtime.h"
 #include "py/mphal.h"
 
+void mp_hal_delay_us(mp_uint_t us) {
+    if (us <= 0) {
+        return;
+    }
+    uint32_t start = mp_hal_ticks_us();
+    while (mp_hal_ticks_us() - start < us) {
+    }
+}
+
 void mp_hal_delay_ms(mp_uint_t ms) {
     if (ms <= 0) {
         return;
