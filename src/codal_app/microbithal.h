@@ -79,4 +79,8 @@ void microbit_hal_accelerometer_get_sample(int axis[3]);
 
 const uint8_t *microbit_hal_get_font_data(char c);
 
+void microbit_hal_audio_init(uint32_t sample_rate);
+void microbit_hal_audio_signal_data_ready(size_t num_samples);
+const uint8_t *microbit_hal_audio_get_data_callback(void);
+
 #endif // MICROPY_INCLUDED_CODAL_APP_MICROBITHAL_H
