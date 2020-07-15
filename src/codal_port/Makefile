@@ -14,11 +14,13 @@ QSTR_DEFS = qstrdefsport.h
 # Include py core make definitions.
 include $(TOP)/py/py.mk
 
-CMSIS_DIR = ../../lib/codal/libraries/codal-nrf52/inc/cmsis
-NRFX_DIR = ../../lib/codal/libraries/codal-nrf52/nrfx
+LOCAL_LIB_DIR = ../../lib
+CMSIS_DIR = $(LOCAL_LIB_DIR)/codal/libraries/codal-nrf52/inc/cmsis
+NRFX_DIR = $(LOCAL_LIB_DIR)/codal/libraries/codal-nrf52/nrfx
 
 INC += -I.
 INC += -I../codal_app
+INC += -I$(LOCAL_LIB_DIR)
 INC += -I$(CMSIS_DIR)
 INC += -I$(NRFX_DIR)
 INC += -I$(NRFX_DIR)/drivers/include
@@ -65,6 +67,7 @@ SRC_C += \
 	modmusictunes.c \
 	modos.c \
 	modradio.c \
+	modspeech.c \
 	mphalport.c \
 
 SRC_C += \
@@ -75,6 +78,11 @@ SRC_C += \
 	ports/nrf/drivers/rng.c \
 	ports/nrf/modules/uos/microbitfs.c \
 	$(abspath $(NRFX_DIR)/drivers/src/nrfx_nvmc.c) \
+	$(abspath $(LOCAL_LIB_DIR)/sam/main.c) \
+	$(abspath $(LOCAL_LIB_DIR)/sam/reciter.c) \
+	$(abspath $(LOCAL_LIB_DIR)/sam/render.c) \
+	$(abspath $(LOCAL_LIB_DIR)/sam/sam.c) \
+	$(abspath $(LOCAL_LIB_DIR)/sam/debug.c) \
 
 SRC_O += \
 	lib/utils/gchelper_m3.o \

@@ -59,6 +59,7 @@ extern const struct _mp_obj_module_t microbit_module;
 extern const struct _mp_obj_module_t music_module;
 extern const struct _mp_obj_module_t os_module;
 extern const struct _mp_obj_module_t radio_module;
+extern const struct _mp_obj_module_t speech_module;
 
 #define MICROPY_PORT_BUILTIN_MODULES \
     { MP_ROM_QSTR(MP_QSTR_audio), MP_ROM_PTR(&audio_module) }, \
@@ -66,6 +67,7 @@ extern const struct _mp_obj_module_t radio_module;
     { MP_ROM_QSTR(MP_QSTR_music), MP_ROM_PTR(&music_module) }, \
     { MP_ROM_QSTR(MP_QSTR_os), MP_ROM_PTR(&os_module) }, \
     { MP_ROM_QSTR(MP_QSTR_radio), MP_ROM_PTR(&radio_module) }, \
+    { MP_ROM_QSTR(MP_QSTR_speech), MP_ROM_PTR(&speech_module) }, \
 
 #define MICROPY_PORT_ROOT_POINTERS \
     const char *readline_hist[8]; \
@@ -73,6 +75,7 @@ extern const struct _mp_obj_module_t radio_module;
     uint8_t *radio_buf; \
     void *audio_buffer; \
     void *audio_source; \
+    void *speech_data; \
     struct _music_data_t *music_data; \
 
 #define MP_SSIZE_MAX (0x7fffffff)
