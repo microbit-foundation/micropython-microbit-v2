@@ -1,0 +1,51 @@
+name: Build MicroPython
+
+on:
+  push:
+    branches: '*'
+  pull_request:
+    branches: '*'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-16.04]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    name: build.py ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Install toolchain (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
+          sudo add-apt-repository -y ppa:adrozdoff/cmake
+          sudo apt-get update -qq
+          sudo apt-get install -y gcc-arm-embedded
+          sudo apt-get install -y cmake
+      - name: Check Versions
+        run: |
+          arm-none-eabi-gcc --version
+          cmake --version
+      - name: Configure git to access repos via GH Token URL
+        run: |
+          git config --global url."https://x-access-token:${{ secrets.GH_TOKEN_MICROBIT_MACHINE }}@github".insteadOf https://github
+          git config --global url."https://x-access-token:${{ secrets.GH_TOKEN_MICROBIT_MACHINE }}@github.com/".insteadOf git@github.com:
+      - name: Clone codal
+        run: |
+          git clone https://github.com/microbit-foundation/codal.git lib/codal
+          git clone --recurse-submodules https://github.com/microbit-foundation/codal-core.git lib/codal/libraries/codal-core
+          git clone --recurse-submodules https://github.com/microbit-foundation/codal-microbit.git lib/codal/libraries/codal-microbit
+          git clone --recurse-submodules https://github.com/microbit-foundation/codal-nrf52.git lib/codal/libraries/codal-nrf52
+      - name: Build
+        run: |
+          cd src
+          make -j2
+      - name: Upload hex file
+        uses: actions/upload-artifact@v1
+        with:
+          name: MICROBIT-MICROPYTHON-${{ github.sha }}.hex
+          path: src/MICROBIT.hex
