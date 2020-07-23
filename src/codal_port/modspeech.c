@@ -45,6 +45,7 @@ typedef struct _speech_iterator_t {
 extern int debug;
 
 static int synth_mode = 0;
+static int synth_volume = 0;
 static microbit_audio_frame_obj_t *buf;
 static volatile unsigned int buf_start_pos = 0;
 static volatile unsigned int last_pos = 0;
@@ -55,10 +56,65 @@ volatile bool last_frame = false;
 volatile bool exhausted = false;
 static unsigned int glitches;
 
+// Table to map SAM value `b>>4` to an output value for the PWM.
+// This tries to maximise output volume with minimal distortion.
+static const uint8_t sam_sample_remap[16] = {
+    [0] = 0, // 0
+    [1] = 1, // 16
+    [2] = 2, // 32
+    [3] = 4, // 48
+    [4] = 8, // 64
+    [5] = 16, // 80
+    [6] = 32, // 96
+    [7] = 64, // 112
+    [8] = 128, // 128
+    [9] = 192, // 144
+    [10] = 224, // 160
+    [11] = 240, // 176
+    [12] = 248, // 192
+    [13] = 252, // 208
+    [14] = 254, // 224
+    [15] = 255, // 240
+};
+
 // Called by SAM to output byte `b` at `pos`
+// b is a value between 0 and 240 and a multiple of 16.
+//
+// Typical histogram of values for `b>>4` for some text:
+// b>>4  number
+//  0    0
+//  1    3
+//  2    31
+//  3    165
+//  4    536
+//  5    7016
+//  6    2859
+//  7    6426
+//  8    13549
+//  9    4092
+// 10    5573
+// 11    987
+// 12    594
+// 13    254
+// 14    82
+// 15    1
 void SamOutputByte(unsigned int pos, unsigned char b) {
-    // b is 4-bit, so make it 8-bit to amplify it a little
-    b |= b >> 4;
+    // Adjust b to increase volume, based on synth_volume setting.
+    if (synth_volume == 0) {
+        // pass
+    } else if (synth_volume == 1) {
+        b |= b >> 4;
+    } else if (synth_volume == 2) {
+        if (b < (2 << 4)) b = 2 << 4;
+        if (b > (14 << 4)) b = 14 << 4;
+        b = ((uint32_t)b - (2 << 4)) * 255 / (12 << 4);
+    } else if (synth_volume == 3) {
+        if (b < (3 << 4)) b = 3 << 4;
+        if (b > (13 << 4)) b = 13 << 4;
+        b = ((uint32_t)b - (3 << 4)) * 255 / (10 << 4);
+    } else if (synth_volume == 4) {
+        b = sam_sample_remap[b >> 4];
+    }
 
     if (synth_mode == 0) {
         // Traditional micro:bit v1
@@ -201,6 +257,7 @@ STATIC mp_obj_t articulate(mp_obj_t phonemes, mp_uint_t n_args, const mp_obj_t *
         { MP_QSTR_throat,   MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = DEFAULT_THROAT} },
         { MP_QSTR_debug,   MP_ARG_KW_ONLY | MP_ARG_BOOL, {.u_bool = false} },
         { MP_QSTR_mode,     MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0} },
+        { MP_QSTR_volume,    MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0} },
     };
 
     // parse args
@@ -218,6 +275,7 @@ STATIC mp_obj_t articulate(mp_obj_t phonemes, mp_uint_t n_args, const mp_obj_t *
     sam->common.throat = args[3].u_int;
     debug = args[4].u_bool;
     synth_mode = args[5].u_int;
+    synth_volume = args[6].u_int;
 
     mp_uint_t len;
     const char *input = mp_obj_str_get_data(phonemes, &len);
