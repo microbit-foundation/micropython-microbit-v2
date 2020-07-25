@@ -71,7 +71,7 @@ extern const struct _mp_obj_module_t speech_module;
 
 #define MICROPY_PORT_ROOT_POINTERS \
     const char *readline_hist[8]; \
-    void *async_data[2]; \
+    void *display_data; \
     uint8_t *radio_buf; \
     void *audio_buffer; \
     void *audio_source; \

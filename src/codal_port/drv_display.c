@@ -50,8 +50,7 @@ STATIC void async_stop(void) {
     async_tick = 0;
     async_delay = 1000;
     async_clear = false;
-    MP_STATE_PORT(async_data)[0] = NULL;
-    MP_STATE_PORT(async_data)[1] = NULL;
+    MP_STATE_PORT(display_data) = NULL;
     wakeup_event = true;
 }
 
@@ -60,8 +59,7 @@ void microbit_display_init(void) {
 }
 
 void microbit_display_stop(void) {
-    MP_STATE_PORT(async_data)[0] = NULL;
-    MP_STATE_PORT(async_data)[1] = NULL;
+    MP_STATE_PORT(display_data) = NULL;
 }
 
 STATIC void wait_for_event() {
@@ -110,7 +108,7 @@ void microbit_display_update(void) {
     switch (async_mode) {
         case ASYNC_MODE_ANIMATION:
         {
-            if (MP_STATE_PORT(async_data)[0] == NULL || MP_STATE_PORT(async_data)[1] == NULL) {
+            if (MP_STATE_PORT(display_data) == NULL) {
                 async_stop();
                 break;
             }
@@ -177,12 +175,11 @@ void microbit_display_scroll(const char *str) {
 
 void microbit_display_animate(mp_obj_t iterable, mp_int_t delay, bool clear, bool wait) {
     // Reset the repeat state.
-    MP_STATE_PORT(async_data)[0] = NULL;
-    MP_STATE_PORT(async_data)[1] = NULL;
+    MP_STATE_PORT(display_data) = NULL;
     async_iterator = mp_getiter(iterable, NULL);
     async_delay = delay;
     async_clear = clear;
-    MP_STATE_PORT(async_data)[1] = async_iterator;
+    MP_STATE_PORT(display_data) = async_iterator;
     wakeup_event = false;
     mp_obj_t obj = mp_iternext_allow_raise(async_iterator);
     draw_object(obj);
