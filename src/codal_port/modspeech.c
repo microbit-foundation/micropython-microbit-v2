@@ -46,7 +46,7 @@ extern int debug;
 
 static int synth_mode = 0;
 static int synth_volume = 0;
-static microbit_audio_frame_obj_t *buf;
+static microbit_audio_frame_obj_t *sam_output_frame;
 static volatile unsigned int buf_start_pos = 0;
 static volatile unsigned int last_pos = 0;
 static volatile unsigned int last_idx = 0;
@@ -55,6 +55,18 @@ volatile bool rendering = false;
 volatile bool last_frame = false;
 volatile bool exhausted = false;
 static unsigned int glitches;
+
+STATIC void sam_output_reset(microbit_audio_frame_obj_t *src_frame) {
+    sam_output_frame = src_frame;
+    buf_start_pos = 0;
+    last_pos = 0;
+    last_idx = 0;
+    last_b = 0;
+    rendering = false;
+    last_frame = false;
+    exhausted = false;
+    glitches = 0;
+}
 
 // Table to map SAM value `b>>4` to an output value for the PWM.
 // This tries to maximise output volume with minimal distortion.
@@ -133,7 +145,7 @@ void SamOutputByte(unsigned int pos, unsigned char b) {
         // write a little bit in advance
         unsigned int end = MIN(offset+8, 32);
         while (offset < end) {
-            buf->data[offset] = b;
+            sam_output_frame->data[offset] = b;
             offset++;
         }
         last_pos = actual_pos;
@@ -173,10 +185,10 @@ void SamOutputByte(unsigned int pos, unsigned char b) {
                 }
                 if (synth_mode == 1 || synth_mode == 3) {
                     // no smoothing
-                    buf->data[last_idx] = b;
+                    sam_output_frame->data[last_idx] = b;
                 } else {
                     // smoothing
-                    buf->data[last_idx] = cur_b;
+                    sam_output_frame->data[last_idx] = cur_b;
                 }
             }
         }
@@ -198,7 +210,7 @@ STATIC mp_obj_t next(mp_obj_t iter) {
     // May need to wait for reciter to do its job before renderer generate samples.
     if (rendering) {
         buf_start_pos += 32;
-        return buf;
+        return sam_output_frame;
     } else {
         return ((speech_iterator_t *)iter)->empty;
     }
@@ -279,13 +291,8 @@ STATIC mp_obj_t articulate(mp_obj_t phonemes, mp_uint_t n_args, const mp_obj_t *
 
     mp_uint_t len;
     const char *input = mp_obj_str_get_data(phonemes, &len);
-    buf_start_pos = 0;
     speech_iterator_t *src = make_speech_iter();
-    buf = src->buf;
-    /* We need to wait for reciter to do its job */
-    rendering = false;
-    exhausted = false;
-    glitches = 0;
+    sam_output_reset(src->buf);
     int sample_rate;
     if (synth_mode == 0) {
         sample_rate = 15625;
