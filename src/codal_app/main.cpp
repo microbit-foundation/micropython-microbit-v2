@@ -40,6 +40,11 @@ void timer_handler(Event evt) {
 
 int main() {
     uBit.init();
+
+    // As well as configuring a larger RX buffer, this needs to be called so it
+    // calls Serial::initialiseRx, to set up interrupts.
+    uBit.serial.setRxBufferSize(128);
+
     uBit.messageBus.listen(MICROPY_TIMER_EVENT, DEVICE_EVT_ANY, timer_handler, MESSAGE_BUS_LISTENER_IMMEDIATE);
     uBit.messageBus.listen(DEVICE_ID_SERIAL, CODAL_SERIAL_EVT_DELIM_MATCH, serial_interrupt_handler, MESSAGE_BUS_LISTENER_IMMEDIATE);
 
