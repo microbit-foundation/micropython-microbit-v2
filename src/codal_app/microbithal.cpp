@@ -227,7 +227,7 @@ static AudioSource data_source;
 
 void microbit_hal_audio_init(uint32_t sample_rate) {
     if (pwm == NULL) {
-        pwm = new NRF52PWM(NRF_PWM0, data_source, sample_rate, 0);
+        pwm = new NRF52PWM(NRF_PWM1, data_source, sample_rate, 0);
         pwm->connectPin(uBit.io.speaker, 0);
         pwm->connectPin(uBit.io.P0, 1);
     } else {
