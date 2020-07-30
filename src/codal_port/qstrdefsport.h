@@ -28,6 +28,20 @@
 
 // *FORMAT-OFF*
 
+// For accelerometer gestures.
+Q(up)
+Q(down)
+Q(left)
+Q(right)
+Q(face up)
+Q(face down)
+Q(freefall)
+Q(2g)
+Q(3g)
+Q(6g)
+Q(8g)
+Q(shake)
+
 // For music notes.
 Q(a)
 Q(a#)

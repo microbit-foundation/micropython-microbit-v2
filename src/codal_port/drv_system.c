@@ -28,10 +28,15 @@
 #include "drv_display.h"
 #include "modmusic.h"
 
+extern volatile bool accelerometer_up_to_date;
+
 // Called every 6ms
 // TODO: should only enable this when system is ready
 // TODO: perhaps only schedule the callback when we need it
 void microbit_hal_timer_callback(void) {
+    // Invalidate accelerometer data for gestures so sample is taken on next gesture call.
+    accelerometer_up_to_date = false;
+
     microbit_display_update();
     microbit_music_tick();
 }
