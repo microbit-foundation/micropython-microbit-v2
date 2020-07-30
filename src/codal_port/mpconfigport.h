@@ -51,6 +51,9 @@
 #define MICROPY_PY_SYS_MAXSIZE                  (1)
 #define MICROPY_PY_SYS_PLATFORM                 "microbit"
 
+// Extended modules
+#define MICROPY_PY_UTIME_MP_HAL                 (1)
+
 #define MICROPY_HW_ENABLE_RNG                   (1)
 #define MICROPY_MBFS                            (1)
 
@@ -69,6 +72,7 @@ extern const struct _mp_obj_module_t music_module;
 extern const struct _mp_obj_module_t os_module;
 extern const struct _mp_obj_module_t radio_module;
 extern const struct _mp_obj_module_t speech_module;
+extern const struct _mp_obj_module_t utime_module;
 
 #define MICROPY_PORT_BUILTIN_MODULES \
     { MP_ROM_QSTR(MP_QSTR_audio), MP_ROM_PTR(&audio_module) }, \
@@ -77,6 +81,7 @@ extern const struct _mp_obj_module_t speech_module;
     { MP_ROM_QSTR(MP_QSTR_os), MP_ROM_PTR(&os_module) }, \
     { MP_ROM_QSTR(MP_QSTR_radio), MP_ROM_PTR(&radio_module) }, \
     { MP_ROM_QSTR(MP_QSTR_speech), MP_ROM_PTR(&speech_module) }, \
+    { MP_ROM_QSTR(MP_QSTR_utime), MP_ROM_PTR(&utime_module) }, \
 
 #define MICROPY_PORT_ROOT_POINTERS \
     const char *readline_hist[8]; \

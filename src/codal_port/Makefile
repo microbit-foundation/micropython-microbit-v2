@@ -68,6 +68,7 @@ SRC_C += \
 	modos.c \
 	modradio.c \
 	modspeech.c \
+	modutime.c \
 	mphalport.c \
 
 SRC_C += \
