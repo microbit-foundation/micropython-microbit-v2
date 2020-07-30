@@ -28,17 +28,26 @@
 
 #include <stdint.h>
 
-#define MICROPY_LONGINT_IMPL                    (MICROPY_LONGINT_IMPL_MPZ)
-#define MICROPY_FLOAT_IMPL                      (MICROPY_FLOAT_IMPL_FLOAT)
+// Memory allocation policy
 #define MICROPY_ALLOC_PATH_MAX                  (PATH_MAX)
+
+// Python internal features
 #define MICROPY_ENABLE_GC                       (1)
 #define MICROPY_KBD_EXCEPTION                   (1)
 #define MICROPY_HELPER_REPL                     (1)
 #define MICROPY_REPL_AUTO_INDENT                (1)
+#define MICROPY_LONGINT_IMPL                    (MICROPY_LONGINT_IMPL_MPZ)
+#define MICROPY_FLOAT_IMPL                      (MICROPY_FLOAT_IMPL_FLOAT)
 #define MICROPY_MODULE_BUILTIN_INIT             (1)
+#define MICROPY_MODULE_WEAK_LINKS               (1)
 #define MICROPY_ENABLE_SCHEDULER                (1)
+
+// Fine control over Python builtins, classes, modules, etc
 #define MICROPY_PY_BUILTINS_MEMORYVIEW          (1)
 #define MICROPY_PY___FILE__                     (0)
+#define MICROPY_PY_MICROPYTHON_MEM_INFO         (1)
+#define MICROPY_PY_COLLECTIONS_ORDEREDDICT      (1)
+#define MICROPY_PY_IO                           (0)
 #define MICROPY_PY_SYS_MAXSIZE                  (1)
 #define MICROPY_PY_SYS_PLATFORM                 "microbit"
 
