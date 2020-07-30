@@ -203,6 +203,10 @@ void microbit_hal_accelerometer_get_sample(int axis[3]) {
     axis[2] = sample.z;
 }
 
+int microbit_hal_accelerometer_get_gesture(void) {
+    return uBit.accelerometer.getGesture();
+}
+
 const uint8_t *microbit_hal_get_font_data(char c) {
     return BitmapFont::getSystemFont().get(c);
 }

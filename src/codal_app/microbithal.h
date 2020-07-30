@@ -51,6 +51,20 @@
 #define MICROBIT_HAL_PIN_PULL_DOWN (1)
 #define MICROBIT_HAL_PIN_PULL_NONE (2)
 
+#define MICROBIT_HAL_ACCELEROMETER_EVT_NONE         (0)
+#define MICROBIT_HAL_ACCELEROMETER_EVT_TILT_UP      (1)
+#define MICROBIT_HAL_ACCELEROMETER_EVT_TILT_DOWN    (2)
+#define MICROBIT_HAL_ACCELEROMETER_EVT_TILT_LEFT    (3)
+#define MICROBIT_HAL_ACCELEROMETER_EVT_TILT_RIGHT   (4)
+#define MICROBIT_HAL_ACCELEROMETER_EVT_FACE_UP      (5)
+#define MICROBIT_HAL_ACCELEROMETER_EVT_FACE_DOWN    (6)
+#define MICROBIT_HAL_ACCELEROMETER_EVT_FREEFALL     (7)
+#define MICROBIT_HAL_ACCELEROMETER_EVT_3G           (8)
+#define MICROBIT_HAL_ACCELEROMETER_EVT_6G           (9)
+#define MICROBIT_HAL_ACCELEROMETER_EVT_8G           (10)
+#define MICROBIT_HAL_ACCELEROMETER_EVT_SHAKE        (11)
+#define MICROBIT_HAL_ACCELEROMETER_EVT_2G           (12)
+
 void microbit_hal_idle(void);
 
 void microbit_hal_reset(void);
@@ -76,6 +90,7 @@ void microbit_hal_display_set_pixel(int x, int y, int bright);
 int microbit_hal_display_read_light_level(void);
 
 void microbit_hal_accelerometer_get_sample(int axis[3]);
+int microbit_hal_accelerometer_get_gesture(void);
 
 const uint8_t *microbit_hal_get_font_data(char c);
 

@@ -31,11 +31,16 @@
 extern "C" void mp_main(void);
 extern "C" void m_printf(...);
 extern "C" void microbit_hal_timer_callback(void);
+extern "C" void microbit_hal_gesture_callback(int);
 
 MicroBit uBit;
 
 void timer_handler(Event evt) {
     microbit_hal_timer_callback();
+}
+
+void gesture_event_handler(Event evt) {
+    microbit_hal_gesture_callback(evt.value);
 }
 
 int main() {
@@ -47,6 +52,7 @@ int main() {
 
     uBit.messageBus.listen(MICROPY_TIMER_EVENT, DEVICE_EVT_ANY, timer_handler, MESSAGE_BUS_LISTENER_IMMEDIATE);
     uBit.messageBus.listen(DEVICE_ID_SERIAL, CODAL_SERIAL_EVT_DELIM_MATCH, serial_interrupt_handler, MESSAGE_BUS_LISTENER_IMMEDIATE);
+    uBit.messageBus.listen(DEVICE_ID_GESTURE, DEVICE_EVT_ANY, gesture_event_handler, MESSAGE_BUS_LISTENER_IMMEDIATE);
 
     // 6ms follows the micro:bit v1 value
     system_timer_event_every(6, MICROPY_TIMER_EVENT, 1);
