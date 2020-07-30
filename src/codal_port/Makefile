@@ -62,6 +62,7 @@ SRC_C += \
 	microbit_pin.c \
 	microbit_pinmode.c \
 	modaudio.c \
+	modmachine.c \
 	modmicrobit.c \
 	modmusic.c \
 	modmusictunes.c \

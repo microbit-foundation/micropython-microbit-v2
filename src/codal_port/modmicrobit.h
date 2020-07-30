@@ -185,4 +185,6 @@ bool microbit_obj_pin_acquire(const microbit_pin_obj_t *pin, const microbit_pinm
 const microbit_pinmode_t *microbit_pin_get_mode(const microbit_pin_obj_t *pin);
 void pinmode_error(const microbit_pin_obj_t *pin);
 
+MP_DECLARE_CONST_FUN_OBJ_0(microbit_reset_obj);
+
 #endif // MICROPY_INCLUDED_MICROBIT_MODMICROBIT_H

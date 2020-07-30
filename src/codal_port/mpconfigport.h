@@ -55,6 +55,8 @@
 #define MICROPY_PY_UTIME_MP_HAL                 (1)
 #define MICROPY_PY_URANDOM                      (1)
 #define MICROPY_PY_URANDOM_EXTRA_FUNCS          (1)
+#define MICROPY_PY_MACHINE                      (1)
+#define MICROPY_PY_MACHINE_PULSE                (1)
 
 #define MICROPY_HW_ENABLE_RNG                   (1)
 #define MICROPY_MBFS                            (1)
@@ -69,6 +71,7 @@
 #define MP_STATE_PORT MP_STATE_VM
 
 extern const struct _mp_obj_module_t audio_module;
+extern const struct _mp_obj_module_t machine_module;
 extern const struct _mp_obj_module_t microbit_module;
 extern const struct _mp_obj_module_t music_module;
 extern const struct _mp_obj_module_t os_module;
@@ -78,6 +81,7 @@ extern const struct _mp_obj_module_t utime_module;
 
 #define MICROPY_PORT_BUILTIN_MODULES \
     { MP_ROM_QSTR(MP_QSTR_audio), MP_ROM_PTR(&audio_module) }, \
+    { MP_ROM_QSTR(MP_QSTR_machine), MP_ROM_PTR(&machine_module) }, \
     { MP_ROM_QSTR(MP_QSTR_microbit), MP_ROM_PTR(&microbit_module) }, \
     { MP_ROM_QSTR(MP_QSTR_music), MP_ROM_PTR(&music_module) }, \
     { MP_ROM_QSTR(MP_QSTR_os), MP_ROM_PTR(&os_module) }, \
