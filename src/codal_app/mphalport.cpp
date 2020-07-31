@@ -26,10 +26,14 @@
 
 #include "main.h"
 
+#define MP_STREAM_POLL_RD       (0x0001)
+#define MP_STREAM_POLL_WR       (0x0004)
+
 int last_interrupt_char;
 unsigned int num_interrupt_chars;
 
 extern "C" void microbit_hal_serial_interrupt_callback(void);
+extern "C" void mp_handle_pending(bool);
 
 void serial_interrupt_handler(Event evt) {
     ++num_interrupt_chars;
@@ -47,12 +51,31 @@ void mp_hal_set_interrupt_char(int c) {
     uBit.serial.eventOn(delim);
 }
 
+uintptr_t mp_hal_stdio_poll(uintptr_t poll_flags) {
+    uintptr_t ret = 0;
+    if (poll_flags && MP_STREAM_POLL_RD) {
+        if (uBit.serial.isReadable()) {
+            ret |= MP_STREAM_POLL_RD;
+        }
+    }
+    if (poll_flags && MP_STREAM_POLL_WR) {
+        if (uBit.serial.isWriteable()) {
+            ret |= MP_STREAM_POLL_WR;
+        }
+    }
+    return ret;
+}
+
 void mp_hal_stdout_tx_strn(const char *str, size_t len) {
     uBit.serial.send((uint8_t*)str, len, SYNC_SPINWAIT);
 }
 
 int mp_hal_stdin_rx_chr(void) {
     for (;;) {
+        while (!uBit.serial.isReadable()) {
+            mp_handle_pending(true);
+            __WFI();
+        }
         int c = uBit.serial.read(SYNC_SPINWAIT);
         if (c == last_interrupt_char && num_interrupt_chars) {
             --num_interrupt_chars;

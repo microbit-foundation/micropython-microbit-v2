@@ -45,6 +45,8 @@
 #define MICROBIT_HAL_PIN_P16    (34)
 #define MICROBIT_HAL_PIN_P19    (26)
 #define MICROBIT_HAL_PIN_P20    (32)
+#define MICROBIT_HAL_PIN_USB_TX (45)
+#define MICROBIT_HAL_PIN_USB_RX (46)
 
 // These match the micro:bit v1 constants.
 #define MICROBIT_HAL_PIN_PULL_UP (0)
@@ -84,6 +86,8 @@ int microbit_hal_pin_is_touched(int pin);
 int microbit_hal_i2c_init(int scl, int sda, int freq);
 int microbit_hal_i2c_readfrom(uint8_t addr, uint8_t *buf, size_t len, int stop);
 int microbit_hal_i2c_writeto(uint8_t addr, const uint8_t *buf, size_t len, int stop);
+
+int microbit_hal_uart_init(int tx, int rx, int baudrate, int bits, int parity, int stop);
 
 int microbit_hal_spi_init(int sclk, int mosi, int miso, int frequency, int bits, int mode);
 int microbit_hal_spi_transfer(size_t len, const uint8_t *src, uint8_t *dest);

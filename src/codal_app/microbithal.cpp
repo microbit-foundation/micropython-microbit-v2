@@ -71,6 +71,17 @@ static NRF52Pin *const pin_obj[] = {
     &uBit.io.unused6,
     &uBit.io.face,
     &uBit.io.P6,
+
+    &uBit.io.col1,
+    &uBit.io.col2,
+    &uBit.io.col3,
+    &uBit.io.col4,
+    &uBit.io.col5,
+    &uBit.io.buttonA,
+    &uBit.io.buttonB,
+
+    &uBit.io.usbTx,
+    &uBit.io.usbRx,
 };
 
 static Button *const button_obj[] = {
@@ -168,6 +179,19 @@ int microbit_hal_i2c_readfrom(uint8_t addr, uint8_t *buf, size_t len, int stop) 
 
 int microbit_hal_i2c_writeto(uint8_t addr, const uint8_t *buf, size_t len, int stop) {
     int ret = uBit.i2c.write(addr << 1, (uint8_t *)buf, len, !stop);
+    if (ret != DEVICE_OK) {
+        return ret;
+    }
+    return 0;
+}
+
+int microbit_hal_uart_init(int tx, int rx, int baudrate, int bits, int parity, int stop) {
+    // TODO set bits, parity stop
+    int ret = uBit.serial.redirect(*pin_obj[tx], *pin_obj[rx]);
+    if (ret != DEVICE_OK) {
+        return ret;
+    }
+    ret = uBit.serial.setBaud(baudrate);
     if (ret != DEVICE_OK) {
         return ret;
     }
