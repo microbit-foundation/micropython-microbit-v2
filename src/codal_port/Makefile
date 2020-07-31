@@ -63,6 +63,7 @@ SRC_C += \
 	microbit_pin.c \
 	microbit_pinmode.c \
 	microbit_spi.c \
+	microbit_uart.c \
 	modaudio.c \
 	modmachine.c \
 	modmicrobit.c \
