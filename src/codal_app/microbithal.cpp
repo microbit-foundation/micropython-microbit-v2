@@ -284,6 +284,33 @@ int microbit_hal_accelerometer_get_gesture(void) {
     return uBit.accelerometer.getGesture();
 }
 
+int microbit_hal_compass_is_calibrated(void) {
+    return uBit.compass.isCalibrated();
+}
+
+void microbit_hal_compass_clear_calibration(void) {
+    uBit.compass.clearCalibration();
+}
+
+void microbit_hal_compass_calibrate(void) {
+    uBit.compass.calibrate();
+}
+
+void microbit_hal_compass_get_sample(int axis[3]) {
+    Sample3D sample = uBit.compass.getSample();
+    axis[0] = sample.x;
+    axis[1] = sample.y;
+    axis[2] = sample.z;
+}
+
+int microbit_hal_compass_get_field_strength(void) {
+    return uBit.compass.getFieldStrength();
+}
+
+int microbit_hal_compass_get_heading(void) {
+    return uBit.compass.heading();
+}
+
 const uint8_t *microbit_hal_get_font_data(char c) {
     return BitmapFont::getSystemFont().get(c);
 }

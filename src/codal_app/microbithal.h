@@ -103,6 +103,13 @@ int microbit_hal_display_read_light_level(void);
 void microbit_hal_accelerometer_get_sample(int axis[3]);
 int microbit_hal_accelerometer_get_gesture(void);
 
+int microbit_hal_compass_is_calibrated(void);
+void microbit_hal_compass_clear_calibration(void);
+void microbit_hal_compass_calibrate(void);
+void microbit_hal_compass_get_sample(int axis[3]);
+int microbit_hal_compass_get_field_strength(void);
+int microbit_hal_compass_get_heading(void);
+
 const uint8_t *microbit_hal_get_font_data(char c);
 
 void microbit_hal_audio_init(uint32_t sample_rate);
