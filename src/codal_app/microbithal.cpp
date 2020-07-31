@@ -149,6 +149,31 @@ int microbit_hal_pin_is_touched(int pin) {
     return pin_obj[pin]->isTouched();
 }
 
+int microbit_hal_i2c_init(int scl, int sda, int freq) {
+    // TODO set pins
+    int ret = uBit.i2c.setFrequency(freq);
+    if (ret != DEVICE_OK) {
+        return ret;;
+    }
+    return 0;
+}
+
+int microbit_hal_i2c_readfrom(uint8_t addr, uint8_t *buf, size_t len, int stop) {
+    int ret = uBit.i2c.read(addr << 1, (uint8_t *)buf, len, !stop);
+    if (ret != DEVICE_OK) {
+        return ret;
+    }
+    return 0;
+}
+
+int microbit_hal_i2c_writeto(uint8_t addr, const uint8_t *buf, size_t len, int stop) {
+    int ret = uBit.i2c.write(addr << 1, (uint8_t *)buf, len, !stop);
+    if (ret != DEVICE_OK) {
+        return ret;
+    }
+    return 0;
+}
+
 static NRF52SPI *spi = NULL;
 
 int microbit_hal_spi_init(int sclk, int mosi, int miso, int frequency, int bits, int mode) {
