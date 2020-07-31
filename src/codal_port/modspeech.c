@@ -268,8 +268,8 @@ STATIC mp_obj_t articulate(mp_obj_t phonemes, mp_uint_t n_args, const mp_obj_t *
         { MP_QSTR_mouth,    MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = DEFAULT_MOUTH} },
         { MP_QSTR_throat,   MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = DEFAULT_THROAT} },
         { MP_QSTR_debug,   MP_ARG_KW_ONLY | MP_ARG_BOOL, {.u_bool = false} },
-        { MP_QSTR_mode,     MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0} },
-        { MP_QSTR_volume,    MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0} },
+        { MP_QSTR_mode,     MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 3} },
+        { MP_QSTR_volume,    MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 4} },
     };
 
     // parse args
@@ -296,11 +296,10 @@ STATIC mp_obj_t articulate(mp_obj_t phonemes, mp_uint_t n_args, const mp_obj_t *
     int sample_rate;
     if (synth_mode == 0) {
         sample_rate = 15625;
-    } else {
+    } else if (synth_mode <= 2) {
         sample_rate = 19000;
-        if (synth_mode >= 3) {
-            sample_rate *= 2;
-        }
+    } else {
+        sample_rate = 35650;
     }
     microbit_audio_play_source(src, mp_const_none, mp_const_none, false, sample_rate);
 
