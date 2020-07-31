@@ -81,6 +81,9 @@ int microbit_hal_pin_read_analog_u10(int pin);
 void microbit_hal_pin_write_analog_u10(int pin, int value);
 int microbit_hal_pin_is_touched(int pin);
 
+int microbit_hal_spi_init(int sclk, int mosi, int miso, int frequency, int bits, int mode);
+int microbit_hal_spi_transfer(size_t len, const uint8_t *src, uint8_t *dest);
+
 int microbit_hal_button_state(int button, int *was_pressed, int *num_presses);
 
 void microbit_hal_display_enable(int value);

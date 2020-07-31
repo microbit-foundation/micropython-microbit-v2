@@ -149,6 +149,34 @@ int microbit_hal_pin_is_touched(int pin) {
     return pin_obj[pin]->isTouched();
 }
 
+static NRF52SPI *spi = NULL;
+
+int microbit_hal_spi_init(int sclk, int mosi, int miso, int frequency, int bits, int mode) {
+    if (spi != NULL) {
+        delete spi;
+    }
+    spi = new NRF52SPI(*pin_obj[mosi], *pin_obj[miso], *pin_obj[sclk], NRF_SPIM2);
+    int ret = spi->setFrequency(frequency);
+    if (ret != DEVICE_OK) {
+        return ret;
+    }
+    ret = spi->setMode(mode, bits);
+    if (ret != DEVICE_OK) {
+        return ret;
+    }
+    return 0;
+}
+
+int microbit_hal_spi_transfer(size_t len, const uint8_t *src, uint8_t *dest) {
+    int ret;
+    if (dest == NULL) {
+        ret = spi->transfer(src, len, NULL, 0);
+    } else {
+        ret = spi->transfer(src, len, dest, len);
+    }
+    return ret;
+}
+
 int microbit_hal_button_state(int button, int *was_pressed, int *num_presses) {
     Button *b = button_obj[button];
     if (was_pressed != NULL || num_presses != NULL) {
