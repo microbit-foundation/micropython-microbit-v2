@@ -80,7 +80,9 @@ STATIC const mp_rom_map_elem_t microbit_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_accelerometer), MP_ROM_PTR(&microbit_accelerometer_obj) },
     #if 0
     { MP_ROM_QSTR(MP_QSTR_compass), (mp_obj_t)&microbit_compass_obj },
-    { MP_ROM_QSTR(MP_QSTR_i2c), (mp_obj_t)&microbit_i2c_obj },
+    #endif
+    { MP_ROM_QSTR(MP_QSTR_i2c), MP_ROM_PTR(&microbit_i2c_obj) },
+    #if 0
     { MP_ROM_QSTR(MP_QSTR_uart), (mp_obj_t)&microbit_uart_obj },
     #endif
     { MP_ROM_QSTR(MP_QSTR_spi), MP_ROM_PTR(&microbit_spi_obj) },

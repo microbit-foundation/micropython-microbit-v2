@@ -57,6 +57,7 @@ SRC_C += \
 	microbit_accelerometer.c \
 	microbit_button.c \
 	microbit_display.c \
+	microbit_i2c.c \
 	microbit_image.c \
 	microbit_constimage.c \
 	microbit_pin.c \
