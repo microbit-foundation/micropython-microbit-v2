@@ -32,6 +32,7 @@ extern "C" void mp_main(void);
 extern "C" void m_printf(...);
 extern "C" void microbit_hal_timer_callback(void);
 extern "C" void microbit_hal_gesture_callback(int);
+extern "C" void microbit_radio_irq_handler(void);
 
 MicroBit uBit;
 
@@ -44,6 +45,8 @@ void gesture_event_handler(Event evt) {
 }
 
 int main() {
+    NVIC_SetVector(RADIO_IRQn, (uint32_t)microbit_radio_irq_handler);
+
     uBit.init();
 
     // As well as configuring a larger RX buffer, this needs to be called so it

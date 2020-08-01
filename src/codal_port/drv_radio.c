@@ -36,9 +36,7 @@
 static uint8_t *rx_buf_end = NULL; // pointer to the end of the allocated RX queue
 static uint8_t *rx_buf = NULL; // pointer to last packet on the RX queue
 
-// TODO this needs to be enabled to work, but that requires modifications to CODAL first
-#if 0
-void RADIO_IRQHandler(void) {
+void microbit_radio_irq_handler(void) {
     if (NRF_RADIO->EVENTS_READY) {
         NRF_RADIO->EVENTS_READY = 0;
         NRF_RADIO->TASKS_START = 1;
@@ -77,7 +75,6 @@ void RADIO_IRQHandler(void) {
         NRF_RADIO->TASKS_START = 1;
     }
 }
-#endif
 
 void microbit_radio_enable(microbit_radio_config_t *config) {
     microbit_radio_disable();
