@@ -52,6 +52,7 @@ SRC_C += \
 	drv_image.c \
 	drv_radio.c \
 	drv_system.c \
+	help.c \
 	iters.c \
 	main.c \
 	microbit_accelerometer.c \
