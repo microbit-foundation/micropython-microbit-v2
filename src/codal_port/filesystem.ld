@@ -1,2 +1,2 @@
-_fs_start = ORIGIN(BOOTLOADER) - 32K;
-_fs_end = ORIGIN(BOOTLOADER);
+_fs_start = 0x6F000 - 32K;
+_fs_end = 0x6F000;
