@@ -60,7 +60,6 @@ int main() {
     // 6ms follows the micro:bit v1 value
     system_timer_event_every(6, MICROPY_TIMER_EVENT, 1);
 
-    uBit.display.setDisplayMode(DISPLAY_MODE_GREYSCALE);
     uBit.display.setBrightness(255);
 
     mp_main();
