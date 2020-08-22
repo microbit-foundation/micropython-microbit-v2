@@ -369,7 +369,7 @@ IMAGE_T microbit_const_image_square_small_obj = SMALL_IMAGE(
 
 // animals
 
-IMAGE_T microbit_const_image_rabbit = SMALL_IMAGE(
+IMAGE_T microbit_const_image_rabbit_obj = SMALL_IMAGE(
     1,0,1,0,0,
     1,0,1,0,0,
     1,1,1,1,0,
@@ -377,7 +377,7 @@ IMAGE_T microbit_const_image_rabbit = SMALL_IMAGE(
     1,1,1,1,0
 );
 
-IMAGE_T microbit_const_image_cow = SMALL_IMAGE(
+IMAGE_T microbit_const_image_cow_obj = SMALL_IMAGE(
     1,0,0,0,1,
     1,0,0,0,1,
     1,1,1,1,1,
