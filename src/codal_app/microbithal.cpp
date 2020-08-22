@@ -249,7 +249,14 @@ int microbit_hal_display_get_pixel(int x, int y) {
 }
 
 void microbit_hal_display_set_pixel(int x, int y, int bright) {
-    uBit.display.image.setPixelValue(x, y, bright * 255 / 9);
+    // This mapping is designed to give a set of 10 visually distinct levels.
+    static uint8_t bright_map[10] = { 0, 1, 2, 4, 8, 16, 32, 64, 128, 255 };
+    if (bright < 0) {
+        bright = 0;
+    } else if (bright > 9) {
+        bright = 9;
+    }
+    uBit.display.image.setPixelValue(x, y, bright_map[bright]);
 }
 
 int microbit_hal_display_read_light_level(void) {
