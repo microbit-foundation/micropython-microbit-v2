@@ -48,6 +48,7 @@ const microbit_pin_obj_t microbit_p16_obj = {{&microbit_dig_pin_type},  16, MICR
 const microbit_pin_obj_t microbit_p19_obj = {{&microbit_dig_pin_type},  19, MICROBIT_HAL_PIN_P19, MODE_I2C};
 const microbit_pin_obj_t microbit_p20_obj = {{&microbit_dig_pin_type},  20, MICROBIT_HAL_PIN_P20, MODE_I2C};
 
+const microbit_pin_obj_t microbit_pin_logo_obj = {{&microbit_touch_pin_type},  30, MICROBIT_HAL_PIN_FACE, MODE_UNUSED};
 const microbit_pin_obj_t microbit_pin_speaker_obj = {{&microbit_dig_pin_type}, 31, MICROBIT_HAL_PIN_SPEAKER, MODE_UNUSED};
 
 static mp_obj_t microbit_pin_get_mode_func(mp_obj_t self_in) {
