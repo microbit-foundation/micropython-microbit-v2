@@ -62,7 +62,7 @@ int main() {
 
     uBit.messageBus.listen(MICROPY_TIMER_EVENT, DEVICE_EVT_ANY, timer_handler, MESSAGE_BUS_LISTENER_IMMEDIATE);
     uBit.messageBus.listen(DEVICE_ID_SERIAL, CODAL_SERIAL_EVT_DELIM_MATCH, serial_interrupt_handler, MESSAGE_BUS_LISTENER_IMMEDIATE);
-    uBit.messageBus.listen(DEVICE_ID_GESTURE, DEVICE_EVT_ANY, gesture_event_handler, MESSAGE_BUS_LISTENER_IMMEDIATE);
+    uBit.messageBus.listen(DEVICE_ID_GESTURE, DEVICE_EVT_ANY, gesture_event_handler);
     uBit.messageBus.listen(DEVICE_ID_SYSTEM_LEVEL_DETECTOR, DEVICE_EVT_ANY, level_detector_event_handler);
 
     // 6ms follows the micro:bit v1 value
