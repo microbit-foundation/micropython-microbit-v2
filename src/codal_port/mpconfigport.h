@@ -26,6 +26,9 @@
 
 // Options to control how MicroPython is built.
 
+#ifndef MICROPY_INCLUDED_CODAL_PORT_MPCONFIGPORT_H
+#define MICROPY_INCLUDED_CODAL_PORT_MPCONFIGPORT_H
+
 #include <stdint.h>
 
 // Memory allocation policy
@@ -112,6 +115,23 @@ extern const struct _mp_obj_module_t utime_module;
     void *speech_data; \
     struct _music_data_t *music_data; \
 
+// These functions allow nested calls.
+extern void target_disable_irq(void);
+extern void target_enable_irq(void);
+
+static inline uint32_t disable_irq(void) {
+    target_disable_irq();
+    return 0;
+}
+
+static inline void enable_irq(uint32_t state) {
+    (void)state;
+    target_enable_irq();
+}
+
+#define MICROPY_BEGIN_ATOMIC_SECTION() disable_irq()
+#define MICROPY_END_ATOMIC_SECTION(state) enable_irq(state)
+
 #define MP_SSIZE_MAX (0x7fffffff)
 
 // Type definitions for the specific machine
@@ -121,3 +141,5 @@ typedef long mp_off_t;
 
 // We need to provide a declaration/definition of alloca()
 #include <alloca.h>
+
+#endif
