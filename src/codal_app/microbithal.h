@@ -74,6 +74,9 @@ extern "C" {
 #define MICROBIT_HAL_ACCELEROMETER_EVT_SHAKE        (11)
 #define MICROBIT_HAL_ACCELEROMETER_EVT_2G           (12)
 
+#define MICROBIT_HAL_MICROPHONE_LEVEL_THRESHOLD_LOW (1)
+#define MICROBIT_HAL_MICROPHONE_LEVEL_THRESHOLD_HIGH (2)
+
 void microbit_hal_idle(void);
 
 void microbit_hal_reset(void);
@@ -116,6 +119,9 @@ void microbit_hal_compass_calibrate(void);
 void microbit_hal_compass_get_sample(int axis[3]);
 int microbit_hal_compass_get_field_strength(void);
 int microbit_hal_compass_get_heading(void);
+
+void microbit_hal_microphone_init(void);
+int microbit_hal_microphone_get_level(void);
 
 const uint8_t *microbit_hal_get_font_data(char c);
 
