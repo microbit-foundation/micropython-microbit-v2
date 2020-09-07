@@ -62,6 +62,7 @@ SRC_C += \
 	microbit_i2c.c \
 	microbit_image.c \
 	microbit_constimage.c \
+	microbit_microphone.c \
 	microbit_pin.c \
 	microbit_pinmode.c \
 	microbit_spi.c \
