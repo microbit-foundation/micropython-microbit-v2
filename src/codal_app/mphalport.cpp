@@ -25,6 +25,7 @@
  */
 
 #include "main.h"
+#include "microbithal.h"
 
 #define MP_STREAM_POLL_RD       (0x0001)
 #define MP_STREAM_POLL_WR       (0x0004)
@@ -74,7 +75,7 @@ int mp_hal_stdin_rx_chr(void) {
     for (;;) {
         while (!uBit.serial.isReadable()) {
             mp_handle_pending(true);
-            __WFI();
+            microbit_hal_idle();
         }
         int c = uBit.serial.read(SYNC_SPINWAIT);
         if (c == last_interrupt_char && num_interrupt_chars) {

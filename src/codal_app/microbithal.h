@@ -26,6 +26,10 @@
 #ifndef MICROPY_INCLUDED_CODAL_APP_MICROBITHAL_H
 #define MICROPY_INCLUDED_CODAL_APP_MICROBITHAL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // These numbers refer to indices in the (private) pin_obj table.
 #define MICROBIT_HAL_PIN_P0     (0)
 #define MICROBIT_HAL_PIN_P1     (1)
@@ -118,5 +122,9 @@ const uint8_t *microbit_hal_get_font_data(char c);
 void microbit_hal_audio_init(uint32_t sample_rate);
 void microbit_hal_audio_signal_data_ready(size_t num_samples);
 const uint8_t *microbit_hal_audio_get_data_callback(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // MICROPY_INCLUDED_CODAL_APP_MICROBITHAL_H

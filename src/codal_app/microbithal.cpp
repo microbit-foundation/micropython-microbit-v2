@@ -81,7 +81,13 @@ static const PullMode pin_pull_mode_mapping[] = {
 static uint8_t pin_pull_state[32 + 6];
 static uint16_t button_state[2];
 
+void microbit_hal_background_processing(void) {
+    // This call takes about 200us.
+    Event(DEVICE_ID_SCHEDULER, DEVICE_SCHEDULER_EVT_IDLE);
+}
+
 void microbit_hal_idle(void) {
+    microbit_hal_background_processing();
     __WFI();
 }
 
