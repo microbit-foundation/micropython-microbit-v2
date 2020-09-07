@@ -8,9 +8,8 @@
         "dev": true
     } ,
     "config":{
-        "NO_BLE": 1,
         "MICROBIT_BLE_ENABLED" : 0,
-        "MICROBIT_BLE_PAIRING_MODE": 0
+        "MICROBIT_BLE_PAIRING_MODE": 1
     },
     "application": "../../src/codal_app"
 }

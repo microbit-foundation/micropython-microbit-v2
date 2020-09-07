@@ -45,9 +45,11 @@ void gesture_event_handler(Event evt) {
 }
 
 int main() {
-    NVIC_SetVector(RADIO_IRQn, (uint32_t)microbit_radio_irq_handler);
-
     uBit.init();
+
+    // Reconfigure the radio IRQ to our custom handler.
+    // This must be done after uBit.init() in case BLE pairing mode is activated there.
+    NVIC_SetVector(RADIO_IRQn, (uint32_t)microbit_radio_irq_handler);
 
     // As well as configuring a larger RX buffer, this needs to be called so it
     // calls Serial::initialiseRx, to set up interrupts.
