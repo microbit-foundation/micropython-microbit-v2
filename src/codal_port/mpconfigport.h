@@ -32,6 +32,17 @@
 #define MICROPY_ALLOC_PATH_MAX                  (PATH_MAX)
 
 // Python internal features
+#define MICROPY_VM_HOOK_COUNT                   (64)
+#define MICROPY_VM_HOOK_INIT \
+    static unsigned int vm_hook_divisor = MICROPY_VM_HOOK_COUNT;
+#define MICROPY_VM_HOOK_POLL \
+    if (--vm_hook_divisor == 0) { \
+        vm_hook_divisor = MICROPY_VM_HOOK_COUNT; \
+        extern void microbit_hal_background_processing(void); \
+        microbit_hal_background_processing(); \
+    }
+#define MICROPY_VM_HOOK_LOOP                    MICROPY_VM_HOOK_POLL
+#define MICROPY_VM_HOOK_RETURN                  MICROPY_VM_HOOK_POLL
 #define MICROPY_ENABLE_GC                       (1)
 #define MICROPY_KBD_EXCEPTION                   (1)
 #define MICROPY_HELPER_REPL                     (1)
