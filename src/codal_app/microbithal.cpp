@@ -340,4 +340,9 @@ void microbit_hal_audio_signal_data_ready(size_t num_samples) {
     pwm->pullRequest();
 }
 
+// This is needed by the microbitfs implementation.
+uint32_t rng_generate_random_word(void) {
+    return uBit.random(65536) << 16 | uBit.random(65536);
+}
+
 }

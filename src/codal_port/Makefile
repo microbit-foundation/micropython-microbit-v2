@@ -82,7 +82,6 @@ SRC_C += \
 	lib/utils/gchelper_native.c \
 	lib/utils/pyexec.c \
 	lib/utils/stdout_helpers.c \
-	ports/nrf/drivers/rng.c \
 	ports/nrf/modules/uos/microbitfs.c \
 	$(abspath $(NRFX_DIR)/drivers/src/nrfx_nvmc.c) \
 	$(abspath $(LOCAL_LIB_DIR)/sam/main.c) \
