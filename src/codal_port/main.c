@@ -92,10 +92,10 @@ mp_import_stat_t mp_import_stat(const char *path) {
     return uos_mbfs_import_stat(path);
 }
 
-STATIC mp_obj_t mp_builtin_open(size_t n_args, const mp_obj_t *args) {
+mp_obj_t mp_builtin_open(size_t n_args, const mp_obj_t *args, mp_map_t *kwargs) {
     return uos_mbfs_open(n_args, args);
 }
-MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_builtin_open_obj, 1, 2, mp_builtin_open);
+MP_DEFINE_CONST_FUN_OBJ_KW(mp_builtin_open_obj, 1, mp_builtin_open);
 #endif
 
 void gc_collect(void) {
