@@ -48,7 +48,7 @@ const microbit_pin_obj_t microbit_p16_obj = {{&microbit_dig_pin_type},  16, MICR
 const microbit_pin_obj_t microbit_p19_obj = {{&microbit_dig_pin_type},  19, MICROBIT_HAL_PIN_P19, MODE_I2C};
 const microbit_pin_obj_t microbit_p20_obj = {{&microbit_dig_pin_type},  20, MICROBIT_HAL_PIN_P20, MODE_I2C};
 
-const microbit_pin_obj_t microbit_pin_logo_obj = {{&microbit_touch_pin_type},  30, MICROBIT_HAL_PIN_FACE, MODE_UNUSED};
+const microbit_pin_obj_t microbit_pin_logo_obj = {{&microbit_touch_only_pin_type}, 30, MICROBIT_HAL_PIN_FACE, MODE_UNUSED};
 const microbit_pin_obj_t microbit_pin_speaker_obj = {{&microbit_dig_pin_type}, 31, MICROBIT_HAL_PIN_SPEAKER, MODE_UNUSED};
 
 static mp_obj_t microbit_pin_get_mode_func(mp_obj_t self_in) {
@@ -232,6 +232,17 @@ const mp_obj_type_t microbit_touch_pin_type = {
     { &mp_type_type },
     .name = MP_QSTR_MicroBitTouchPin,
     .locals_dict = (mp_obj_dict_t *)&microbit_touch_pin_locals_dict,
+};
+
+STATIC const mp_rom_map_elem_t microbit_touch_only_pin_locals_dict_table[] = {
+    { MP_ROM_QSTR(MP_QSTR_is_touched), MP_ROM_PTR(&microbit_pin_is_touched_obj) },
+};
+STATIC MP_DEFINE_CONST_DICT(microbit_touch_only_pin_locals_dict, microbit_touch_only_pin_locals_dict_table);
+
+const mp_obj_type_t microbit_touch_only_pin_type = {
+    { &mp_type_type },
+    .name = MP_QSTR_MicroBitTouchOnlyPin,
+    .locals_dict = (mp_obj_dict_t *)&microbit_touch_only_pin_locals_dict,
 };
 
 const microbit_pin_obj_t *microbit_obj_get_pin(mp_obj_t o) {
