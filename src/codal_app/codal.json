@@ -9,7 +9,8 @@
     } ,
     "config":{
         "MICROBIT_BLE_ENABLED" : 0,
-        "MICROBIT_BLE_PAIRING_MODE": 1
+        "MICROBIT_BLE_PAIRING_MODE": 1,
+        "MICROBIT_BLE_SECURITY_MODE": 2
     },
     "application": "../../src/codal_app"
 }
