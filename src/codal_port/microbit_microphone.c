@@ -44,6 +44,7 @@ static const qstr sound_event_name_map[] = {
     [SOUND_EVENT_QUIET] = MP_QSTR_quiet,
 };
 
+static uint8_t sound_event_current = 0;
 static uint8_t sound_event_active_mask = 0;
 static uint8_t sound_event_history_index = 0;
 static uint8_t sound_event_history_array[EVENT_HISTORY_SIZE];
@@ -58,6 +59,7 @@ void microbit_hal_level_detector_callback(int value) {
     }
 
     // Set the sound event as active, and add it to the history.
+    sound_event_current = ev;
     if (ev != SOUND_EVENT_NONE) {
         sound_event_active_mask |= 1 << ev;
         if (sound_event_history_index < EVENT_HISTORY_SIZE) {
@@ -90,11 +92,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_microphone_sound_level_obj, microbit_m
 STATIC mp_obj_t microbit_microphone_current_sound(mp_obj_t self_in) {
     (void)self_in;
     microphone_init();
-    uint8_t sound = SOUND_EVENT_NONE;
-    if (sound_event_history_index > 0) {
-        sound = sound_event_history_array[sound_event_history_index - 1];
-    }
-    return MP_OBJ_NEW_QSTR(sound_event_name_map[sound]);
+    return MP_OBJ_NEW_QSTR(sound_event_name_map[sound_event_current]);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_microphone_current_sound_obj, microbit_microphone_current_sound);
 
