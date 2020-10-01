@@ -6,13 +6,13 @@ CFLAGS_EXTRA = -mthumb -mtune=cortex-m4 -mcpu=cortex-m4
 include ../../lib/micropython/py/mkenv.mk
 -include mpconfigport.mk
 
-all: lib
-
 # QSTR definitions (must come before including py.mk).
 QSTR_DEFS = qstrdefsport.h
 
 # Include py core make definitions.
 include $(TOP)/py/py.mk
+
+MBIT_VER_FILE = $(HEADER_BUILD)/microbitversion.h
 
 LOCAL_LIB_DIR = ../../lib
 CMSIS_DIR = $(LOCAL_LIB_DIR)/codal/libraries/codal-nrf52/inc/cmsis
@@ -104,6 +104,13 @@ SRC_QSTR += $(SRC_C) $(LIB_SRC_C)
 # Append any auto-generated sources that are needed by sources listed in.
 # SRC_QSTR
 SRC_QSTR_AUTO_DEPS +=
+
+# Top-level rule.
+all: lib $(MBIT_VER_FILE)
+
+# Rule to build header with micro:bit specific version information.
+$(MBIT_VER_FILE): FORCE
+	$(PYTHON) $(TOP)/py/makeversionhdr.py $(MBIT_VER_FILE)
 
 include $(TOP)/py/mkrules.mk
 
