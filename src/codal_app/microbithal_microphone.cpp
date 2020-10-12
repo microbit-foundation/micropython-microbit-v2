@@ -30,6 +30,8 @@
 
 extern "C" {
 
+#define SOUND_LEVEL_MAXIMUM (20000)
+
 static NRF52ADCChannel *mic = NULL;
 static StreamNormalizer *processor = NULL;
 static LevelDetector *level = NULL;
@@ -51,7 +53,9 @@ int microbit_hal_microphone_get_level(void) {
     if (level == NULL) {
         return -1;
     } else {
-        return level->getValue();
+        int l = level->getValue();
+        l = min(255, l * 255 / SOUND_LEVEL_MAXIMUM);
+        return l;
     }
 }
 
