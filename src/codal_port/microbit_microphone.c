@@ -82,6 +82,24 @@ STATIC uint8_t sound_event_from_obj(mp_obj_t sound_in) {
     mp_raise_ValueError("invalid sound");
 }
 
+STATIC mp_obj_t microbit_microphone_set_threshold(mp_obj_t self_in, mp_obj_t sound_in, mp_obj_t value_in) {
+    (void)self_in;
+    uint8_t sound = sound_event_from_obj(sound_in);
+    int kind;
+    if (sound == SOUND_EVENT_QUIET) {
+        kind = 0;
+    } else if (sound == SOUND_EVENT_LOUD) {
+        kind = 1;
+    } else {
+        mp_raise_ValueError("invalid sound");
+    }
+    int value = mp_obj_get_int(value_in);
+    microphone_init();
+    microbit_hal_microphone_set_threshold(kind, value);
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_3(microbit_microphone_set_threshold_obj, microbit_microphone_set_threshold);
+
 STATIC mp_obj_t microbit_microphone_sound_level(mp_obj_t self_in) {
     (void)self_in;
     microphone_init();
@@ -135,6 +153,7 @@ STATIC mp_obj_t microbit_microphone_get_sounds(mp_obj_t self_in) {
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_microphone_get_sounds_obj, microbit_microphone_get_sounds);
 
 STATIC const mp_rom_map_elem_t microbit_microphone_locals_dict_table[] = {
+    { MP_ROM_QSTR(MP_QSTR_set_threshold), MP_ROM_PTR(&microbit_microphone_set_threshold_obj) },
     { MP_ROM_QSTR(MP_QSTR_sound_level), MP_ROM_PTR(&microbit_microphone_sound_level_obj) },
     { MP_ROM_QSTR(MP_QSTR_current_sound), MP_ROM_PTR(&microbit_microphone_current_sound_obj) },
     { MP_ROM_QSTR(MP_QSTR_is_sound), MP_ROM_PTR(&microbit_microphone_is_sound_obj) },
