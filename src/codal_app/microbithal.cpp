@@ -146,6 +146,10 @@ void microbit_hal_pin_write_analog_u10(int pin, int value) {
 }
 
 int microbit_hal_pin_is_touched(int pin) {
+    if (pin == MICROBIT_HAL_PIN_FACE) {
+        // For touch on the face/logo, delegate to the TouchButton instance.
+        return uBit.logo.buttonActive();
+    }
     return pin_obj[pin]->isTouched();
 }
 
