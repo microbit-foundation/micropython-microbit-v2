@@ -30,6 +30,7 @@
 #include "nrf_gpio.h"
 
 #include "py/mphal.h"
+#include "drv_system.h"
 #include "modaudio.h"
 #include "modmicrobit.h"
 
@@ -103,7 +104,12 @@ STATIC void audio_data_fetcher(void) {
         for (int i = 0; i < AUDIO_CHUNK_SIZE; ++i) {
             uint32_t cur = buffer->data[i];
             for (int j = 0; j < BUFFER_EXPANSION; ++j) {
-                *dest++ = ((BUFFER_EXPANSION - 1 - j) * last + (j + 1) * cur) / BUFFER_EXPANSION;
+                // Get next sample with linear interpolation.
+                uint32_t sample = ((BUFFER_EXPANSION - 1 - j) * last + (j + 1) * cur) / BUFFER_EXPANSION;
+                // Apply global volume setting.
+                sample = sample * (uint32_t)microbit_global_volume / (uint32_t)255;
+                // Write sample to the buffer.
+                *dest++ = sample;
             }
             last = cur;
         }

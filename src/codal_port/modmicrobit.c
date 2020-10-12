@@ -26,6 +26,7 @@
 
 #include "py/obj.h"
 #include "py/mphal.h"
+#include "drv_system.h"
 #include "modmicrobit.h"
 
 STATIC mp_obj_t microbit_reset_(void) {
@@ -69,6 +70,18 @@ STATIC mp_obj_t microbit_temperature(void) {
 }
 MP_DEFINE_CONST_FUN_OBJ_0(microbit_temperature_obj, microbit_temperature);
 
+STATIC mp_obj_t microbit_set_volume(mp_obj_t volume_in) {
+    mp_int_t volume = mp_obj_get_int(volume_in);
+    if (volume < 0) {
+        volume = 0;
+    } else if (volume > 255) {
+        volume = 255;
+    }
+    microbit_system_set_global_volume(volume);
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_set_volume_obj, microbit_set_volume);
+
 STATIC const mp_rom_map_elem_t microbit_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_microbit) },
 
@@ -89,6 +102,7 @@ STATIC const mp_rom_map_elem_t microbit_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_running_time), MP_ROM_PTR(&microbit_running_time_obj) },
     { MP_ROM_QSTR(MP_QSTR_panic), MP_ROM_PTR(&microbit_panic_obj) },
     { MP_ROM_QSTR(MP_QSTR_temperature), MP_ROM_PTR(&microbit_temperature_obj) },
+    { MP_ROM_QSTR(MP_QSTR_set_volume), MP_ROM_PTR(&microbit_set_volume_obj) },
 
     { MP_ROM_QSTR(MP_QSTR_pin0), MP_ROM_PTR(&microbit_p0_obj) },
     { MP_ROM_QSTR(MP_QSTR_pin1), MP_ROM_PTR(&microbit_p1_obj) },

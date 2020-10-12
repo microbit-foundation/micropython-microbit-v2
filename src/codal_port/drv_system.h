@@ -23,36 +23,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifndef MICROPY_INCLUDED_CODAL_PORT_DRV_SYSTEM_H
+#define MICROPY_INCLUDED_CODAL_PORT_DRV_SYSTEM_H
 
-#include "py/runtime.h"
-#include "drv_system.h"
-#include "drv_display.h"
-#include "modmusic.h"
+extern uint8_t microbit_global_volume;
 
-uint8_t microbit_global_volume;
+void microbit_system_init(void);
+void microbit_system_set_global_volume(uint8_t volume);
 
-extern volatile bool accelerometer_up_to_date;
-
-void microbit_system_init(void) {
-    microbit_global_volume = 255;
-}
-
-void microbit_system_set_global_volume(uint8_t volume) {
-    microbit_global_volume = volume;
-    microbit_music_volume_changed();
-}
-
-// Called every 6ms
-// TODO: should only enable this when system is ready
-// TODO: perhaps only schedule the callback when we need it
-void microbit_hal_timer_callback(void) {
-    // Invalidate accelerometer data for gestures so sample is taken on next gesture call.
-    accelerometer_up_to_date = false;
-
-    microbit_display_update();
-    microbit_music_tick();
-}
-
-void microbit_hal_serial_interrupt_callback(void) {
-    mp_keyboard_interrupt();
-}
+#endif // MICROPY_INCLUDED_CODAL_PORT_DRV_SYSTEM_H

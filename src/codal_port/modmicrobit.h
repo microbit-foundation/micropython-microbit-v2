@@ -175,6 +175,8 @@ extern const struct _microbit_microphone_obj_t microbit_microphone_obj;
 extern const struct _microbit_button_obj_t microbit_button_a_obj;
 extern const struct _microbit_button_obj_t microbit_button_b_obj;
 
+extern uint16_t microbit_volume_global;
+
 const microbit_pin_obj_t *microbit_obj_get_pin(mp_obj_t o);
 
 // Release pin for use by other modes. Safe to call in an interrupt.

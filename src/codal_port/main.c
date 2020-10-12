@@ -34,6 +34,7 @@
 #include "lib/utils/gchelper.h"
 #include "lib/utils/pyexec.h"
 #include "ports/nrf/modules/uos/microbitfs.h"
+#include "drv_system.h"
 #include "drv_display.h"
 
 // Use a fixed static buffer for the heap.
@@ -44,6 +45,7 @@ void mp_main(void) {
     mp_stack_set_limit(8 * 1024);
 
     for (;;) {
+        microbit_system_init();
         microbit_display_init();
         microbit_filesystem_init();
 

@@ -27,6 +27,7 @@
 #include "py/runtime.h"
 #include "py/objstr.h"
 #include "py/mphal.h"
+#include "drv_system.h"
 #include "modmicrobit.h"
 #include "modmusic.h"
 
@@ -56,6 +57,9 @@ typedef struct _music_data_t {
     uint8_t last_octave;
     uint8_t last_duration;
 
+    // Last value set by music_output_amplitude, to support changing volume during play.
+    uint8_t last_raw_amplitude;
+
     // Asynchronous parts.
     volatile uint8_t async_state;
     bool async_loop;
@@ -66,14 +70,26 @@ typedef struct _music_data_t {
     mp_obj_t async_note;
 } music_data_t;
 
-STATIC uint32_t start_note(const char *note_str, size_t note_len, const microbit_pin_obj_t *pin);
+STATIC uint32_t start_note(const char *note_str, size_t note_len);
 
-STATIC void music_output_amplitude(uint32_t pin, uint32_t amplitude) {
-    microbit_hal_pin_write_analog_u10(pin, amplitude);
+STATIC void music_output_amplitude(uint32_t amplitude) {
+    music_data->last_raw_amplitude = amplitude;
+
+    if (amplitude == MUSIC_OUTPUT_AMPLITUDE_ON) {
+        amplitude = 1 << ((microbit_global_volume & 0xff) >> 5);
+    }
+    microbit_hal_pin_write_analog_u10(music_data->async_pin->name, amplitude);
 }
 
-STATIC int music_output_period_us(uint32_t pin, uint32_t period) {
-    return microbit_hal_pin_set_analog_period_us(pin, period);
+STATIC int music_output_period_us(uint32_t period) {
+    return microbit_hal_pin_set_analog_period_us(music_data->async_pin->name, period);
+}
+
+void microbit_music_volume_changed(void) {
+    if (music_data != NULL && music_data->async_pin != NULL
+        && music_data->last_raw_amplitude != MUSIC_OUTPUT_AMPLITUDE_OFF) {
+        music_output_amplitude(music_data->last_raw_amplitude);
+    }
 }
 
 void microbit_music_tick(void) {
@@ -94,7 +110,7 @@ void microbit_music_tick(void) {
 
     if (music_data->async_state == ASYNC_MUSIC_STATE_ARTICULATE) {
         // turn off output and rest
-        music_output_amplitude(music_data->async_pin->name, MUSIC_OUTPUT_AMPLITUDE_OFF);
+        music_output_amplitude(MUSIC_OUTPUT_AMPLITUDE_OFF);
         music_data->async_wait_ticks = mp_hal_ticks_ms() + ARTICULATION_MS;
         music_data->async_state = ASYNC_MUSIC_STATE_NEXT_NOTE;
     } else if (music_data->async_state == ASYNC_MUSIC_STATE_NEXT_NOTE) {
@@ -117,14 +133,14 @@ void microbit_music_tick(void) {
         }
         if (note == mp_const_none) {
             // a rest (is this even used anymore?)
-            music_output_amplitude(music_data->async_pin->name, MUSIC_OUTPUT_AMPLITUDE_OFF);
+            music_output_amplitude(MUSIC_OUTPUT_AMPLITUDE_OFF);
             music_data->async_wait_ticks = 60000 / music_data->bpm;
             music_data->async_state = ASYNC_MUSIC_STATE_NEXT_NOTE;
         } else {
             // a note
             mp_uint_t note_len;
             const char *note_str = mp_obj_str_get_data(note, &note_len);
-            uint32_t delay_on = start_note(note_str, note_len, music_data->async_pin);
+            uint32_t delay_on = start_note(note_str, note_len);
             music_data->async_wait_ticks = mp_hal_ticks_ms() + delay_on;
             music_data->async_notes_index += 1;
             music_data->async_state = ASYNC_MUSIC_STATE_ARTICULATE;
@@ -138,14 +154,14 @@ STATIC void wait_async_music_idle(void) {
         // allow CTRL-C to stop the music
         if (MP_STATE_VM(mp_pending_exception) != MP_OBJ_NULL) {
             music_data->async_state = ASYNC_MUSIC_STATE_IDLE;
-            music_output_amplitude(music_data->async_pin->name, MUSIC_OUTPUT_AMPLITUDE_OFF);
+            music_output_amplitude(MUSIC_OUTPUT_AMPLITUDE_OFF);
             break;
         }
     }
 }
 
-STATIC uint32_t start_note(const char *note_str, size_t note_len, const microbit_pin_obj_t *pin) {
-    music_output_amplitude(pin->name, MUSIC_OUTPUT_AMPLITUDE_ON);
+STATIC uint32_t start_note(const char *note_str, size_t note_len) {
+    music_output_amplitude(MUSIC_OUTPUT_AMPLITUDE_ON);
 
     // [NOTE](#|b)(octave)(:length)
     // technically, c4 is middle c, so we'll go with that...
@@ -241,9 +257,9 @@ STATIC uint32_t start_note(const char *note_str, size_t note_len, const microbit
                 period = periods_us[note_index] << -octave;
             }
         }
-        music_output_period_us(pin->name, period);
+        music_output_period_us(period);
     } else {
-        music_output_amplitude(pin->name, MUSIC_OUTPUT_AMPLITUDE_OFF);
+        music_output_amplitude(MUSIC_OUTPUT_AMPLITUDE_OFF);
     }
 
     // Cut off a short time from end of note so we hear articulation.
@@ -280,7 +296,8 @@ STATIC mp_obj_t microbit_music_stop(mp_uint_t n_args, const mp_obj_t *args) {
     }
     // Raise exception if the pin we are trying to stop is not in a compatible mode.
     microbit_obj_pin_acquire(pin, microbit_pin_mode_music);
-    music_output_amplitude(pin->name, MUSIC_OUTPUT_AMPLITUDE_OFF);
+    music_data->async_pin = pin;
+    music_output_amplitude(MUSIC_OUTPUT_AMPLITUDE_OFF);
     microbit_obj_pin_free(pin);
     music_data->async_pin = NULL;
     music_data->async_state = ASYNC_MUSIC_STATE_IDLE;
@@ -367,13 +384,13 @@ STATIC mp_obj_t microbit_music_pitch(mp_uint_t n_args, const mp_obj_t *pos_args,
 
     // Update pin modes
     microbit_obj_pin_free(music_data->async_pin);
-    music_data->async_pin = NULL;
+    music_data->async_pin = pin;
     microbit_obj_pin_acquire(pin, microbit_pin_mode_music);
     bool wait = args[3].u_bool;
-    music_output_amplitude(pin->name, MUSIC_OUTPUT_AMPLITUDE_ON);
+    music_output_amplitude(MUSIC_OUTPUT_AMPLITUDE_ON);
     if (frequency == 0) {
         //pwm_release(pin->name); TODO
-    } else if (music_output_period_us(pin->name, 1000000 / frequency) == -1) {
+    } else if (music_output_period_us(1000000 / frequency) == -1) {
         //pwm_release(pin->name); TODO
         mp_raise_ValueError("invalid pitch");
     }
@@ -385,7 +402,6 @@ STATIC mp_obj_t microbit_music_pitch(mp_uint_t n_args, const mp_obj_t *pos_args,
         music_data->async_notes_len = 0;
         music_data->async_notes_index = 0;
         music_data->async_note = NULL;
-        music_data->async_pin = pin;
         music_data->async_state = ASYNC_MUSIC_STATE_ARTICULATE;
 
         if (wait) {
