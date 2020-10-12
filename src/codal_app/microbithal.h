@@ -121,6 +121,7 @@ int microbit_hal_compass_get_field_strength(void);
 int microbit_hal_compass_get_heading(void);
 
 void microbit_hal_microphone_init(void);
+void microbit_hal_microphone_set_threshold(int kind, int value);
 int microbit_hal_microphone_get_level(void);
 
 const uint8_t *microbit_hal_get_font_data(char c);
