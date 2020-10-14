@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index ee85ffd..7daf18e 100644
+index b89e1d0..b53224b 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -38,7 +38,7 @@ set(CMAKE_CXX_COMPILER_WORKS 1)
@@ -11,13 +11,10 @@ index ee85ffd..7daf18e 100644
  sbeParseJson(codal codal_json)
  
  set(CODAL_APP_OUTPUT_DIR ".")
-@@ -262,4 +262,12 @@ endif()
- set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
+@@ -284,3 +284,11 @@ set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
  set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
  set(CMAKE_EXE_EXPORTS_C_FLAG "")
--set(CMAKE_EXE_EXPORTS_CXX_FLAG "")
-\ No newline at end of file
-+set(CMAKE_EXE_EXPORTS_CXX_FLAG "")
+ set(CMAKE_EXE_EXPORTS_CXX_FLAG "")
 +
 +set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} ${PROJECT_SOURCE_DIR}/../../src/codal_port/filesystem.ld")
 +set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${PROJECT_SOURCE_DIR}/../../src/codal_port/filesystem.ld")
@@ -26,3 +23,20 @@ index ee85ffd..7daf18e 100644
 +    IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/../../src/codal_port/libmicropython.a"
 +)
 +target_link_libraries("MICROBIT" micropython)
+diff --git a/build.py b/build.py
+index f21ee38..3b676ef 100755
+--- a/build.py
++++ b/build.py
+@@ -125,9 +125,9 @@ elif len(args) > 1:
+ 
+ if not options.test_platform:
+ 
+-    if not os.path.exists("../codal.json"):
+-        print("No target specified in codal.json, does codal.json exist?")
+-        exit(1)
++    #if not os.path.exists("../codal.json"):
++    #    print("No target specified in codal.json, does codal.json exist?")
++    #    exit(1)
+ 
+     if options.generate_docs:
+         generate_docs()

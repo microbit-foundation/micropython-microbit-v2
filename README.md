@@ -12,14 +12,13 @@ After cloning this repository update the submodules:
     $ git submodule update --init
 
 Currently lib/micropython is the only submodule registered with git.  The codal
-sub-repositoriy must be explicitly cloned using:
+sub-repository and its dependencies must be explicitly cloned using:
 
-    $ git clone https://github.com/microbit-foundation/codal.git lib/codal
-
-This may require setting/passing extra authentication information.  You must
-then follow the instructions for the codal repository to fetch its
-dependencies.  They go in lib/codal/libraries and are codal-core, codal-nrf52
-and codal-microbit.
+    $ git clone https://github.com/lancaster-university/codal.git lib/codal
+    $ git clone --recurse-submodules https://github.com/lancaster-university/codal-core.git lib/codal/libraries/codal-core
+    $ git clone --recurse-submodules https://github.com/lancaster-university/codal-nrf52.git lib/codal/libraries/codal-nrf52
+    $ git clone --recurse-submodules https://github.com/microbit-foundation/codal-microbit-nrf5sdk.git lib/codal/libraries/codal-microbit-nrf5sdk
+    $ git clone --recurse-submodules https://github.com/lancaster-university/codal-microbit-v2.git lib/codal/libraries/codal-microbit-v2
 
 Building and running
 --------------------

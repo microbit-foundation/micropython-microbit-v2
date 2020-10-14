@@ -30,16 +30,13 @@ jobs:
         run: |
           arm-none-eabi-gcc --version
           cmake --version
-      - name: Configure git to access repos via GH Token URL
-        run: |
-          git config --global url."https://x-access-token:${{ secrets.GH_TOKEN_MICROBIT_MACHINE }}@github".insteadOf https://github
-          git config --global url."https://x-access-token:${{ secrets.GH_TOKEN_MICROBIT_MACHINE }}@github.com/".insteadOf git@github.com:
       - name: Clone codal
         run: |
-          git clone https://github.com/microbit-foundation/codal.git lib/codal
-          git clone --recurse-submodules https://github.com/microbit-foundation/codal-core.git lib/codal/libraries/codal-core
-          git clone --recurse-submodules https://github.com/microbit-foundation/codal-microbit.git lib/codal/libraries/codal-microbit
-          git clone --recurse-submodules https://github.com/microbit-foundation/codal-nrf52.git lib/codal/libraries/codal-nrf52
+          git clone https://github.com/lancaster-university/codal.git lib/codal
+          git clone --recurse-submodules https://github.com/lancaster-university/codal-core.git lib/codal/libraries/codal-core
+          git clone --recurse-submodules https://github.com/lancaster-university/codal-nrf52.git lib/codal/libraries/codal-nrf52
+          git clone --recurse-submodules https://github.com/microbit-foundation/codal-microbit-nrf5sdk.git lib/codal/libraries/codal-microbit-nrf5sdk
+          git clone --recurse-submodules https://github.com/lancaster-university/codal-microbit-v2.git lib/codal/libraries/codal-microbit-v2
       - name: Build
         run: |
           cd src
