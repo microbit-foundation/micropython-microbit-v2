@@ -127,9 +127,16 @@ int microbit_hal_microphone_get_level(void);
 
 const uint8_t *microbit_hal_get_font_data(char c);
 
+void microbit_hal_audio_set_volume(int value);
+void microbit_hal_audio_play_expression_by_name(const char *name);
+
 void microbit_hal_audio_init(uint32_t sample_rate);
-void microbit_hal_audio_signal_data_ready(size_t num_samples);
-const uint8_t *microbit_hal_audio_get_data_callback(void);
+void microbit_hal_audio_write_data(const uint8_t *buf, size_t num_samples);
+void microbit_hal_audio_ready_callback(void);
+
+void microbit_hal_audio_speech_init(uint32_t sample_rate);
+void microbit_hal_audio_speech_write_data(const uint8_t *buf, size_t num_samples);
+void microbit_hal_audio_speech_ready_callback(void);
 
 #ifdef __cplusplus
 }

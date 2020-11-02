@@ -77,7 +77,7 @@ STATIC mp_obj_t microbit_set_volume(mp_obj_t volume_in) {
     } else if (volume > 255) {
         volume = 255;
     }
-    microbit_system_set_global_volume(volume);
+    microbit_hal_audio_set_volume(volume);
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_set_volume_obj, microbit_set_volume);

@@ -29,17 +29,10 @@
 #include "drv_display.h"
 #include "modmusic.h"
 
-uint8_t microbit_global_volume;
-
 extern volatile bool accelerometer_up_to_date;
 
 void microbit_system_init(void) {
-    microbit_global_volume = 255;
-}
-
-void microbit_system_set_global_volume(uint8_t volume) {
-    microbit_global_volume = volume;
-    microbit_music_volume_changed();
+    accelerometer_up_to_date = false;
 }
 
 // Called every 6ms

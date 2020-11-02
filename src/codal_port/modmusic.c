@@ -57,9 +57,6 @@ typedef struct _music_data_t {
     uint8_t last_octave;
     uint8_t last_duration;
 
-    // Last value set by music_output_amplitude, to support changing volume during play.
-    uint8_t last_raw_amplitude;
-
     // Asynchronous parts.
     volatile uint8_t async_state;
     bool async_loop;
@@ -73,23 +70,11 @@ typedef struct _music_data_t {
 STATIC uint32_t start_note(const char *note_str, size_t note_len);
 
 STATIC void music_output_amplitude(uint32_t amplitude) {
-    music_data->last_raw_amplitude = amplitude;
-
-    if (amplitude == MUSIC_OUTPUT_AMPLITUDE_ON) {
-        amplitude = 1 << ((microbit_global_volume & 0xff) >> 5);
-    }
     microbit_hal_pin_write_analog_u10(music_data->async_pin->name, amplitude);
 }
 
 STATIC int music_output_period_us(uint32_t period) {
     return microbit_hal_pin_set_analog_period_us(music_data->async_pin->name, period);
-}
-
-void microbit_music_volume_changed(void) {
-    if (music_data != NULL && music_data->async_pin != NULL
-        && music_data->last_raw_amplitude != MUSIC_OUTPUT_AMPLITUDE_OFF) {
-        music_output_amplitude(music_data->last_raw_amplitude);
-    }
 }
 
 void microbit_music_tick(void) {
@@ -149,14 +134,19 @@ void microbit_music_tick(void) {
 }
 
 STATIC void wait_async_music_idle(void) {
-    // wait for the async music state to become idle
-    while (music_data->async_state != ASYNC_MUSIC_STATE_IDLE) {
-        // allow CTRL-C to stop the music
-        if (MP_STATE_VM(mp_pending_exception) != MP_OBJ_NULL) {
-            music_data->async_state = ASYNC_MUSIC_STATE_IDLE;
-            music_output_amplitude(MUSIC_OUTPUT_AMPLITUDE_OFF);
-            break;
+    nlr_buf_t nlr;
+    if (nlr_push(&nlr) == 0) {
+        // Wait for the async music state to become idle.
+        while (music_data->async_state != ASYNC_MUSIC_STATE_IDLE) {
+            mp_handle_pending(true);
+            microbit_hal_idle();
         }
+        nlr_pop();
+    } else {
+        // Catch all exceptions and stop the music before re-raising.
+        music_data->async_state = ASYNC_MUSIC_STATE_IDLE;
+        music_output_amplitude(MUSIC_OUTPUT_AMPLITUDE_OFF);
+        nlr_jump(nlr.ret_val);
     }
 }
 

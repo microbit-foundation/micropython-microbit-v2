@@ -106,15 +106,13 @@ STATIC void audio_data_fetcher(void) {
             for (int j = 0; j < BUFFER_EXPANSION; ++j) {
                 // Get next sample with linear interpolation.
                 uint32_t sample = ((BUFFER_EXPANSION - 1 - j) * last + (j + 1) * cur) / BUFFER_EXPANSION;
-                // Apply global volume setting.
-                sample = sample * (uint32_t)microbit_global_volume / (uint32_t)255;
                 // Write sample to the buffer.
                 *dest++ = sample;
             }
             last = cur;
         }
     }
-    microbit_hal_audio_signal_data_ready(BUFFER_EXPANSION * AUDIO_CHUNK_SIZE);
+    microbit_hal_audio_write_data(audio_buffer_ptr, BUFFER_EXPANSION * AUDIO_CHUNK_SIZE);
 }
 
 STATIC mp_obj_t audio_data_fetcher_wrapper(mp_obj_t arg) {
@@ -123,7 +121,7 @@ STATIC mp_obj_t audio_data_fetcher_wrapper(mp_obj_t arg) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(audio_data_fetcher_wrapper_obj, audio_data_fetcher_wrapper);
 
-const uint8_t *microbit_hal_audio_get_data_callback(void) {
+void microbit_hal_audio_ready_callback(void) {
     /*
     if (double_pin) {
         // Convert 0 to 255 to -256 to +254
@@ -131,7 +129,6 @@ const uint8_t *microbit_hal_audio_get_data_callback(void) {
     }
     */
     mp_sched_schedule(MP_OBJ_FROM_PTR(&audio_data_fetcher_wrapper_obj), mp_const_none);
-    return audio_buffer_ptr;
 }
 
 static void audio_set_pins(mp_obj_t pin0_obj, mp_obj_t pin1_obj) {
@@ -209,6 +206,7 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin1, mp_obj_t pin2, bool
         microbit_audio_stop();
     }
     audio_init(sample_rate);
+    if (0) {
     if (pin1 == mp_const_none) {
         if (pin2 == mp_const_none) {
             audio_auto_set_pins();
@@ -218,6 +216,16 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin1, mp_obj_t pin2, bool
     } else {
         audio_set_pins(pin1, pin2);
     }
+    }
+
+    audio_source_iter = NULL;
+
+    if (mp_obj_is_str(src)) {
+        // TODO support wait=True mode
+        microbit_hal_audio_play_expression_by_name(mp_obj_str_get_str(src));
+        return;
+    }
+
     audio_source_iter = mp_getiter(src, NULL);
     audio_data_fetcher();
     running = true;
@@ -226,7 +234,7 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin1, mp_obj_t pin2, bool
     }
     while (running) {
         mp_handle_pending(true);
-        __WFE();
+        microbit_hal_idle();
     }
 }
 

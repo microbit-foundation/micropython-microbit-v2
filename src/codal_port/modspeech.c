@@ -26,13 +26,25 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
 #include "py/obj.h"
 #include "py/objtuple.h"
 #include "py/objstr.h"
+#include "microbithal.h"
 #include "modaudio.h"
 #include "sam/reciter.h"
 #include "sam/sam.h"
+
+// If disabled, pipe speech through audio module output.
+// If enabled, use a dedicated audio mixer channer.
+#define USE_DEDICATED_AUDIO_CHANNEL (1)
+
+#if USE_DEDICATED_AUDIO_CHANNEL
+#define OUT_CHUNK_SIZE (128)
+#else
+#define OUT_CHUNK_SIZE (32) // must match audio frame size
+#endif
 
 #define SCALE_RATE(x) (((x) * 420) >> 15)
 
@@ -56,6 +68,15 @@ volatile bool last_frame = false;
 volatile bool exhausted = false;
 static unsigned int glitches;
 
+#if USE_DEDICATED_AUDIO_CHANNEL
+static uint8_t sam_output_buffer[OUT_CHUNK_SIZE];
+#endif
+static volatile bool audio_output_ready = false;
+
+void microbit_hal_audio_speech_ready_callback(void) {
+    audio_output_ready = true;
+}
+
 STATIC void sam_output_reset(microbit_audio_frame_obj_t *src_frame) {
     sam_output_frame = src_frame;
     buf_start_pos = 0;
@@ -66,6 +87,23 @@ STATIC void sam_output_reset(microbit_audio_frame_obj_t *src_frame) {
     last_frame = false;
     exhausted = false;
     glitches = 0;
+    audio_output_ready = true;
+}
+
+STATIC void speech_wait_output_drained(void) {
+    #if USE_DEDICATED_AUDIO_CHANNEL
+    while (!audio_output_ready) {
+        mp_handle_pending(true);
+    }
+    audio_output_ready = false;
+    microbit_hal_audio_speech_write_data(sam_output_buffer, OUT_CHUNK_SIZE);
+    buf_start_pos += OUT_CHUNK_SIZE;
+    #else
+    rendering = true;
+    mp_handle_pending(true);
+    extern void microbit_hal_background_processing(void);
+    microbit_hal_background_processing();
+    #endif
 }
 
 // Table to map SAM value `b>>4` to an output value for the PWM.
@@ -134,18 +172,21 @@ void SamOutputByte(unsigned int pos, unsigned char b) {
         unsigned int actual_pos = SCALE_RATE(pos);
         if (buf_start_pos > actual_pos) {
             glitches++;
-            buf_start_pos -= 32;
+            buf_start_pos -= OUT_CHUNK_SIZE;
         }
-        while ((actual_pos & (-32)) > buf_start_pos) {
+        while ((actual_pos & (-OUT_CHUNK_SIZE)) > buf_start_pos) {
             // We have filled buffer
-            rendering = true;
-            mp_handle_pending(true);
+            speech_wait_output_drained();
         }
-        unsigned int offset = actual_pos & 31;
+        unsigned int offset = actual_pos & (OUT_CHUNK_SIZE - 1);
         // write a little bit in advance
-        unsigned int end = MIN(offset+8, 32);
+        unsigned int end = MIN(offset+8, OUT_CHUNK_SIZE);
         while (offset < end) {
+            #if USE_DEDICATED_AUDIO_CHANNEL
+            sam_output_buffer[offset] = b;
+            #else
             sam_output_frame->data[offset] = b;
+            #endif
             offset++;
         }
         last_pos = actual_pos;
@@ -160,21 +201,20 @@ void SamOutputByte(unsigned int pos, unsigned char b) {
         }
         if (buf_start_pos > idx_full) {
             glitches++;
-            buf_start_pos -= 32;
+            buf_start_pos -= OUT_CHUNK_SIZE;
         }
 
-        unsigned int idx = idx_full & 31;
-        unsigned int delta_idx = (idx - last_idx) & 31;
+        unsigned int idx = idx_full & (OUT_CHUNK_SIZE - 1);
+        unsigned int delta_idx = (idx - last_idx) & (OUT_CHUNK_SIZE - 1);
         if (delta_idx > 0) {
             int cur_b = last_b;
             int delta_b = ((int)b - (int)last_b) / (int)delta_idx;
             while (last_idx != idx) {
                 ++last_idx;
-                if (last_idx >= 32) {
+                if (last_idx >= OUT_CHUNK_SIZE) {
                     // filled the buffer, wait for it to be drained
-                    while ((idx_full & (-32)) > buf_start_pos) {
-                        rendering = true;
-                        mp_handle_pending(true);
+                    while ((idx_full & (-OUT_CHUNK_SIZE)) > buf_start_pos) {
+                        speech_wait_output_drained();
                     }
                     last_idx = 0;
                 }
@@ -183,19 +223,27 @@ void SamOutputByte(unsigned int pos, unsigned char b) {
                 } else {
                     cur_b += delta_b;
                 }
+                uint8_t sample;
                 if (synth_mode == 1 || synth_mode == 3) {
                     // no smoothing
-                    sam_output_frame->data[last_idx] = b;
+                    sample = b;
                 } else {
                     // smoothing
-                    sam_output_frame->data[last_idx] = cur_b;
+                    sample = cur_b;
                 }
+                #if USE_DEDICATED_AUDIO_CHANNEL
+                sam_output_buffer[last_idx] = sample;
+                #else
+                sam_output_frame->data[last_idx] = sample;
+                #endif
             }
         }
         last_idx = idx;
         last_b = b;
     }
 }
+
+#if !USE_DEDICATED_AUDIO_CHANNEL
 
 // This iterator assumes that the speech renderer can generate samples
 // at least as fast as we can consume them.
@@ -209,7 +257,7 @@ STATIC mp_obj_t next(mp_obj_t iter) {
     }
     // May need to wait for reciter to do its job before renderer generate samples.
     if (rendering) {
-        buf_start_pos += 32;
+        buf_start_pos += OUT_CHUNK_SIZE;
         return sam_output_frame;
     } else {
         return ((speech_iterator_t *)iter)->empty;
@@ -230,6 +278,8 @@ STATIC mp_obj_t make_speech_iter(void) {
     result->buf = microbit_audio_frame_make_new();
     return result;
 }
+
+#endif
 
 STATIC mp_obj_t translate(mp_obj_t words) {
     mp_uint_t len, outlen;
@@ -268,7 +318,7 @@ STATIC mp_obj_t articulate(mp_obj_t phonemes, mp_uint_t n_args, const mp_obj_t *
         { MP_QSTR_mouth,    MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = DEFAULT_MOUTH} },
         { MP_QSTR_throat,   MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = DEFAULT_THROAT} },
         { MP_QSTR_debug,   MP_ARG_KW_ONLY | MP_ARG_BOOL, {.u_bool = false} },
-        { MP_QSTR_mode,     MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 3} },
+        { MP_QSTR_mode,     MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 2} },
         { MP_QSTR_volume,    MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 4} },
     };
 
@@ -291,17 +341,23 @@ STATIC mp_obj_t articulate(mp_obj_t phonemes, mp_uint_t n_args, const mp_obj_t *
 
     mp_uint_t len;
     const char *input = mp_obj_str_get_data(phonemes, &len);
-    speech_iterator_t *src = make_speech_iter();
-    sam_output_reset(src->buf);
     int sample_rate;
     if (synth_mode == 0) {
         sample_rate = 15625;
     } else if (synth_mode <= 2) {
-        sample_rate = 19000;
+        sample_rate = 16000;
     } else {
-        sample_rate = 35650;
+        sample_rate = 38000;
     }
+
+    #if USE_DEDICATED_AUDIO_CHANNEL
+    sam_output_reset(NULL);
+    microbit_hal_audio_speech_init(sample_rate);
+    #else
+    speech_iterator_t *src = make_speech_iter();
+    sam_output_reset(src->buf);
     microbit_audio_play_source(src, mp_const_none, mp_const_none, false, sample_rate);
+    #endif
 
     SetInput(sam, input, len);
     if (!SAMMain(sam)) {
@@ -310,12 +366,22 @@ STATIC mp_obj_t articulate(mp_obj_t phonemes, mp_uint_t n_args, const mp_obj_t *
         mp_raise_ValueError(sam_error);
     }
 
+    #if USE_DEDICATED_AUDIO_CHANNEL
+    if (last_idx > 0) {
+        memset(sam_output_buffer + last_idx, 128, OUT_CHUNK_SIZE - last_idx);
+        speech_wait_output_drained();
+    }
+    #else
     last_frame = true;
     /* Wait for audio finish before returning */
     while (microbit_audio_is_playing()) {
         mp_handle_pending(true);
+        extern void microbit_hal_background_processing(void);
+        microbit_hal_background_processing();
     }
     MP_STATE_PORT(speech_data) = NULL;
+    #endif
+
     if (debug) {
         printf("Glitches: %d\r\n", glitches);
     }

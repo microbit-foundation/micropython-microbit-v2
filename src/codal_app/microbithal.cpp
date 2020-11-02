@@ -324,41 +324,6 @@ const uint8_t *microbit_hal_get_font_data(char c) {
     return BitmapFont::getSystemFont().get(c);
 }
 
-static NRF52PWM *pwm = NULL;
-
-class AudioSource : public DataSource {
-public:
-    ManagedBuffer buf;
-    virtual ManagedBuffer pull() {
-        const uint8_t *src = microbit_hal_audio_get_data_callback();
-        uint16_t *dest = (uint16_t *)buf.getBytes();
-        uint32_t scale = pwm->getSampleRange();
-        for (size_t i = 0; i < (size_t)buf.length() / 2; ++i) {
-            dest[i] = ((uint32_t)src[i] * scale) >> 8;
-        }
-        return buf;
-    }
-};
-
-static AudioSource data_source;
-
-void microbit_hal_audio_init(uint32_t sample_rate) {
-    if (pwm == NULL) {
-        pwm = new NRF52PWM(NRF_PWM1, data_source, sample_rate, 0);
-    } else {
-        pwm->setSampleRate(sample_rate);
-    }
-    pwm->connectPin(uBit.io.speaker, 0);
-    pwm->connectPin(uBit.io.P0, 1);
-}
-
-void microbit_hal_audio_signal_data_ready(size_t num_samples) {
-    if ((size_t)data_source.buf.length() != num_samples * 2) {
-        data_source.buf = ManagedBuffer(num_samples * 2);
-    }
-    pwm->pullRequest();
-}
-
 // This is needed by the microbitfs implementation.
 uint32_t rng_generate_random_word(void) {
     return uBit.random(65536) << 16 | uBit.random(65536);
