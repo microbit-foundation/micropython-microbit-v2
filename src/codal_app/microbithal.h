@@ -54,6 +54,7 @@ extern "C" {
 #define MICROBIT_HAL_PIN_SPEAKER (20)
 #define MICROBIT_HAL_PIN_USB_TX (30)
 #define MICROBIT_HAL_PIN_USB_RX (31)
+#define MICROBIT_HAL_PIN_AUDIO  (33)
 
 // These match the micro:bit v1 constants.
 #define MICROBIT_HAL_PIN_PULL_UP (0)

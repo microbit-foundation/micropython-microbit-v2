@@ -65,6 +65,7 @@ static NRF52Pin *const pin_obj[] = {
     &uBit.io.usbTx,
     &uBit.io.usbRx,
     &uBit.io.irq1,
+    &uBit.io.speaker, // MICROBIT_HAL_PIN_AUDIO
 };
 
 static Button *const button_obj[] = {
@@ -113,6 +114,10 @@ int microbit_hal_pin_get_pull(int pin) {
 }
 
 int microbit_hal_pin_set_analog_period_us(int pin, int period) {
+    if (pin == MICROBIT_HAL_PIN_AUDIO) {
+        uBit.audio.virtualOutputPin.setAnalogPeriodUs(period);
+        return 0;
+    }
     if (pin_obj[pin]->setAnalogPeriodUs(period) == DEVICE_OK) {
         return 0;
     } else {
@@ -142,6 +147,10 @@ int microbit_hal_pin_read_analog_u10(int pin) {
 }
 
 void microbit_hal_pin_write_analog_u10(int pin, int value) {
+    if (pin == MICROBIT_HAL_PIN_AUDIO) {
+        uBit.audio.virtualOutputPin.setAnalogValue(value);
+        return;
+    }
     pin_obj[pin]->setAnalogValue(value);
 }
 
