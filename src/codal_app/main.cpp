@@ -73,6 +73,3 @@ int main() {
     mp_main();
     return 0;
 }
-
-extern "C" void __wrap_atexit(void) {
-}
