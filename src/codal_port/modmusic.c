@@ -39,7 +39,7 @@
 #define DEFAULT_DURATION (4) // Crotchet
 #define ARTICULATION_MS  (10) // articulation between notes in milliseconds
 
-#define MUSIC_OUTPUT_DEFAULT_PIN (&microbit_pin_speaker_obj)
+#define MUSIC_OUTPUT_DEFAULT_PIN (&microbit_pin_audio_obj)
 #define MUSIC_OUTPUT_AMPLITUDE_OFF (0)
 #define MUSIC_OUTPUT_AMPLITUDE_ON (128)
 

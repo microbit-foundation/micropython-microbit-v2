@@ -50,6 +50,7 @@ const microbit_pin_obj_t microbit_p20_obj = {{&microbit_dig_pin_type},  20, MICR
 
 const microbit_pin_obj_t microbit_pin_logo_obj = {{&microbit_touch_only_pin_type}, 30, MICROBIT_HAL_PIN_FACE, MODE_UNUSED};
 const microbit_pin_obj_t microbit_pin_speaker_obj = {{&microbit_dig_pin_type}, 31, MICROBIT_HAL_PIN_SPEAKER, MODE_UNUSED};
+const microbit_pin_obj_t microbit_pin_audio_obj = {{&microbit_dig_pin_type}, 33, MICROBIT_HAL_PIN_AUDIO, MODE_UNUSED};
 
 static mp_obj_t microbit_pin_get_mode_func(mp_obj_t self_in) {
     microbit_pin_obj_t *self = (microbit_pin_obj_t*)self_in;
