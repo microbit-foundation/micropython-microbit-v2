@@ -44,7 +44,7 @@
 // Use a fixed static buffer for the heap.
 static char heap[64 * 1024];
 
-STATIC void microbit_pyexec_file(const char *filename);
+void microbit_pyexec_file(const char *filename);
 
 void mp_main(void) {
     mp_stack_ctrl_init();
@@ -127,7 +127,7 @@ STATIC void microbit_display_exception(mp_obj_t exc_in) {
     vstr_clear(&vstr);
 }
 
-STATIC void microbit_pyexec_file(const char *filename) {
+void microbit_pyexec_file(const char *filename) {
     nlr_buf_t nlr;
     if (nlr_push(&nlr) == 0) {
         // Parse and comple the file.
