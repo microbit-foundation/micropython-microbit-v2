@@ -8,7 +8,7 @@ all:
 	git -C $(CODAL_DIR) checkout CMakeLists.txt build.py
 	cat codal.patch | git -C $(CODAL_DIR) apply -
 	(cd $(CODAL_DIR) && ./build.py)
-	size $(CODAL_DIR)/build/MICROBIT
+	arm-none-eabi-size $(CODAL_DIR)/build/MICROBIT
 	cp $(CODAL_DIR)/MICROBIT.hex .
 
 clean:
