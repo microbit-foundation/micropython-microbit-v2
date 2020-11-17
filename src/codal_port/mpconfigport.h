@@ -54,6 +54,8 @@
 #define MICROPY_FLOAT_IMPL                      (MICROPY_FLOAT_IMPL_FLOAT)
 #define MICROPY_MODULE_BUILTIN_INIT             (1)
 #define MICROPY_MODULE_WEAK_LINKS               (1)
+#define MICROPY_MODULE_FROZEN_MPY               (1)
+#define MICROPY_QSTR_EXTRA_POOL                 mp_qstr_frozen_const_pool
 #define MICROPY_ENABLE_SCHEDULER                (1)
 
 // Fine control over Python builtins, classes, modules, etc

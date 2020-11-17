@@ -1,5 +1,7 @@
 # Makefile to build libmicropython.a
 
+FROZEN_MANIFEST ?= manifest.py
+
 CROSS_COMPILE = arm-none-eabi-
 CFLAGS_EXTRA = -mthumb -mtune=cortex-m4 -mcpu=cortex-m4
 

@@ -82,6 +82,15 @@ STATIC mp_obj_t microbit_set_volume(mp_obj_t volume_in) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_set_volume_obj, microbit_set_volume);
 
+STATIC mp_obj_t microbit_ws2812_write(mp_obj_t pin_in, mp_obj_t buf_in) {
+    uint8_t pin = microbit_obj_get_pin(pin_in)->name;
+    mp_buffer_info_t bufinfo;
+    mp_get_buffer_raise(buf_in, &bufinfo, MP_BUFFER_READ);
+    microbit_hal_pin_write_ws2812(pin, bufinfo.buf, bufinfo.len);
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(microbit_ws2812_write_obj, microbit_ws2812_write);
+
 STATIC const mp_rom_map_elem_t microbit_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_microbit) },
 
@@ -104,6 +113,7 @@ STATIC const mp_rom_map_elem_t microbit_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_panic), MP_ROM_PTR(&microbit_panic_obj) },
     { MP_ROM_QSTR(MP_QSTR_temperature), MP_ROM_PTR(&microbit_temperature_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_volume), MP_ROM_PTR(&microbit_set_volume_obj) },
+    { MP_ROM_QSTR(MP_QSTR_ws2812_write), MP_ROM_PTR(&microbit_ws2812_write_obj) },
 
     { MP_ROM_QSTR(MP_QSTR_pin0), MP_ROM_PTR(&microbit_p0_obj) },
     { MP_ROM_QSTR(MP_QSTR_pin1), MP_ROM_PTR(&microbit_p1_obj) },
