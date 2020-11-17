@@ -38,10 +38,10 @@ typedef struct _microbit_microphone_obj_t {
     mp_obj_base_t base;
 } microbit_microphone_obj_t;
 
-static const qstr sound_event_name_map[] = {
-    [SOUND_EVENT_NONE] = MP_QSTR_,
-    [SOUND_EVENT_LOUD] = MP_QSTR_loud,
-    [SOUND_EVENT_QUIET] = MP_QSTR_quiet,
+static const mp_const_obj_t sound_event_obj_map[] = {
+    [SOUND_EVENT_NONE] = MP_ROM_NONE,
+    [SOUND_EVENT_LOUD] = MP_ROM_PTR(&microbit_soundevent_loud_obj),
+    [SOUND_EVENT_QUIET] = MP_ROM_PTR(&microbit_soundevent_quiet_obj),
 };
 
 static uint8_t sound_event_current = 0;
@@ -72,10 +72,9 @@ STATIC void microphone_init(void) {
     microbit_hal_microphone_init();
 }
 
-STATIC uint8_t sound_event_from_obj(mp_obj_t sound_in) {
-    qstr sound = mp_obj_str_get_qstr(sound_in);
-    for (uint8_t i = 0; i < MP_ARRAY_SIZE(sound_event_name_map); ++i) {
-        if (sound == sound_event_name_map[i]) {
+STATIC uint8_t sound_event_from_obj(mp_obj_t sound) {
+    for (uint8_t i = 0; i < MP_ARRAY_SIZE(sound_event_obj_map); ++i) {
+        if (sound == sound_event_obj_map[i]) {
             return i;
         }
     }
@@ -110,7 +109,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_microphone_sound_level_obj, microbit_m
 STATIC mp_obj_t microbit_microphone_current_event(mp_obj_t self_in) {
     (void)self_in;
     microphone_init();
-    return MP_OBJ_NEW_QSTR(sound_event_name_map[sound_event_current]);
+    return (mp_obj_t)sound_event_obj_map[sound_event_current];
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_microphone_current_event_obj, microbit_microphone_current_event);
 
@@ -145,7 +144,7 @@ STATIC mp_obj_t microbit_microphone_get_events(mp_obj_t self_in) {
     mp_obj_tuple_t *o = (mp_obj_tuple_t *)mp_obj_new_tuple(sound_event_history_index, NULL);
     for (size_t i = 0; i < sound_event_history_index; ++i) {
         uint8_t sound = sound_event_history_array[i];
-        o->items[i] = MP_OBJ_NEW_QSTR(sound_event_name_map[sound]);
+        o->items[i] = (mp_obj_t)sound_event_obj_map[sound];
     }
     sound_event_history_index = 0;
     return o;
@@ -159,9 +158,6 @@ STATIC const mp_rom_map_elem_t microbit_microphone_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_is_event), MP_ROM_PTR(&microbit_microphone_is_event_obj) },
     { MP_ROM_QSTR(MP_QSTR_was_event), MP_ROM_PTR(&microbit_microphone_was_event_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_events), MP_ROM_PTR(&microbit_microphone_get_events_obj) },
-
-    { MP_ROM_QSTR(MP_QSTR_LOUD), MP_ROM_QSTR(MP_QSTR_loud) },
-    { MP_ROM_QSTR(MP_QSTR_QUIET), MP_ROM_QSTR(MP_QSTR_quiet) },
 };
 STATIC MP_DEFINE_CONST_DICT(microbit_microphone_locals_dict, microbit_microphone_locals_dict_table);
 

@@ -86,6 +86,7 @@ STATIC const mp_rom_map_elem_t microbit_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_microbit) },
 
     { MP_ROM_QSTR(MP_QSTR_Image), (mp_obj_t)&microbit_image_type },
+    { MP_ROM_QSTR(MP_QSTR_SoundEvent), (mp_obj_t)&microbit_soundevent_type },
 
     { MP_ROM_QSTR(MP_QSTR_display), MP_ROM_PTR(&microbit_display_obj) },
     { MP_ROM_QSTR(MP_QSTR_button_a), (mp_obj_t)&microbit_button_a_obj },
