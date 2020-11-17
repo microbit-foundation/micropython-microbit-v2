@@ -39,6 +39,7 @@ jobs:
           git clone --recurse-submodules https://github.com/lancaster-university/codal-microbit-v2.git lib/codal/libraries/codal-microbit-v2
       - name: Build
         run: |
+          make -C lib/micropython/mpy-cross -j2
           cd src
           make -j2
       - name: Upload hex file
