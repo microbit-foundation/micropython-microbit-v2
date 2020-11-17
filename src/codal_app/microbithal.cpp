@@ -26,6 +26,7 @@
 
 #include "main.h"
 #include "MicroBitDevice.h"
+#include "neopixel.h"
 
 extern "C" {
 
@@ -160,6 +161,10 @@ int microbit_hal_pin_is_touched(int pin) {
         return uBit.logo.buttonActive();
     }
     return pin_obj[pin]->isTouched();
+}
+
+void microbit_hal_pin_write_ws2812(int pin, const uint8_t *buf, size_t len) {
+    neopixel_send_buffer(*pin_obj[pin], buf, len);
 }
 
 int microbit_hal_i2c_init(int scl, int sda, int freq) {

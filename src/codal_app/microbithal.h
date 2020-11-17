@@ -93,6 +93,7 @@ void microbit_hal_pin_write(int pin, int value);
 int microbit_hal_pin_read_analog_u10(int pin);
 void microbit_hal_pin_write_analog_u10(int pin, int value);
 int microbit_hal_pin_is_touched(int pin);
+void microbit_hal_pin_write_ws2812(int pin, const uint8_t *buf, size_t len);
 
 int microbit_hal_i2c_init(int scl, int sda, int freq);
 int microbit_hal_i2c_readfrom(uint8_t addr, uint8_t *buf, size_t len, int stop);
