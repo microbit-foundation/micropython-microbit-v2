@@ -70,6 +70,11 @@ int main() {
 
     uBit.display.setBrightness(255);
 
+    // By default there is no audio output selected.  The audio system will select the
+    // correct pin and/or speaker when any audio related code is first executed.
+    uBit.audio.setPinEnabled(false);
+    uBit.audio.setSpeakerEnabled(false);
+
     mp_main();
     return 0;
 }
