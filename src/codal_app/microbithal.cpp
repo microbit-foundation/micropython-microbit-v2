@@ -28,11 +28,7 @@
 #include "MicroBitDevice.h"
 #include "neopixel.h"
 
-extern "C" {
-
-#include "microbithal.h"
-
-static NRF52Pin *const pin_obj[] = {
+NRF52Pin *const pin_obj[] = {
     &uBit.io.P0,
     &uBit.io.P1,
     &uBit.io.P2,
@@ -66,7 +62,6 @@ static NRF52Pin *const pin_obj[] = {
     &uBit.io.usbTx,
     &uBit.io.usbRx,
     &uBit.io.irq1,
-    &uBit.io.speaker, // MICROBIT_HAL_PIN_AUDIO
 };
 
 static Button *const button_obj[] = {
@@ -82,6 +77,10 @@ static const PullMode pin_pull_mode_mapping[] = {
 
 static uint8_t pin_pull_state[32 + 6];
 static uint16_t button_state[2];
+
+extern "C" {
+
+#include "microbithal.h"
 
 void microbit_hal_background_processing(void) {
     // This call takes about 200us.
@@ -115,7 +114,7 @@ int microbit_hal_pin_get_pull(int pin) {
 }
 
 int microbit_hal_pin_set_analog_period_us(int pin, int period) {
-    if (pin == MICROBIT_HAL_PIN_AUDIO) {
+    if (pin == MICROBIT_HAL_PIN_MIXER) {
         uBit.audio.virtualOutputPin.setAnalogPeriodUs(period);
         return 0;
     }
@@ -148,7 +147,7 @@ int microbit_hal_pin_read_analog_u10(int pin) {
 }
 
 void microbit_hal_pin_write_analog_u10(int pin, int value) {
-    if (pin == MICROBIT_HAL_PIN_AUDIO) {
+    if (pin == MICROBIT_HAL_PIN_MIXER) {
         uBit.audio.virtualOutputPin.setAnalogValue(value);
         return;
     }

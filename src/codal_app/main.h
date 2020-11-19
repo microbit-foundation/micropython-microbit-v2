@@ -29,6 +29,7 @@
 #include "MicroBit.h"
 
 extern MicroBit uBit;
+extern NRF52Pin *const pin_obj[];
 
 void serial_interrupt_handler(Event evt);
 

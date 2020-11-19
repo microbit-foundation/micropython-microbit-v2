@@ -59,6 +59,19 @@ extern "C" {
 
 #include "microbithal.h"
 
+void microbit_hal_audio_select_pin(int pin) {
+    if (pin < 0) {
+        uBit.audio.setPinEnabled(false);
+    } else {
+        uBit.audio.setPinEnabled(true);
+        uBit.audio.setPin(*pin_obj[pin]);
+    }
+}
+
+void microbit_hal_audio_select_speaker(bool enable) {
+    uBit.audio.setSpeakerEnabled(enable);
+}
+
 // Input value has range 0-255 inclusive.
 void microbit_hal_audio_set_volume(int value) {
     if (value >= 255) {

@@ -30,6 +30,10 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
 // These numbers refer to indices in the (private) pin_obj table.
 #define MICROBIT_HAL_PIN_P0     (0)
 #define MICROBIT_HAL_PIN_P1     (1)
@@ -54,7 +58,7 @@ extern "C" {
 #define MICROBIT_HAL_PIN_SPEAKER (20)
 #define MICROBIT_HAL_PIN_USB_TX (30)
 #define MICROBIT_HAL_PIN_USB_RX (31)
-#define MICROBIT_HAL_PIN_AUDIO  (33)
+#define MICROBIT_HAL_PIN_MIXER  (33)
 
 // These match the micro:bit v1 constants.
 #define MICROBIT_HAL_PIN_PULL_UP (0)
@@ -128,6 +132,8 @@ int microbit_hal_microphone_get_level(void);
 
 const uint8_t *microbit_hal_get_font_data(char c);
 
+void microbit_hal_audio_select_pin(int pin);
+void microbit_hal_audio_select_speaker(bool enable);
 void microbit_hal_audio_set_volume(int value);
 void microbit_hal_audio_play_expression_by_name(const char *name);
 
