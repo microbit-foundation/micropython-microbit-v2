@@ -41,34 +41,13 @@
 #define BUFFER_EXPANSION (16)
 
 static volatile bool running = false;
-static bool double_pin = true;
-static const microbit_pin_obj_t *pin0 = NULL;
-static const microbit_pin_obj_t *pin1 = NULL;
-static const microbit_pin_obj_t *big_pins[3] = { &microbit_p0_obj, &microbit_p1_obj, &microbit_p2_obj };
 
 microbit_audio_frame_obj_t *microbit_audio_frame_make_new(void);
 
 void microbit_audio_stop(void) {
     audio_source_iter = NULL;
     running = false;
-    microbit_obj_pin_free(pin0);
-    if (double_pin) {
-        microbit_obj_pin_free(pin1);
-    }
-}
-
-static void init_pin(const microbit_pin_obj_t *p0) {
-    microbit_obj_pin_acquire(p0, microbit_pin_mode_audio_play);
-    pin0 = p0;
-    double_pin = false;
-}
-
-static void init_pins(const microbit_pin_obj_t *p0, const microbit_pin_obj_t *p1) {
-    microbit_obj_pin_acquire(p1, microbit_pin_mode_audio_play);
-    microbit_obj_pin_acquire(p0, microbit_pin_mode_audio_play);
-    pin0 = p0;
-    pin1 = p1;
-    double_pin = true;
+    microbit_pin_audio_free();
 }
 
 STATIC void audio_data_fetcher(void) {
@@ -131,68 +110,6 @@ void microbit_hal_audio_ready_callback(void) {
     mp_sched_schedule(MP_OBJ_FROM_PTR(&audio_data_fetcher_wrapper_obj), mp_const_none);
 }
 
-static void audio_set_pins(mp_obj_t pin0_obj, mp_obj_t pin1_obj) {
-    const microbit_pin_obj_t *p0 = microbit_obj_get_pin(pin0_obj);
-    if (pin1_obj == mp_const_none) {
-        init_pin(p0);
-    } else {
-        const microbit_pin_obj_t *p1 = microbit_obj_get_pin(pin1_obj);
-        init_pins(p0, p1);
-    }
-}
-
-static int32_t pin_read_digital(const microbit_pin_obj_t *pin) {
-    nrf_gpio_cfg_input(pin->name, NRF_GPIO_PIN_NOPULL);
-    // Allow 1us to settle.
-    mp_hal_delay_us(1);
-    return nrf_gpio_pin_read(pin->name);
-}
-
-static void audio_auto_set_pins(void) {
-    audio_set_pins((mp_obj_t)&microbit_pin_speaker_obj, mp_const_none);
-    return;
-    // Test to see if two of the "big" pins are connected by some sort of resistor.
-    uint32_t i, j, count;
-    bool usable[3];
-    if (microbit_obj_pin_can_be_acquired(&microbit_p0_obj)) {
-        usable[0] = true;
-        microbit_obj_pin_acquire(&microbit_p0_obj, microbit_pin_mode_unused);
-    }
-    if (microbit_obj_pin_can_be_acquired(&microbit_p1_obj)) {
-        usable[1] = true;
-        microbit_obj_pin_acquire(&microbit_p1_obj, microbit_pin_mode_unused);
-    }
-    if (microbit_obj_pin_can_be_acquired(&microbit_p2_obj)) {
-        usable[2] = true;
-        microbit_obj_pin_acquire(&microbit_p2_obj, microbit_pin_mode_unused);
-    }
-    for (i = 0; i < 2; i++) {
-        if (!usable[i])
-            continue;
-        const microbit_pin_obj_t *pin1 = big_pins[i];
-        nrf_gpio_cfg_output(pin1->name);
-        for (j = i+1; j < 3; j++) {
-            if (!usable[j])
-                continue;
-            const microbit_pin_obj_t *pin2 = big_pins[j];
-            for (count = 0; count < 4; count++) {
-                nrf_gpio_pin_set(pin1->name);
-                if (pin_read_digital(pin2) != 1)
-                    break;
-                nrf_gpio_pin_clear(pin1->name);
-                if (pin_read_digital(pin2) != 0)
-                    break;
-            }
-            if (count == 4) {
-                init_pins(pin1, pin2);
-                return;
-            }
-        }
-    }
-    /* Set to default: single pin0 */
-    audio_set_pins((mp_obj_t)&microbit_p0_obj, mp_const_none);
-}
-
 static void audio_init(uint32_t sample_rate) {
     if (audio_buffer_ptr == NULL) {
         audio_source_iter = NULL;
@@ -201,22 +118,12 @@ static void audio_init(uint32_t sample_rate) {
     microbit_hal_audio_init(BUFFER_EXPANSION / 4 * sample_rate);
 }
 
-void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin1, mp_obj_t pin2, bool wait, uint32_t sample_rate) {
+void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, uint32_t sample_rate) {
     if (running) {
         microbit_audio_stop();
     }
     audio_init(sample_rate);
-    if (0) {
-    if (pin1 == mp_const_none) {
-        if (pin2 == mp_const_none) {
-            audio_auto_set_pins();
-        } else {
-            mp_raise_TypeError("cannot set return_pin without pin");
-        }
-    } else {
-        audio_set_pins(pin1, pin2);
-    }
-    }
+    microbit_pin_audio_select(pin_select);
 
     audio_source_iter = NULL;
 
@@ -254,10 +161,14 @@ STATIC mp_obj_t play(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_ar
     // parse args
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
     mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+
+    // The return_pin argument from micro:bit v1 is no longer supported.
+    if (args[3].u_obj != mp_const_none) {
+        mp_raise_ValueError("return_pin not supported");
+    }
+
     mp_obj_t src = args[0].u_obj;
-    mp_obj_t pin1 = args[2].u_obj;
-    mp_obj_t pin2 = args[3].u_obj;
-    microbit_audio_play_source(src, pin1, pin2, args[1].u_bool, DEFAULT_SAMPLE_RATE);
+    microbit_audio_play_source(src, args[2].u_obj, args[1].u_bool, DEFAULT_SAMPLE_RATE);
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_KW(microbit_audio_play_obj, 0, play);

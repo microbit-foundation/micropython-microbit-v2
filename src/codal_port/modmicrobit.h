@@ -100,7 +100,6 @@ extern const struct _microbit_pin_obj_t microbit_p19_obj;
 extern const struct _microbit_pin_obj_t microbit_p20_obj;
 extern const struct _microbit_pin_obj_t microbit_pin_logo_obj;
 extern const struct _microbit_pin_obj_t microbit_pin_speaker_obj;
-extern const struct _microbit_pin_obj_t microbit_pin_audio_obj;
 
 extern const struct _microbit_i2c_obj_t microbit_i2c_obj;
 extern const struct _microbit_uart_obj_t microbit_uart_obj;
@@ -182,7 +181,8 @@ extern const struct _microbit_microphone_obj_t microbit_microphone_obj;
 extern const struct _microbit_button_obj_t microbit_button_a_obj;
 extern const struct _microbit_button_obj_t microbit_button_b_obj;
 
-extern uint16_t microbit_volume_global;
+//extern uint16_t microbit_volume_global;
+extern const mp_obj_tuple_t microbit_pin_default_audio_obj;
 
 const microbit_pin_obj_t *microbit_obj_get_pin(mp_obj_t o);
 
@@ -201,6 +201,9 @@ bool microbit_obj_pin_acquire(const microbit_pin_obj_t *pin, const microbit_pinm
 
 const microbit_pinmode_t *microbit_pin_get_mode(const microbit_pin_obj_t *pin);
 void pinmode_error(const microbit_pin_obj_t *pin);
+
+void microbit_pin_audio_select(mp_const_obj_t select);
+void microbit_pin_audio_free(void);
 
 MP_DECLARE_CONST_FUN_OBJ_0(microbit_reset_obj);
 

@@ -32,6 +32,7 @@
 #include "py/objtuple.h"
 #include "py/objstr.h"
 #include "microbithal.h"
+#include "modmicrobit.h"
 #include "modaudio.h"
 #include "sam/reciter.h"
 #include "sam/sam.h"
@@ -320,6 +321,7 @@ STATIC mp_obj_t articulate(mp_obj_t phonemes, mp_uint_t n_args, const mp_obj_t *
         { MP_QSTR_debug,   MP_ARG_KW_ONLY | MP_ARG_BOOL, {.u_bool = false} },
         { MP_QSTR_mode,     MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 2} },
         { MP_QSTR_volume,    MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 4} },
+        { MP_QSTR_pin,      MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_PTR(&microbit_pin_default_audio_obj)} },
     };
 
     // parse args
@@ -352,11 +354,12 @@ STATIC mp_obj_t articulate(mp_obj_t phonemes, mp_uint_t n_args, const mp_obj_t *
 
     #if USE_DEDICATED_AUDIO_CHANNEL
     sam_output_reset(NULL);
+    microbit_pin_audio_select(args[7].u_obj);
     microbit_hal_audio_speech_init(sample_rate);
     #else
     speech_iterator_t *src = make_speech_iter();
     sam_output_reset(src->buf);
-    microbit_audio_play_source(src, mp_const_none, mp_const_none, false, sample_rate);
+    microbit_audio_play_source(src, args[7].u_obj, false, sample_rate);
     #endif
 
     SetInput(sam, input, len);
