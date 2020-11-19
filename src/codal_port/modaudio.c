@@ -182,6 +182,23 @@ mp_obj_t is_playing(void) {
 }
 MP_DEFINE_CONST_FUN_OBJ_0(microbit_audio_is_playing_obj, is_playing);
 
+STATIC const mp_rom_map_elem_t audio_globals_table[] = {
+    { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_audio) },
+    { MP_ROM_QSTR(MP_QSTR_stop), MP_ROM_PTR(&microbit_audio_stop_obj) },
+    { MP_ROM_QSTR(MP_QSTR_play), MP_ROM_PTR(&microbit_audio_play_obj) },
+    { MP_ROM_QSTR(MP_QSTR_is_playing), MP_ROM_PTR(&microbit_audio_is_playing_obj) },
+    { MP_ROM_QSTR(MP_QSTR_AudioFrame), MP_ROM_PTR(&microbit_audio_frame_type) },
+};
+STATIC MP_DEFINE_CONST_DICT(audio_module_globals, audio_globals_table);
+
+const mp_obj_module_t audio_module = {
+    .base = { &mp_type_module },
+    .globals = (mp_obj_dict_t *)&audio_module_globals,
+};
+
+/******************************************************************************/
+// AudioFrame class
+
 STATIC mp_obj_t microbit_audio_frame_new(const mp_obj_type_t *type_in, mp_uint_t n_args, mp_uint_t n_kw, const mp_obj_t *args) {
     (void)type_in;
     (void)args;
@@ -348,18 +365,3 @@ microbit_audio_frame_obj_t *microbit_audio_frame_make_new(void) {
     memset(res->data, 128, AUDIO_CHUNK_SIZE);
     return res;
 }
-
-STATIC const mp_rom_map_elem_t audio_globals_table[] = {
-    { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_audio) },
-    { MP_ROM_QSTR(MP_QSTR_stop), MP_ROM_PTR(&microbit_audio_stop_obj) },
-    { MP_ROM_QSTR(MP_QSTR_play), MP_ROM_PTR(&microbit_audio_play_obj) },
-    { MP_ROM_QSTR(MP_QSTR_is_playing), MP_ROM_PTR(&microbit_audio_is_playing_obj) },
-    { MP_ROM_QSTR(MP_QSTR_AudioFrame), MP_ROM_PTR(&microbit_audio_frame_type) },
-};
-
-STATIC MP_DEFINE_CONST_DICT(audio_module_globals, audio_globals_table);
-
-const mp_obj_module_t audio_module = {
-    .base = { &mp_type_module },
-    .globals = (mp_obj_dict_t *)&audio_module_globals,
-};
