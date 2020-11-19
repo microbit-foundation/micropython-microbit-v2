@@ -155,7 +155,7 @@ STATIC mp_obj_t play(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_ar
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_source, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
         { MP_QSTR_wait,  MP_ARG_BOOL, {.u_bool = true} },
-        { MP_QSTR_pin,   MP_ARG_OBJ, {.u_obj = mp_const_none } },
+        { MP_QSTR_pin,   MP_ARG_OBJ, {.u_rom_obj = MP_ROM_PTR(&microbit_pin_default_audio_obj)} },
         { MP_QSTR_return_pin,   MP_ARG_OBJ, {.u_obj = mp_const_none } },
     };
     // parse args
