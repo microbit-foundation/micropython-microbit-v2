@@ -69,6 +69,11 @@ typedef struct _pinmode {
     release_func release; /* Call this function to release pin */
 } microbit_pinmode_t;
 
+typedef struct _microbit_sound_obj_t {
+    mp_obj_base_t base;
+    const char *name;
+} microbit_sound_obj_t;
+
 typedef struct _microbit_soundevent_obj_t microbit_soundevent_obj_t;
 
 extern const microbit_pinmode_t microbit_pinmodes[];
@@ -78,6 +83,7 @@ extern const mp_obj_type_t microbit_dig_pin_type;
 extern const mp_obj_type_t microbit_touch_pin_type;
 extern const mp_obj_type_t microbit_touch_only_pin_type;
 extern const mp_obj_type_t microbit_speaker_pin_type;
+extern const mp_obj_type_t microbit_sound_type;
 extern const mp_obj_type_t microbit_soundevent_type;
 
 extern const struct _microbit_pin_obj_t microbit_p0_obj;

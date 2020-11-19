@@ -127,9 +127,10 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, ui
 
     audio_source_iter = NULL;
 
-    if (mp_obj_is_str(src)) {
+    if (mp_obj_is_type(src, &microbit_sound_type)) {
         // TODO support wait=True mode
-        microbit_hal_audio_play_expression_by_name(mp_obj_str_get_str(src));
+        const microbit_sound_obj_t *sound = (const microbit_sound_obj_t *)MP_OBJ_TO_PTR(src);
+        microbit_hal_audio_play_expression_by_name(sound->name);
         return;
     }
 

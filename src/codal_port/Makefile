@@ -68,6 +68,7 @@ SRC_C += \
 	microbit_pin.c \
 	microbit_pinaudio.c \
 	microbit_pinmode.c \
+	microbit_sound.c \
 	microbit_soundevent.c \
 	microbit_spi.c \
 	microbit_uart.c \
