@@ -86,6 +86,10 @@ STATIC void microbit_pin_audio_get_pins(mp_const_obj_t select, const microbit_pi
     *speaker_selected = *speaker_selected && audio_speaker_enabled;
 }
 
+void microbit_pin_audio_speaker_enable(bool enable) {
+    audio_speaker_enabled = enable;
+}
+
 void microbit_pin_audio_select(mp_const_obj_t select) {
     // Work out which pins are selected.
     const microbit_pin_obj_t *pin_selected;

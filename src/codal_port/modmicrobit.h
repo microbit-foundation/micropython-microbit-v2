@@ -77,6 +77,7 @@ extern const mp_obj_type_t microbit_ad_pin_type;
 extern const mp_obj_type_t microbit_dig_pin_type;
 extern const mp_obj_type_t microbit_touch_pin_type;
 extern const mp_obj_type_t microbit_touch_only_pin_type;
+extern const mp_obj_type_t microbit_speaker_pin_type;
 extern const mp_obj_type_t microbit_soundevent_type;
 
 extern const struct _microbit_pin_obj_t microbit_p0_obj;
@@ -202,6 +203,7 @@ bool microbit_obj_pin_acquire(const microbit_pin_obj_t *pin, const microbit_pinm
 const microbit_pinmode_t *microbit_pin_get_mode(const microbit_pin_obj_t *pin);
 void pinmode_error(const microbit_pin_obj_t *pin);
 
+void microbit_pin_audio_speaker_enable(bool enable);
 void microbit_pin_audio_select(mp_const_obj_t select);
 void microbit_pin_audio_free(void);
 
