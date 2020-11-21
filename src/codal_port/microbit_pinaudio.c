@@ -121,5 +121,6 @@ void microbit_pin_audio_free(void) {
     if (audio_routed_pin != NULL) {
         microbit_obj_pin_free(audio_routed_pin);
         audio_routed_pin = NULL;
+        microbit_hal_audio_select_pin(-1);
     }
 }
