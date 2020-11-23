@@ -8,6 +8,7 @@
         "dev": true
     } ,
     "config":{
+        "DEVICE_STACK_SIZE": 8192,
         "MICROBIT_BLE_ENABLED" : 0,
         "MICROBIT_BLE_PAIRING_MODE": 1,
         "MICROBIT_BLE_SECURITY_MODE": 2
