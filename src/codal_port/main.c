@@ -48,7 +48,7 @@ void microbit_pyexec_file(const char *filename);
 
 void mp_main(void) {
     mp_stack_ctrl_init();
-    mp_stack_set_limit(8 * 1024);
+    mp_stack_set_limit(8 * 1024 - 512); // include 512 byte buffer zone for overflow
 
     for (;;) {
         microbit_system_init();

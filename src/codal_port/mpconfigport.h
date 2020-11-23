@@ -47,6 +47,7 @@
 #define MICROPY_VM_HOOK_LOOP                    MICROPY_VM_HOOK_POLL
 #define MICROPY_VM_HOOK_RETURN                  MICROPY_VM_HOOK_POLL
 #define MICROPY_ENABLE_GC                       (1)
+#define MICROPY_STACK_CHECK                     (1)
 #define MICROPY_KBD_EXCEPTION                   (1)
 #define MICROPY_HELPER_REPL                     (1)
 #define MICROPY_REPL_AUTO_INDENT                (1)
