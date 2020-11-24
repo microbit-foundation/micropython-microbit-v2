@@ -30,13 +30,6 @@ jobs:
         run: |
           arm-none-eabi-gcc --version
           cmake --version
-      - name: Clone codal
-        run: |
-          git clone https://github.com/lancaster-university/codal.git lib/codal
-          git clone --recurse-submodules https://github.com/lancaster-university/codal-core.git lib/codal/libraries/codal-core
-          git clone --recurse-submodules https://github.com/lancaster-university/codal-nrf52.git lib/codal/libraries/codal-nrf52
-          git clone --recurse-submodules https://github.com/microbit-foundation/codal-microbit-nrf5sdk.git lib/codal/libraries/codal-microbit-nrf5sdk
-          git clone --recurse-submodules https://github.com/lancaster-university/codal-microbit-v2.git lib/codal/libraries/codal-microbit-v2
       - name: Build
         run: |
           make -C lib/micropython/mpy-cross -j2
