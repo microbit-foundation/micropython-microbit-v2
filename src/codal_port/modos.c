@@ -29,17 +29,9 @@
 #include "py/objstr.h"
 #include "ports/nrf/modules/uos/microbitfs.h"
 
-// The microbitversion.h file is generated with the same tool as mpversion.h and
-// defines MICROPY_xxx symbols, so rename them.
-#include "genhdr/microbitversion.h"
-#define MICROBIT_GIT_HASH MICROPY_GIT_HASH
-#define MICROBIT_BUILD_DATE MICROPY_BUILD_DATE
-#undef MICROPY_GIT_TAG
-#undef MICROPY_GIT_HASH
-#undef MICROPY_BUILD_DATE
-
-// Include MicroPython version information.
+// Include MicroPython and micro:bit version information.
 #include "genhdr/mpversion.h"
+#include "genhdr/microbitversion.h"
 
 #define MICROBIT_VERSION \
     "micro:bit v" MICROBIT_RELEASE "+" MICROBIT_GIT_HASH " on " MICROBIT_BUILD_DATE \

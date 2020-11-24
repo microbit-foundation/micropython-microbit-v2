@@ -14,6 +14,7 @@ QSTR_DEFS = qstrdefsport.h
 # Include py core make definitions.
 include $(TOP)/py/py.mk
 
+MP_VER_FILE = $(HEADER_BUILD)/mpversion.h
 MBIT_VER_FILE = $(HEADER_BUILD)/microbitversion.h
 
 LOCAL_LIB_DIR = ../../lib
@@ -115,8 +116,11 @@ QSTR_GLOBAL_REQUIREMENTS += $(MBIT_VER_FILE)
 all: lib $(MBIT_VER_FILE)
 
 # Rule to build header with micro:bit specific version information.
+# Also rebuild MicroPython version header in correct directory to pick up git hash.
 $(MBIT_VER_FILE): FORCE
-	$(PYTHON) $(TOP)/py/makeversionhdr.py $(MBIT_VER_FILE)
+	(cd $(TOP) && $(PYTHON) py/makeversionhdr.py $(abspath $(MP_VER_FILE)))
+	$(PYTHON) $(TOP)/py/makeversionhdr.py $(MBIT_VER_FILE).pre
+	$(CAT) $(MBIT_VER_FILE).pre | $(SED) s/MICROPY_/MICROBIT_/ > $(MBIT_VER_FILE)
 
 include $(TOP)/py/mkrules.mk
 
