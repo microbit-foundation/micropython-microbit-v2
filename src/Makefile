@@ -10,23 +10,35 @@ SRC_HEX = $(BUILD)/MICROBIT.hex
 SRC_MAP = $(CODAL_BUILD)/MICROBIT.map
 DEST_HEX = ./MICROBIT.hex
 
+define CODAL_CLEAN
+	git -C $(CODAL_DIR) checkout CMakeLists.txt
+endef
+
+define CODAL_PATCH
+	$(call CODAL_CLEAN)
+	cat codal.patch | git -C $(CODAL_DIR) apply -
+endef
+
 .PHONY: all codal_build libmicropython clean
 
 all: codal_build
 
 codal_build: libmicropython
+	$(call CODAL_PATCH)
 	make -C $(BUILD)
+	$(call CODAL_CLEAN)
 	arm-none-eabi-size $(CODAL_BUILD)/MICROBIT
 	$(PYTHON3) addlayouttable.py $(SRC_HEX) $(SRC_MAP) -o $(DEST_HEX)
 
 libmicropython: $(CODAL_DIR)/libraries
+	$(call CODAL_CLEAN)
 	$(MAKE) -C codal_port
 
 $(CODAL_LIBRARIES):
 	$(MKDIR) -p $(BUILD)
-	git -C $(CODAL_DIR) checkout CMakeLists.txt
-	cat codal.patch | git -C $(CODAL_DIR) apply -
+	$(call CODAL_PATCH)
 	(cd $(BUILD) && cmake ../$(CODAL_DIR) -DCMAKE_BUILD_TYPE=RelWithDebInfo)
+	$(call CODAL_CLEAN)
 
 clean:
 	$(MAKE) -C codal_port clean
