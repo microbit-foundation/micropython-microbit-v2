@@ -1,22 +1,36 @@
 CODAL_DIR = ../lib/codal
 RM = /bin/rm
+MKDIR = /bin/mkdir
 PYTHON3 ?= python3
 
-SRC_HEX = $(CODAL_DIR)/MICROBIT.hex
-SRC_MAP = $(CODAL_DIR)/build/MICROBIT.map
+BUILD = ./build
+CODAL_BUILD = $(CODAL_DIR)/build
+CODAL_LIBRARIES = $(CODAL_DIR)/libraries
+SRC_HEX = $(BUILD)/MICROBIT.hex
+SRC_MAP = $(CODAL_BUILD)/MICROBIT.map
 DEST_HEX = ./MICROBIT.hex
 
-.PHONY: all clean
+.PHONY: all codal_build libmicropython clean
 
-all:
-	$(MAKE) -C codal_port
-	git -C $(CODAL_DIR) checkout CMakeLists.txt build.py
-	cat codal.patch | git -C $(CODAL_DIR) apply -
-	(cd $(CODAL_DIR) && ./build.py)
-	arm-none-eabi-size $(CODAL_DIR)/build/MICROBIT
+all: codal_build
+
+codal_build: libmicropython
+	make -C $(BUILD)
+	arm-none-eabi-size $(CODAL_BUILD)/MICROBIT
 	$(PYTHON3) addlayouttable.py $(SRC_HEX) $(SRC_MAP) -o $(DEST_HEX)
+
+libmicropython: $(CODAL_DIR)/libraries
+	$(MAKE) -C codal_port
+
+$(CODAL_LIBRARIES):
+	$(MKDIR) -p $(BUILD)
+	git -C $(CODAL_DIR) checkout CMakeLists.txt
+	cat codal.patch | git -C $(CODAL_DIR) apply -
+	(cd $(BUILD) && cmake ../$(CODAL_DIR) -DCMAKE_BUILD_TYPE=RelWithDebInfo)
 
 clean:
 	$(MAKE) -C codal_port clean
-	$(RM) -r $(CODAL_DIR)/build/
+	$(RM) -rf $(BUILD)
+	$(RM) -rf $(CODAL_BUILD)
+	$(RM) -rf $(CODAL_LIBRARIES)
 	$(RM) MICROBIT.hex

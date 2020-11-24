@@ -23,20 +23,3 @@ index b89e1d0..b53224b 100644
 +    IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/../../src/codal_port/libmicropython.a"
 +)
 +target_link_libraries("MICROBIT" micropython)
-diff --git a/build.py b/build.py
-index f21ee38..3b676ef 100755
---- a/build.py
-+++ b/build.py
-@@ -125,9 +125,9 @@ elif len(args) > 1:
- 
- if not options.test_platform:
- 
--    if not os.path.exists("../codal.json"):
--        print("No target specified in codal.json, does codal.json exist?")
--        exit(1)
-+    #if not os.path.exists("../codal.json"):
-+    #    print("No target specified in codal.json, does codal.json exist?")
-+    #    exit(1)
- 
-     if options.generate_docs:
-         generate_docs()

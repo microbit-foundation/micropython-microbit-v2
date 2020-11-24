@@ -11,14 +11,9 @@ After cloning this repository update the submodules:
 
     $ git submodule update --init
 
-Currently lib/micropython is the only submodule registered with git.  The codal
-sub-repository and its dependencies must be explicitly cloned using:
+Then build the MicroPython cross-compiler:
 
-    $ git clone https://github.com/lancaster-university/codal.git lib/codal
-    $ git clone --recurse-submodules https://github.com/lancaster-university/codal-core.git lib/codal/libraries/codal-core
-    $ git clone --recurse-submodules https://github.com/lancaster-university/codal-nrf52.git lib/codal/libraries/codal-nrf52
-    $ git clone --recurse-submodules https://github.com/microbit-foundation/codal-microbit-nrf5sdk.git lib/codal/libraries/codal-microbit-nrf5sdk
-    $ git clone --recurse-submodules https://github.com/lancaster-university/codal-microbit-v2.git lib/codal/libraries/codal-microbit-v2
+    $ make -C lib/micropython/mpy-cross
 
 Building and running
 --------------------
@@ -36,3 +31,4 @@ Once the firmware is on the device there will appear a REPL prompt on the serial
 port.  To test it you can run:
 
     >>> display.show(Image.HAPPY)
+    >>> audio.play(Sound.HAPPY)
