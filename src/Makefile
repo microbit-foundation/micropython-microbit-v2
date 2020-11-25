@@ -19,10 +19,18 @@ define CODAL_PATCH
 	cat codal.patch | git -C $(CODAL_DIR) apply -
 endef
 
-.PHONY: all codal_build libmicropython clean
+.PHONY: all codal_cmake codal_build libmicropython clean
 
 all: codal_build
 
+# Create output directory, run cmake, and make sure codal libraries exist (via cmake)
+codal_cmake:
+	$(MKDIR) -p $(BUILD)
+	$(call CODAL_PATCH)
+	(cd $(BUILD) && cmake ../$(CODAL_DIR) -DCMAKE_BUILD_TYPE=RelWithDebInfo)
+	$(call CODAL_CLEAN)
+
+# Build the codal app and make the final HEX file
 codal_build: libmicropython
 	$(call CODAL_PATCH)
 	make -C $(BUILD)
@@ -30,15 +38,12 @@ codal_build: libmicropython
 	arm-none-eabi-size $(CODAL_BUILD)/MICROBIT
 	$(PYTHON3) addlayouttable.py $(SRC_HEX) $(SRC_MAP) -o $(DEST_HEX)
 
+# Build the MicroPython component
 libmicropython: $(CODAL_LIBRARIES) $(BUILD)
 	$(call CODAL_CLEAN)
 	$(MAKE) -C codal_port
 
-$(CODAL_LIBRARIES) $(BUILD):
-	$(MKDIR) -p $(BUILD)
-	$(call CODAL_PATCH)
-	(cd $(BUILD) && cmake ../$(CODAL_DIR) -DCMAKE_BUILD_TYPE=RelWithDebInfo)
-	$(call CODAL_CLEAN)
+$(CODAL_LIBRARIES) $(BUILD): codal_cmake
 
 clean:
 	$(MAKE) -C codal_port clean
