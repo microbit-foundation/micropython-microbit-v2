@@ -30,11 +30,11 @@ codal_build: libmicropython
 	arm-none-eabi-size $(CODAL_BUILD)/MICROBIT
 	$(PYTHON3) addlayouttable.py $(SRC_HEX) $(SRC_MAP) -o $(DEST_HEX)
 
-libmicropython: $(CODAL_DIR)/libraries
+libmicropython: $(CODAL_LIBRARIES) $(BUILD)
 	$(call CODAL_CLEAN)
 	$(MAKE) -C codal_port
 
-$(CODAL_LIBRARIES):
+$(CODAL_LIBRARIES) $(BUILD):
 	$(MKDIR) -p $(BUILD)
 	$(call CODAL_PATCH)
 	(cd $(BUILD) && cmake ../$(CODAL_DIR) -DCMAKE_BUILD_TYPE=RelWithDebInfo)
