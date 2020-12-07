@@ -284,9 +284,14 @@ STATIC mp_obj_t microbit_music_stop(mp_uint_t n_args, const mp_obj_t *args) {
     }
     // Raise exception if the pin we are trying to stop is not in a compatible mode.
     microbit_pin_audio_select(pin);
+
+    // Stop any ongoing background music
+    music_data->async_state = ASYNC_MUSIC_STATE_IDLE;
+
+    // Turn off the output and free the audio pin
     music_output_amplitude(MUSIC_OUTPUT_AMPLITUDE_OFF);
     microbit_pin_audio_free();
-    music_data->async_state = ASYNC_MUSIC_STATE_IDLE;
+
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(microbit_music_stop_obj, 0, 1, microbit_music_stop);
@@ -317,6 +322,9 @@ STATIC mp_obj_t microbit_music_play(mp_uint_t n_args, const mp_obj_t *pos_args, 
         mp_obj_get_array(args[0].u_obj, &len, &items);
     }
 
+    // Stop any ongoing background music
+    music_data->async_state = ASYNC_MUSIC_STATE_IDLE;
+
     // Release the previous pin
     microbit_pin_audio_free();
 
@@ -324,7 +332,6 @@ STATIC mp_obj_t microbit_music_play(mp_uint_t n_args, const mp_obj_t *pos_args, 
     microbit_pin_audio_select(args[1].u_obj);
 
     // start the tune running in the background
-    music_data->async_state = ASYNC_MUSIC_STATE_IDLE;
     music_data->async_wait_ticks = mp_hal_ticks_ms();
     music_data->async_loop = args[3].u_bool;
     music_data->async_notes_len = len;
@@ -364,6 +371,9 @@ STATIC mp_obj_t microbit_music_pitch(mp_uint_t n_args, const mp_obj_t *pos_args,
     mp_uint_t frequency = args[0].u_int;
     mp_int_t duration = args[1].u_int;
 
+    // Stop any ongoing background music
+    music_data->async_state = ASYNC_MUSIC_STATE_IDLE;
+
     // Update pin modes
     microbit_pin_audio_free();
     microbit_pin_audio_select(args[2].u_obj);
@@ -378,7 +388,6 @@ STATIC mp_obj_t microbit_music_pitch(mp_uint_t n_args, const mp_obj_t *pos_args,
     }
     if (duration >= 0) {
         // use async machinery to stop the pitch after the duration
-        music_data->async_state = ASYNC_MUSIC_STATE_IDLE;
         music_data->async_wait_ticks = mp_hal_ticks_ms() + duration;
         music_data->async_loop = false;
         music_data->async_notes_len = 0;
