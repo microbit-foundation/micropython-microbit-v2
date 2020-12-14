@@ -32,7 +32,7 @@
 #include <stdint.h>
 
 // Memory allocation policy
-#define MICROPY_ALLOC_PATH_MAX                  (PATH_MAX)
+#define MICROPY_ALLOC_PATH_MAX                  (128)
 
 // MicroPython emitters
 #define MICROPY_EMIT_INLINE_THUMB               (1)
