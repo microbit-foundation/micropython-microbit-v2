@@ -34,6 +34,9 @@
 // Memory allocation policy
 #define MICROPY_ALLOC_PATH_MAX                  (PATH_MAX)
 
+// MicroPython emitters
+#define MICROPY_EMIT_INLINE_THUMB               (1)
+
 // Python internal features
 #define MICROPY_VM_HOOK_COUNT                   (64)
 #define MICROPY_VM_HOOK_INIT \
@@ -137,6 +140,8 @@ static inline void enable_irq(uint32_t state) {
 
 #define MICROPY_BEGIN_ATOMIC_SECTION() disable_irq()
 #define MICROPY_END_ATOMIC_SECTION(state) enable_irq(state)
+
+#define MICROPY_MAKE_POINTER_CALLABLE(p) ((void *)((uint32_t)(p) | 1))
 
 #define MP_SSIZE_MAX (0x7fffffff)
 
