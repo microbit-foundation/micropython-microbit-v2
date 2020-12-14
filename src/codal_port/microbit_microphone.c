@@ -117,10 +117,7 @@ STATIC mp_obj_t microbit_microphone_is_event(mp_obj_t self_in, mp_obj_t sound_in
     (void)self_in;
     microphone_init();
     uint8_t sound = sound_event_from_obj(sound_in);
-    if (sound_event_history_index > 0) {
-        return mp_obj_new_bool(sound == sound_event_history_array[sound_event_history_index - 1]);
-    }
-    return mp_const_false;
+    return mp_obj_new_bool(sound == sound_event_current);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(microbit_microphone_is_event_obj, microbit_microphone_is_event);
 
