@@ -54,12 +54,12 @@ void mp_hal_set_interrupt_char(int c) {
 
 uintptr_t mp_hal_stdio_poll(uintptr_t poll_flags) {
     uintptr_t ret = 0;
-    if (poll_flags && MP_STREAM_POLL_RD) {
+    if (poll_flags & MP_STREAM_POLL_RD) {
         if (uBit.serial.isReadable()) {
             ret |= MP_STREAM_POLL_RD;
         }
     }
-    if (poll_flags && MP_STREAM_POLL_WR) {
+    if (poll_flags & MP_STREAM_POLL_WR) {
         if (uBit.serial.isWriteable()) {
             ret |= MP_STREAM_POLL_WR;
         }
