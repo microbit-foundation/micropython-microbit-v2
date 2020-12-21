@@ -103,6 +103,7 @@ STATIC const mp_rom_map_elem_t microbit_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_button_b), (mp_obj_t)&microbit_button_b_obj },
     { MP_ROM_QSTR(MP_QSTR_accelerometer), MP_ROM_PTR(&microbit_accelerometer_obj) },
     { MP_ROM_QSTR(MP_QSTR_compass), MP_ROM_PTR(&microbit_compass_obj) },
+    { MP_ROM_QSTR(MP_QSTR_speaker), MP_ROM_PTR(&microbit_speaker_obj) },
     { MP_ROM_QSTR(MP_QSTR_microphone), MP_ROM_PTR(&microbit_microphone_obj) },
     { MP_ROM_QSTR(MP_QSTR_audio), MP_ROM_PTR(&audio_module) },
 

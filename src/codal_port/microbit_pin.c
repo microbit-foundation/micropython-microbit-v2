@@ -49,7 +49,7 @@ const microbit_pin_obj_t microbit_p19_obj = {{&microbit_dig_pin_type},  19, MICR
 const microbit_pin_obj_t microbit_p20_obj = {{&microbit_dig_pin_type},  20, MICROBIT_HAL_PIN_P20, MODE_I2C};
 
 const microbit_pin_obj_t microbit_pin_logo_obj = {{&microbit_touch_only_pin_type}, 30, MICROBIT_HAL_PIN_FACE, MODE_UNUSED};
-const microbit_pin_obj_t microbit_pin_speaker_obj = {{&microbit_speaker_pin_type}, 31, MICROBIT_HAL_PIN_SPEAKER, MODE_UNUSED};
+const microbit_pin_obj_t microbit_pin_speaker_obj = {{&microbit_dig_pin_type}, 31, MICROBIT_HAL_PIN_SPEAKER, MODE_UNUSED};
 
 static mp_obj_t microbit_pin_get_mode_func(mp_obj_t self_in) {
     microbit_pin_obj_t *self = (microbit_pin_obj_t*)self_in;
@@ -177,20 +177,6 @@ mp_obj_t microbit_pin_set_touch_mode(mp_obj_t self_in, mp_obj_t mode_in) {
 }
 MP_DEFINE_CONST_FUN_OBJ_2(microbit_pin_set_touch_mode_obj, microbit_pin_set_touch_mode);
 
-STATIC mp_obj_t microbit_pin_speaker_disable(mp_obj_t self_in) {
-    (void)self_in;
-    microbit_pin_audio_speaker_enable(false);
-    return mp_const_none;
-}
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_pin_speaker_disable_obj, microbit_pin_speaker_disable);
-
-STATIC mp_obj_t microbit_pin_speaker_enable(mp_obj_t self_in) {
-    (void)self_in;
-    microbit_pin_audio_speaker_enable(true);
-    return mp_const_none;
-}
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_pin_speaker_enable_obj, microbit_pin_speaker_enable);
-
 #define PULL_CONSTANTS \
     { MP_ROM_QSTR(MP_QSTR_PULL_UP), MP_ROM_INT(MICROBIT_HAL_PIN_PULL_UP) }, \
     { MP_ROM_QSTR(MP_QSTR_PULL_DOWN), MP_ROM_INT(MICROBIT_HAL_PIN_PULL_DOWN) }, \
@@ -278,26 +264,9 @@ const mp_obj_type_t microbit_touch_only_pin_type = {
     .locals_dict = (mp_obj_dict_t *)&microbit_touch_only_pin_locals_dict,
 };
 
-STATIC const mp_rom_map_elem_t microbit_speaker_pin_locals_dict_table[] = {
-    { MP_ROM_QSTR(MP_QSTR_write_digital), MP_ROM_PTR(&microbit_pin_write_digital_obj) },
-    { MP_ROM_QSTR(MP_QSTR_write_analog), MP_ROM_PTR(&microbit_pin_write_analog_obj) },
-    { MP_ROM_QSTR(MP_QSTR_set_analog_period), MP_ROM_PTR(&microbit_pin_set_analog_period_obj) },
-    { MP_ROM_QSTR(MP_QSTR_set_analog_period_microseconds), MP_ROM_PTR(&microbit_pin_set_analog_period_microseconds_obj) },
-    { MP_ROM_QSTR(MP_QSTR_get_analog_period_microseconds), MP_ROM_PTR(&microbit_pin_get_analog_period_microseconds_obj) },
-    { MP_ROM_QSTR(MP_QSTR_disable), MP_ROM_PTR(&microbit_pin_speaker_disable_obj) },
-    { MP_ROM_QSTR(MP_QSTR_enable), MP_ROM_PTR(&microbit_pin_speaker_enable_obj) },
-};
-STATIC MP_DEFINE_CONST_DICT(microbit_speaker_pin_locals_dict, microbit_speaker_pin_locals_dict_table);
-
-const mp_obj_type_t microbit_speaker_pin_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_MicroBitSpeakerPin,
-    .locals_dict = (mp_obj_dict_t *)&microbit_speaker_pin_locals_dict,
-};
-
 const microbit_pin_obj_t *microbit_obj_get_pin(mp_obj_t o) {
     const mp_obj_type_t *type = mp_obj_get_type(o);
-    if (type == &microbit_touch_pin_type || type == &microbit_ad_pin_type || type == &microbit_dig_pin_type || type == &microbit_speaker_pin_type) {
+    if (type == &microbit_touch_pin_type || type == &microbit_ad_pin_type || type == &microbit_dig_pin_type) {
         return (microbit_pin_obj_t*)o;
     } else {
         mp_raise_TypeError("expecting a pin");
