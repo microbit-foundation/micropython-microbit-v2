@@ -166,6 +166,17 @@ mp_obj_t microbit_pin_is_touched(mp_obj_t self_in) {
 }
 MP_DEFINE_CONST_FUN_OBJ_1(microbit_pin_is_touched_obj, microbit_pin_is_touched);
 
+mp_obj_t microbit_pin_set_touch_mode(mp_obj_t self_in, mp_obj_t mode_in) {
+    microbit_pin_obj_t *self = (microbit_pin_obj_t *)self_in;
+    const microbit_pinmode_t *mode = microbit_pin_get_mode(self);
+    if (mode != microbit_pin_mode_touch && mode != microbit_pin_mode_button) {
+        microbit_obj_pin_acquire(self, microbit_pin_mode_touch);
+    }
+    microbit_hal_pin_set_touch_mode(self->name, mp_obj_get_int(mode_in));
+    return mp_const_none;
+}
+MP_DEFINE_CONST_FUN_OBJ_2(microbit_pin_set_touch_mode_obj, microbit_pin_set_touch_mode);
+
 STATIC mp_obj_t microbit_pin_speaker_disable(mp_obj_t self_in) {
     (void)self_in;
     microbit_pin_audio_speaker_enable(false);
@@ -185,6 +196,10 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_pin_speaker_enable_obj, microbit_pin_s
     { MP_ROM_QSTR(MP_QSTR_PULL_DOWN), MP_ROM_INT(MICROBIT_HAL_PIN_PULL_DOWN) }, \
     { MP_ROM_QSTR(MP_QSTR_NO_PULL), MP_ROM_INT(MICROBIT_HAL_PIN_PULL_NONE) }
 
+#define TOUCH_CONSTANTS \
+    { MP_ROM_QSTR(MP_QSTR_RESISTIVE), MP_ROM_INT(MICROBIT_HAL_PIN_TOUCH_RESISTIVE) }, \
+    { MP_ROM_QSTR(MP_QSTR_CAPACITIVE), MP_ROM_INT(MICROBIT_HAL_PIN_TOUCH_CAPACITIVE) }
+
 STATIC const mp_rom_map_elem_t microbit_dig_pin_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_write_digital), MP_ROM_PTR(&microbit_pin_write_digital_obj) },
     { MP_ROM_QSTR(MP_QSTR_read_digital), MP_ROM_PTR(&microbit_pin_read_digital_obj) },
@@ -192,10 +207,10 @@ STATIC const mp_rom_map_elem_t microbit_dig_pin_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_set_analog_period), MP_ROM_PTR(&microbit_pin_set_analog_period_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_analog_period_microseconds), MP_ROM_PTR(&microbit_pin_set_analog_period_microseconds_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_analog_period_microseconds), MP_ROM_PTR(&microbit_pin_get_analog_period_microseconds_obj) },
-    PULL_CONSTANTS,
     { MP_ROM_QSTR(MP_QSTR_get_pull), MP_ROM_PTR(&microbit_pin_get_pull_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_pull), MP_ROM_PTR(&microbit_pin_set_pull_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_mode), MP_ROM_PTR(&microbit_pin_get_mode_obj) },
+    PULL_CONSTANTS,
 };
 STATIC MP_DEFINE_CONST_DICT(microbit_dig_pin_locals_dict, microbit_dig_pin_locals_dict_table);
 
@@ -213,10 +228,10 @@ STATIC const mp_rom_map_elem_t microbit_ann_pin_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_set_analog_period), MP_ROM_PTR(&microbit_pin_set_analog_period_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_analog_period_microseconds), MP_ROM_PTR(&microbit_pin_set_analog_period_microseconds_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_analog_period_microseconds), MP_ROM_PTR(&microbit_pin_get_analog_period_microseconds_obj) },
-    PULL_CONSTANTS,
     { MP_ROM_QSTR(MP_QSTR_get_pull), MP_ROM_PTR(&microbit_pin_get_pull_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_pull), MP_ROM_PTR(&microbit_pin_set_pull_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_mode), MP_ROM_PTR(&microbit_pin_get_mode_obj) },
+    PULL_CONSTANTS,
 };
 STATIC MP_DEFINE_CONST_DICT(microbit_ann_pin_locals_dict, microbit_ann_pin_locals_dict_table);
 
@@ -235,10 +250,12 @@ STATIC const mp_rom_map_elem_t microbit_touch_pin_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_set_analog_period_microseconds), MP_ROM_PTR(&microbit_pin_set_analog_period_microseconds_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_analog_period_microseconds), MP_ROM_PTR(&microbit_pin_get_analog_period_microseconds_obj) },
     { MP_ROM_QSTR(MP_QSTR_is_touched), MP_ROM_PTR(&microbit_pin_is_touched_obj) },
-    PULL_CONSTANTS,
     { MP_ROM_QSTR(MP_QSTR_get_pull), MP_ROM_PTR(&microbit_pin_get_pull_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_pull), MP_ROM_PTR(&microbit_pin_set_pull_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_mode), MP_ROM_PTR(&microbit_pin_get_mode_obj) },
+    { MP_ROM_QSTR(MP_QSTR_set_touch_mode), MP_ROM_PTR(&microbit_pin_set_touch_mode_obj) },
+    PULL_CONSTANTS,
+    TOUCH_CONSTANTS,
 };
 STATIC MP_DEFINE_CONST_DICT(microbit_touch_pin_locals_dict, microbit_touch_pin_locals_dict_table);
 
@@ -250,6 +267,8 @@ const mp_obj_type_t microbit_touch_pin_type = {
 
 STATIC const mp_rom_map_elem_t microbit_touch_only_pin_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_is_touched), MP_ROM_PTR(&microbit_pin_is_touched_obj) },
+    { MP_ROM_QSTR(MP_QSTR_set_touch_mode), MP_ROM_PTR(&microbit_pin_set_touch_mode_obj) },
+    TOUCH_CONSTANTS,
 };
 STATIC MP_DEFINE_CONST_DICT(microbit_touch_only_pin_locals_dict, microbit_touch_only_pin_locals_dict_table);
 
