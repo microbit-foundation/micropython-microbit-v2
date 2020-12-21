@@ -55,6 +55,8 @@
 #define microbit_pin_mode_i2c           (&microbit_pinmodes[MODE_I2C])
 #define microbit_pin_mode_spi           (&microbit_pinmodes[MODE_SPI])
 
+#define microbit_pin_default_audio_obj (microbit_p0_obj)
+
 typedef struct _microbit_pin_obj_t {
     mp_obj_base_t base;
     uint8_t number; // The pin number on microbit board
@@ -188,10 +190,7 @@ extern const struct _microbit_microphone_obj_t microbit_microphone_obj;
 extern const struct _microbit_button_obj_t microbit_button_a_obj;
 extern const struct _microbit_button_obj_t microbit_button_b_obj;
 
-//extern uint16_t microbit_volume_global;
-extern const mp_obj_tuple_t microbit_pin_default_audio_obj;
-
-const microbit_pin_obj_t *microbit_obj_get_pin(mp_obj_t o);
+const microbit_pin_obj_t *microbit_obj_get_pin(mp_const_obj_t o);
 
 // Release pin for use by other modes. Safe to call in an interrupt.
 // If pin is NULL or pin already unused, then this is a no-op

@@ -264,7 +264,7 @@ const mp_obj_type_t microbit_touch_only_pin_type = {
     .locals_dict = (mp_obj_dict_t *)&microbit_touch_only_pin_locals_dict,
 };
 
-const microbit_pin_obj_t *microbit_obj_get_pin(mp_obj_t o) {
+const microbit_pin_obj_t *microbit_obj_get_pin(mp_const_obj_t o) {
     const mp_obj_type_t *type = mp_obj_get_type(o);
     if (type == &microbit_touch_pin_type || type == &microbit_ad_pin_type || type == &microbit_dig_pin_type) {
         return (microbit_pin_obj_t*)o;
