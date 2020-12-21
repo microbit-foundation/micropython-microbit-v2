@@ -134,6 +134,10 @@ int microbit_hal_pin_get_analog_period_us(int pin) {
     }
 }
 
+void microbit_hal_pin_set_touch_mode(int pin, int mode) {
+    pin_obj[pin]->isTouched((TouchMode)mode);
+}
+
 int microbit_hal_pin_read(int pin) {
     return pin_obj[pin]->getDigitalValue();
 }

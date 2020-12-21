@@ -65,6 +65,9 @@ extern "C" {
 #define MICROBIT_HAL_PIN_PULL_DOWN (1)
 #define MICROBIT_HAL_PIN_PULL_NONE (2)
 
+#define MICROBIT_HAL_PIN_TOUCH_RESISTIVE (0)
+#define MICROBIT_HAL_PIN_TOUCH_CAPACITIVE (1)
+
 #define MICROBIT_HAL_ACCELEROMETER_EVT_NONE         (0)
 #define MICROBIT_HAL_ACCELEROMETER_EVT_TILT_UP      (1)
 #define MICROBIT_HAL_ACCELEROMETER_EVT_TILT_DOWN    (2)
@@ -92,6 +95,7 @@ void microbit_hal_pin_set_pull(int pin, int pull);
 int microbit_hal_pin_get_pull(int pin);
 int microbit_hal_pin_set_analog_period_us(int pin, int period);
 int microbit_hal_pin_get_analog_period_us(int pin);
+void microbit_hal_pin_set_touch_mode(int pin, int mode);
 int microbit_hal_pin_read(int pin);
 void microbit_hal_pin_write(int pin, int value);
 int microbit_hal_pin_read_analog_u10(int pin);
