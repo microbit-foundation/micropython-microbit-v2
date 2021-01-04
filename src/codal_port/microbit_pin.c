@@ -177,6 +177,14 @@ mp_obj_t microbit_pin_set_touch_mode(mp_obj_t self_in, mp_obj_t mode_in) {
 }
 MP_DEFINE_CONST_FUN_OBJ_2(microbit_pin_set_touch_mode_obj, microbit_pin_set_touch_mode);
 
+mp_obj_t microbit_pin_pulsein(mp_obj_t self_in, mp_obj_t timeout_in) {
+    microbit_pin_obj_t *self = (microbit_pin_obj_t *)self_in;
+    int tick = microbit_hal_pin_pulsein(self->name, mp_obj_get_int(timeout_in));
+    return mp_obj_new_int(tick);
+}
+MP_DEFINE_CONST_FUN_OBJ_2(microbit_pin_pulsein_obj, microbit_pin_pulsein);
+
+
 #define PULL_CONSTANTS \
     { MP_ROM_QSTR(MP_QSTR_PULL_UP), MP_ROM_INT(MICROBIT_HAL_PIN_PULL_UP) }, \
     { MP_ROM_QSTR(MP_QSTR_PULL_DOWN), MP_ROM_INT(MICROBIT_HAL_PIN_PULL_DOWN) }, \
@@ -240,6 +248,7 @@ STATIC const mp_rom_map_elem_t microbit_touch_pin_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_set_pull), MP_ROM_PTR(&microbit_pin_set_pull_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_mode), MP_ROM_PTR(&microbit_pin_get_mode_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_touch_mode), MP_ROM_PTR(&microbit_pin_set_touch_mode_obj) },
+    { MP_ROM_QSTR(MP_QSTR_pulsein), MP_ROM_PTR(&microbit_pin_pulsein_obj) },
     PULL_CONSTANTS,
     TOUCH_CONSTANTS,
 };

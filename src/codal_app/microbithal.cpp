@@ -170,6 +170,10 @@ void microbit_hal_pin_write_ws2812(int pin, const uint8_t *buf, size_t len) {
     neopixel_send_buffer(*pin_obj[pin], buf, len);
 }
 
+int microbit_hal_pin_pulsein(int pin, int timeout){
+    return pin_obj[pin]->getPulseUs(timeout);
+}
+
 int microbit_hal_i2c_init(int scl, int sda, int freq) {
     // TODO set pins
     int ret = uBit.i2c.setFrequency(freq);
