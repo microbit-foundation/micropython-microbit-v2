@@ -197,6 +197,7 @@ MP_DEFINE_CONST_FUN_OBJ_2(microbit_pin_pulsein_obj, microbit_pin_pulsein);
 STATIC const mp_rom_map_elem_t microbit_dig_pin_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_write_digital), MP_ROM_PTR(&microbit_pin_write_digital_obj) },
     { MP_ROM_QSTR(MP_QSTR_read_digital), MP_ROM_PTR(&microbit_pin_read_digital_obj) },
+    { MP_ROM_QSTR(MP_QSTR_pulsein), MP_ROM_PTR(&microbit_pin_pulsein_obj) },
     { MP_ROM_QSTR(MP_QSTR_write_analog), MP_ROM_PTR(&microbit_pin_write_analog_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_analog_period), MP_ROM_PTR(&microbit_pin_set_analog_period_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_analog_period_microseconds), MP_ROM_PTR(&microbit_pin_set_analog_period_microseconds_obj) },
@@ -217,6 +218,7 @@ const mp_obj_type_t microbit_dig_pin_type = {
 STATIC const mp_rom_map_elem_t microbit_ann_pin_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_write_digital), MP_ROM_PTR(&microbit_pin_write_digital_obj) },
     { MP_ROM_QSTR(MP_QSTR_read_digital), MP_ROM_PTR(&microbit_pin_read_digital_obj) },
+    { MP_ROM_QSTR(MP_QSTR_pulsein), MP_ROM_PTR(&microbit_pin_pulsein_obj) },
     { MP_ROM_QSTR(MP_QSTR_write_analog), MP_ROM_PTR(&microbit_pin_write_analog_obj) },
     { MP_ROM_QSTR(MP_QSTR_read_analog), MP_ROM_PTR(&microbit_pin_read_analog_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_analog_period), MP_ROM_PTR(&microbit_pin_set_analog_period_obj) },
@@ -238,6 +240,7 @@ const mp_obj_type_t microbit_ad_pin_type = {
 STATIC const mp_rom_map_elem_t microbit_touch_pin_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_write_digital), MP_ROM_PTR(&microbit_pin_write_digital_obj) },
     { MP_ROM_QSTR(MP_QSTR_read_digital), MP_ROM_PTR(&microbit_pin_read_digital_obj) },
+    { MP_ROM_QSTR(MP_QSTR_pulsein), MP_ROM_PTR(&microbit_pin_pulsein_obj) },
     { MP_ROM_QSTR(MP_QSTR_write_analog), MP_ROM_PTR(&microbit_pin_write_analog_obj) },
     { MP_ROM_QSTR(MP_QSTR_read_analog), MP_ROM_PTR(&microbit_pin_read_analog_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_analog_period), MP_ROM_PTR(&microbit_pin_set_analog_period_obj) },
@@ -248,7 +251,6 @@ STATIC const mp_rom_map_elem_t microbit_touch_pin_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_set_pull), MP_ROM_PTR(&microbit_pin_set_pull_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_mode), MP_ROM_PTR(&microbit_pin_get_mode_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_touch_mode), MP_ROM_PTR(&microbit_pin_set_touch_mode_obj) },
-    { MP_ROM_QSTR(MP_QSTR_pulsein), MP_ROM_PTR(&microbit_pin_pulsein_obj) },
     PULL_CONSTANTS,
     TOUCH_CONSTANTS,
 };
