@@ -114,10 +114,22 @@ int microbit_hal_pin_get_pull(int pin) {
 }
 
 int microbit_hal_pin_set_analog_period_us(int pin, int period) {
+    // Change the audio virtual-pin period if the pin is the special mixer pin.
     if (pin == MICROBIT_HAL_PIN_MIXER) {
         uBit.audio.virtualOutputPin.setAnalogPeriodUs(period);
         return 0;
     }
+
+    // Calling setAnalogPeriodUs requires the pin to be in analog-out mode.  So
+    // test for this mode by first calling getAnalogPeriodUs, and if it fails then
+    // attempt to configure the pin in analog-out mode by calling setAnalogValue.
+    if ((ErrorCode)pin_obj[pin]->getAnalogPeriodUs() == DEVICE_NOT_SUPPORTED) {
+        if (pin_obj[pin]->setAnalogValue(0) != DEVICE_OK) {
+            return -1;
+        }
+    }
+
+    // Set the analog period.
     if (pin_obj[pin]->setAnalogPeriodUs(period) == DEVICE_OK) {
         return 0;
     } else {
