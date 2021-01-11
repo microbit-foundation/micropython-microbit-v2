@@ -61,6 +61,7 @@
 #define MICROPY_MODULE_WEAK_LINKS               (1)
 #define MICROPY_MODULE_FROZEN_MPY               (1)
 #define MICROPY_QSTR_EXTRA_POOL                 mp_qstr_frozen_const_pool
+#define MICROPY_USE_INTERNAL_ERRNO              (1)
 #define MICROPY_ENABLE_SCHEDULER                (1)
 
 // Fine control over Python builtins, classes, modules, etc
@@ -77,6 +78,7 @@
 #define MICROPY_PY_SYS_PLATFORM                 "microbit"
 
 // Extended modules
+#define MICROPY_PY_UERRNO                       (1)
 #define MICROPY_PY_UTIME_MP_HAL                 (1)
 #define MICROPY_PY_URANDOM                      (1)
 #define MICROPY_PY_URANDOM_EXTRA_FUNCS          (1)

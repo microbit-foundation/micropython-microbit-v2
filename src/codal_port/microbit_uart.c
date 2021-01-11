@@ -144,7 +144,7 @@ STATIC mp_uint_t microbit_uart_read(mp_obj_t self_in, void *buf_in, mp_uint_t si
 
     // check there is at least 1 char available
     if (!mp_hal_stdio_poll(MP_STREAM_POLL_RD)) {
-        *errcode = EAGAIN;
+        *errcode = MP_EAGAIN;
         return MP_STREAM_ERROR;
     }
 
