@@ -46,14 +46,14 @@ NRF52Pin *const pin_obj[] = {
     &uBit.io.P14,
     &uBit.io.P15,
     &uBit.io.P16,
-    &uBit.io.P19,
-    &uBit.io.P20,
+    &uBit.io.P19, // external I2C SCL
+    &uBit.io.P20, // external I2C SDA
     &uBit.io.face,
     &uBit.io.speaker,
     &uBit.io.runmic,
     &uBit.io.microphone,
-    &uBit.io.sda,
-    &uBit.io.scl,
+    &uBit.io.sda, // internal I2C
+    &uBit.io.scl, // internal I2C
     &uBit.io.row1,
     &uBit.io.row2,
     &uBit.io.row3,
