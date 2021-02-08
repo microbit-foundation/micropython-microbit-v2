@@ -74,6 +74,7 @@ SRC_C += \
 	microbit_speaker.c \
 	microbit_spi.c \
 	microbit_uart.c \
+	modantigravity.c \
 	modaudio.c \
 	modmachine.c \
 	modmicrobit.c \
