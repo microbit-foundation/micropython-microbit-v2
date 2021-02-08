@@ -191,6 +191,7 @@ extern const struct _microbit_button_obj_t microbit_button_a_obj;
 extern const struct _microbit_button_obj_t microbit_button_b_obj;
 
 const microbit_pin_obj_t *microbit_obj_get_pin(mp_const_obj_t o);
+uint8_t microbit_obj_get_pin_name(mp_obj_t o);
 
 // Release pin for use by other modes. Safe to call in an interrupt.
 // If pin is NULL or pin already unused, then this is a no-op

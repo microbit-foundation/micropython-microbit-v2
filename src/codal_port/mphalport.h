@@ -30,3 +30,9 @@
 #define mp_hal_ticks_cpu() (0)
 
 void mp_hal_set_interrupt_char(int c);
+
+// MicroPython low-level C API for pins
+#include "modmicrobit.h"
+#define mp_hal_pin_obj_t uint8_t
+#define mp_hal_get_pin_obj(obj) microbit_obj_get_pin_name(obj)
+#define mp_hal_pin_read(pin) microbit_hal_pin_read(pin)
