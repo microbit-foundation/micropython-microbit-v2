@@ -97,6 +97,7 @@ void image_blit(microbit_image_obj_t *src, greyscale_t *dest, mp_int_t x, mp_int
 mp_obj_t microbit_string_facade(mp_obj_t string);
 
 microbit_image_obj_t *microbit_image_for_char(char c);
+microbit_image_obj_t *microbit_image_dim(microbit_image_obj_t *lhs, mp_float_t fval);
 
 // ref argument exists so that we can pull a string out of an object and not have it GC'ed while oterating over it
 mp_obj_t scrolling_string_image_iterable(const char* str, mp_uint_t len, mp_obj_t ref, bool monospace, bool repeat);

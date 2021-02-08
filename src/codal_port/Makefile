@@ -76,6 +76,7 @@ SRC_C += \
 	microbit_uart.c \
 	modantigravity.c \
 	modaudio.c \
+	modlove.c \
 	modmachine.c \
 	modmicrobit.c \
 	modmusic.c \

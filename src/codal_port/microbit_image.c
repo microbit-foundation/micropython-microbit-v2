@@ -448,7 +448,7 @@ microbit_image_obj_t *microbit_image_for_char(char c) {
     return (microbit_image_obj_t *)result;
 }
 
-STATIC microbit_image_obj_t *microbit_image_dim(microbit_image_obj_t *lhs, mp_float_t fval) {
+microbit_image_obj_t *microbit_image_dim(microbit_image_obj_t *lhs, mp_float_t fval) {
     if (fval < 0) {
         mp_raise_ValueError("brightness multiplier must not be negative");
     }
