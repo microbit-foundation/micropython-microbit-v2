@@ -128,7 +128,6 @@ mp_obj_t microbit_display_on_func(mp_obj_t self_in) {
     microbit_obj_pin_acquire(&microbit_p4_obj, microbit_pin_mode_display);
     microbit_obj_pin_acquire(&microbit_p6_obj, microbit_pin_mode_display);
     microbit_obj_pin_acquire(&microbit_p7_obj, microbit_pin_mode_display);
-    microbit_obj_pin_acquire(&microbit_p9_obj, microbit_pin_mode_display);
     microbit_obj_pin_acquire(&microbit_p10_obj, microbit_pin_mode_display);
     microbit_display_init();
     self->active = true;
@@ -145,7 +144,6 @@ mp_obj_t microbit_display_off_func(mp_obj_t self_in) {
     microbit_obj_pin_free(&microbit_p4_obj);
     microbit_obj_pin_free(&microbit_p6_obj);
     microbit_obj_pin_free(&microbit_p7_obj);
-    microbit_obj_pin_free(&microbit_p9_obj);
     microbit_obj_pin_free(&microbit_p10_obj);
     return mp_const_none;
 }
