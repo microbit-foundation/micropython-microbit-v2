@@ -94,7 +94,7 @@
 #define MICROPY_PORT_BUILTINS \
     { MP_ROM_QSTR(MP_QSTR_open), MP_ROM_PTR(&mp_builtin_open_obj) },
 
-#define MICROBIT_RELEASE "2.0.0-beta.3"
+#define MICROBIT_RELEASE "2.0.0-beta.4"
 #define MICROBIT_BOARD_NAME "micro:bit"
 #define MICROPY_HW_BOARD_NAME MICROBIT_BOARD_NAME " v" MICROBIT_RELEASE
 #define MICROPY_HW_MCU_NAME "nRF52833"
