@@ -130,7 +130,6 @@ extern const struct _mp_obj_module_t utime_module;
     const char *readline_hist[8]; \
     void *display_data; \
     uint8_t *radio_buf; \
-    void *audio_buffer; \
     void *audio_source; \
     void *speech_data; \
     struct _music_data_t *music_data; \
