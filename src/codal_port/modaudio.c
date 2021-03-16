@@ -142,8 +142,6 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, ui
     audio_init(sample_rate);
     microbit_pin_audio_select(pin_select);
 
-    audio_source_iter = NULL;
-
     if (mp_obj_is_type(src, &microbit_sound_type)) {
         // TODO support wait=True mode
         const microbit_sound_obj_t *sound = (const microbit_sound_obj_t *)MP_OBJ_TO_PTR(src);
@@ -151,15 +149,17 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, ui
         return;
     }
 
+    // Get the iterator and start the audio running.
     audio_source_iter = mp_getiter(src, NULL);
-    audio_data_fetcher();
     audio_running = true;
-    if (!wait) {
-        return;
-    }
-    while (audio_running) {
-        mp_handle_pending(true);
-        microbit_hal_idle();
+    audio_data_fetcher();
+
+    if (wait) {
+        // Wait the audio to exhaust the iterator.
+        while (audio_running) {
+            mp_handle_pending(true);
+            microbit_hal_idle();
+        }
     }
 }
 
