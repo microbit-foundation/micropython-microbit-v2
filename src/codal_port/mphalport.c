@@ -27,6 +27,13 @@
 #include "py/runtime.h"
 #include "py/mphal.h"
 
+void mp_sched_schedule_exception(mp_obj_t exc) {
+    MP_STATE_VM(mp_pending_exception) = exc;
+    if (MP_STATE_VM(sched_state) == MP_SCHED_IDLE) {
+        MP_STATE_VM(sched_state) = MP_SCHED_PENDING;
+    }
+}
+
 void mp_hal_delay_us(mp_uint_t us) {
     if (us <= 0) {
         return;

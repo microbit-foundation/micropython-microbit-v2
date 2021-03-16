@@ -77,7 +77,7 @@ STATIC void audio_data_fetcher(void) {
     } else {
         if (!mp_obj_is_subclass_fast(MP_OBJ_FROM_PTR(((mp_obj_base_t*)nlr.ret_val)->type),
             MP_OBJ_FROM_PTR(&mp_type_StopIteration))) {
-            MP_STATE_VM(mp_pending_exception) = MP_OBJ_FROM_PTR(nlr.ret_val);
+            mp_sched_schedule_exception(MP_OBJ_FROM_PTR(nlr.ret_val));
         }
         buffer_obj = MP_OBJ_STOP_ITERATION;
     }
@@ -89,7 +89,7 @@ STATIC void audio_data_fetcher(void) {
         // Audio iterator did not return an AudioFrame
         audio_source_iter = NULL;
         microbit_audio_stop();
-        MP_STATE_VM(mp_pending_exception) = mp_obj_new_exception_msg(&mp_type_TypeError, "not an AudioFrame");
+        mp_sched_schedule_exception(mp_obj_new_exception_msg(&mp_type_TypeError, "not an AudioFrame"));
     } else {
         microbit_audio_frame_obj_t *buffer = (microbit_audio_frame_obj_t *)buffer_obj;
         uint8_t *dest = &audio_output_buffer[0];
