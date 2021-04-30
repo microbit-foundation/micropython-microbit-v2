@@ -139,7 +139,9 @@ const uint8_t *microbit_hal_get_font_data(char c);
 void microbit_hal_audio_select_pin(int pin);
 void microbit_hal_audio_select_speaker(bool enable);
 void microbit_hal_audio_set_volume(int value);
+bool microbit_hal_audio_is_expression_active(void);
 void microbit_hal_audio_play_expression_by_name(const char *name);
+void microbit_hal_audio_stop_expression(void);
 
 void microbit_hal_audio_init(uint32_t sample_rate);
 void microbit_hal_audio_write_data(const uint8_t *buf, size_t num_samples);

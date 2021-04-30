@@ -59,6 +59,8 @@ extern "C" {
 
 #include "microbithal.h"
 
+static uint8_t sound_synth_active_count = 0;
+
 void microbit_hal_audio_select_pin(int pin) {
     if (pin < 0) {
         uBit.audio.setPinEnabled(false);
@@ -81,8 +83,24 @@ void microbit_hal_audio_set_volume(int value) {
     }
 }
 
+void microbit_hal_sound_synth_callback(int event) {
+    if (event == DEVICE_SOUND_EMOJI_SYNTHESIZER_EVT_DONE) {
+        --sound_synth_active_count;
+    }
+}
+
+bool microbit_hal_audio_is_expression_active(void) {
+    return sound_synth_active_count > 0;
+}
+
 void microbit_hal_audio_play_expression_by_name(const char *name) {
+    ++sound_synth_active_count;
+    uBit.audio.soundExpressions.stop();
     uBit.audio.soundExpressions.playAsync(name);
+}
+
+void microbit_hal_audio_stop_expression(void) {
+    uBit.audio.soundExpressions.stop();
 }
 
 void microbit_hal_audio_init(uint32_t sample_rate) {
