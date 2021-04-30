@@ -284,7 +284,12 @@ void microbit_hal_display_clear(void) {
 }
 
 int microbit_hal_display_get_pixel(int x, int y) {
-    return uBit.display.image.getPixelValue(x, y);
+    uint32_t pixel = uBit.display.image.getPixelValue(x, y);
+    if (pixel == 255) {
+        return 9;
+    } else {
+        return 32 - __builtin_clz(pixel);
+    }
 }
 
 void microbit_hal_display_set_pixel(int x, int y, int bright) {
