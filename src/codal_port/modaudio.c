@@ -143,9 +143,23 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, ui
     microbit_pin_audio_select(pin_select);
 
     if (mp_obj_is_type(src, &microbit_sound_type)) {
-        // TODO support wait=True mode
         const microbit_sound_obj_t *sound = (const microbit_sound_obj_t *)MP_OBJ_TO_PTR(src);
         microbit_hal_audio_play_expression_by_name(sound->name);
+        if (wait) {
+            nlr_buf_t nlr;
+            if (nlr_push(&nlr) == 0) {
+                // Wait for the expression to finish playing.
+                while (microbit_hal_audio_is_expression_active()) {
+                    mp_handle_pending(true);
+                    microbit_hal_idle();
+                }
+                nlr_pop();
+            } else {
+                // Catch all exceptions and stop the audio before re-raising.
+                microbit_hal_audio_stop_expression();
+                nlr_jump(nlr.ret_val);
+            }
+        }
         return;
     }
 
