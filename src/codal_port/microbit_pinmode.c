@@ -77,7 +77,7 @@ static void noop(const microbit_pin_obj_t *pin) {
 
 void pinmode_error(const microbit_pin_obj_t *pin) {
     const microbit_pinmode_t *current_mode = microbit_pin_get_mode(pin);
-    nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError, "Pin %d in %q mode", pin->number, current_mode->name));
+    nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError, MP_ERROR_TEXT("Pin %d in %q mode"), pin->number, current_mode->name));
 }
 
 static void analog_release(const microbit_pin_obj_t *pin) {

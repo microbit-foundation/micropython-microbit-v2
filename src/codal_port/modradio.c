@@ -36,7 +36,7 @@ STATIC microbit_radio_config_t radio_config;
 
 STATIC void ensure_enabled(void) {
     if (MP_STATE_PORT(radio_buf) == NULL) {
-        mp_raise_ValueError("radio is not enabled");
+        mp_raise_ValueError(MP_ERROR_TEXT("radio is not enabled"));
     }
 }
 
@@ -56,7 +56,7 @@ STATIC mp_obj_t mod_radio_config(size_t n_args, const mp_obj_t *pos_args, mp_map
     (void)pos_args; // unused
 
     if (n_args != 0) {
-        mp_raise_TypeError("arguments must be keywords");
+        mp_raise_TypeError(MP_ERROR_TEXT("arguments must be keywords"));
     }
 
     // make a copy of the radio state so we don't change anything if there are value errors
@@ -119,7 +119,7 @@ STATIC mp_obj_t mod_radio_config(size_t n_args, const mp_obj_t *pos_args, mp_map
                     break;
 
                 default:
-                    nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError, "unknown argument '%q'", arg_name));
+                    nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError, MP_ERROR_TEXT("unknown argument '%q'"), arg_name));
                     break;
             }
         }
@@ -147,7 +147,7 @@ STATIC mp_obj_t mod_radio_config(size_t n_args, const mp_obj_t *pos_args, mp_map
     return mp_const_none;
 
 value_error:
-    nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError, "value out of range for argument '%q'", arg_name));
+    nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ValueError, MP_ERROR_TEXT("value out of range for argument '%q'"), arg_name));
 }
 MP_DEFINE_CONST_FUN_OBJ_KW(mod_radio_config_obj, 0, mod_radio_config);
 
@@ -203,7 +203,7 @@ STATIC mp_obj_t mod_radio_receive(void) {
         // Verify header has the correct values for an encoded string object.
         if (!(buf[0] >= 3 && buf[1] == 1 && buf[2] == 0 && buf[3] == 1)) {
             microbit_radio_pop();
-            mp_raise_ValueError("received packet is not a string");
+            mp_raise_ValueError(MP_ERROR_TEXT("received packet is not a string"));
         }
         mp_obj_t ret = mp_obj_new_str((const char *)buf + 4, buf[0] - 3);
         microbit_radio_pop();

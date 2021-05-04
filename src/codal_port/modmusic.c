@@ -384,7 +384,7 @@ STATIC mp_obj_t microbit_music_pitch(mp_uint_t n_args, const mp_obj_t *pos_args,
         microbit_pin_audio_free();
     } else if (music_output_period_us(1000000 / frequency) == -1) {
         microbit_pin_audio_free();
-        mp_raise_ValueError("invalid pitch");
+        mp_raise_ValueError(MP_ERROR_TEXT("invalid pitch"));
     }
     if (duration >= 0) {
         // use async machinery to stop the pitch after the duration

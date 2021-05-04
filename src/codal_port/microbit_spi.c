@@ -38,7 +38,7 @@ STATIC bool microbit_spi_initialised = false;
 
 STATIC void microbit_spi_check_initialised(void) {
     if (!microbit_spi_initialised) {
-        mp_raise_ValueError("SPI not initialised");
+        mp_raise_ValueError(MP_ERROR_TEXT("SPI not initialised"));
     }
 }
 
@@ -125,7 +125,7 @@ STATIC mp_obj_t microbit_spi_write_readinto(mp_obj_t self_in, mp_obj_t write_buf
     mp_buffer_info_t read_bufinfo;
     mp_get_buffer_raise(read_buf, &read_bufinfo, MP_BUFFER_WRITE);
     if (write_bufinfo.len != read_bufinfo.len) {
-        mp_raise_ValueError("write and read buffers must be the same length");
+        mp_raise_ValueError(MP_ERROR_TEXT("write and read buffers must be the same length"));
     }
     microbit_hal_spi_transfer(write_bufinfo.len, write_bufinfo.buf, read_bufinfo.buf);
     return mp_const_none;

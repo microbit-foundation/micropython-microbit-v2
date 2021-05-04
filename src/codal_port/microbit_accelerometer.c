@@ -62,7 +62,7 @@ STATIC uint32_t gesture_from_obj(mp_obj_t gesture_in) {
             return i;
         }
     }
-    mp_raise_ValueError("invalid gesture");
+    mp_raise_ValueError(MP_ERROR_TEXT("invalid gesture"));
 }
 
 STATIC void update_for_gesture(void) {

@@ -353,7 +353,7 @@ STATIC mp_obj_t translate(mp_obj_t words) {
     // Reciter truncates *output* at about 120 characters.
     // So to avoid that we must disallow any input that will exceed that.
     if (len > 80) {
-        mp_raise_ValueError("text too long");
+        mp_raise_ValueError(MP_ERROR_TEXT("text too long"));
     }
     reciter_memory *mem = m_new(reciter_memory, 1);
     MP_STATE_PORT(speech_data) = mem;
@@ -363,7 +363,7 @@ STATIC mp_obj_t translate(mp_obj_t words) {
     mem->input[len] = '[';
     if (!TextToPhonemes(mem)) {
         MP_STATE_PORT(speech_data) = NULL;
-        mp_raise_ValueError("could not parse input");
+        mp_raise_ValueError(MP_ERROR_TEXT("could not parse input"));
     }
     for (outlen = 0; outlen < 255; outlen++) {
         if (mem->input[outlen] == 155) {
@@ -431,7 +431,7 @@ STATIC mp_obj_t articulate(mp_obj_t phonemes, mp_uint_t n_args, const mp_obj_t *
     if (!SAMMain(sam)) {
         microbit_audio_stop();
         MP_STATE_PORT(speech_data) = NULL;
-        mp_raise_ValueError(sam_error);
+        mp_raise_ValueError((mp_rom_error_text_t)sam_error);
     }
 
     #if USE_DEDICATED_AUDIO_CHANNEL

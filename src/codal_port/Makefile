@@ -1,5 +1,6 @@
 # Makefile to build libmicropython.a
 
+MICROPY_ROM_TEXT_COMPRESSION ?= 1
 FROZEN_MANIFEST ?= manifest.py
 
 CROSS_COMPILE = arm-none-eabi-

@@ -89,7 +89,7 @@ STATIC void audio_data_fetcher(void) {
         // Audio iterator did not return an AudioFrame
         audio_source_iter = NULL;
         microbit_audio_stop();
-        mp_sched_schedule_exception(mp_obj_new_exception_msg(&mp_type_TypeError, "not an AudioFrame"));
+        mp_sched_schedule_exception(mp_obj_new_exception_msg(&mp_type_TypeError, MP_ERROR_TEXT("not an AudioFrame")));
     } else {
         microbit_audio_frame_obj_t *buffer = (microbit_audio_frame_obj_t *)buffer_obj;
         uint8_t *dest = &audio_output_buffer[0];
@@ -196,7 +196,7 @@ STATIC mp_obj_t play(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_ar
 
     // The return_pin argument from micro:bit v1 is no longer supported.
     if (args[3].u_obj != mp_const_none) {
-        mp_raise_ValueError("return_pin not supported");
+        mp_raise_ValueError(MP_ERROR_TEXT("return_pin not supported"));
     }
 
     mp_obj_t src = args[0].u_obj;
@@ -242,18 +242,18 @@ STATIC mp_obj_t audio_frame_subscr(mp_obj_t self_in, mp_obj_t index_in, mp_obj_t
     microbit_audio_frame_obj_t *self = (microbit_audio_frame_obj_t *)self_in;
     mp_int_t index = mp_obj_get_int(index_in);
     if (index < 0 || index >= AUDIO_CHUNK_SIZE) {
-         mp_raise_ValueError("index out of bounds");
+         mp_raise_ValueError(MP_ERROR_TEXT("index out of bounds"));
     }
     if (value_in == MP_OBJ_NULL) {
         // delete
-        mp_raise_TypeError("cannot delete elements of AudioFrame");
+        mp_raise_TypeError(MP_ERROR_TEXT("cannot delete elements of AudioFrame"));
     } else if (value_in == MP_OBJ_SENTINEL) {
         // load
         return MP_OBJ_NEW_SMALL_INT(self->data[index]);
     } else {
         mp_int_t value = mp_obj_get_int(value_in);
         if (value < 0 || value > 255) {
-            mp_raise_ValueError("value out of range");
+            mp_raise_ValueError(MP_ERROR_TEXT("value out of range"));
         }
         self->data[index] = value;
         return mp_const_none;

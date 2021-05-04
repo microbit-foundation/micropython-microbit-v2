@@ -36,7 +36,7 @@ void microbit_pin_audio_select(mp_const_obj_t select) {
     if (select == mp_const_none) {
         pin_selected = NULL;
     } else if (select == MP_OBJ_FROM_PTR(&microbit_pin_speaker_obj)) {
-        mp_raise_ValueError("pin_speaker not allowed");
+        mp_raise_ValueError(MP_ERROR_TEXT("pin_speaker not allowed"));
     } else {
         pin_selected = microbit_obj_get_pin((mp_obj_t)select);
     }

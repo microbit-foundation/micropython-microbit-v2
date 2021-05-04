@@ -93,7 +93,7 @@ static void draw_object(mp_obj_t obj) {
             async_stop();
         }
     } else {
-        mp_sched_schedule_exception(mp_obj_new_exception_msg(&mp_type_TypeError, "not an image"));
+        mp_sched_schedule_exception(mp_obj_new_exception_msg(&mp_type_TypeError, MP_ERROR_TEXT("not an image")));
         async_stop();
     }
 }

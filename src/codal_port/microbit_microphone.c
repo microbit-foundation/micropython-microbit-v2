@@ -78,7 +78,7 @@ STATIC uint8_t sound_event_from_obj(mp_obj_t sound) {
             return i;
         }
     }
-    mp_raise_ValueError("invalid sound");
+    mp_raise_ValueError(MP_ERROR_TEXT("invalid sound"));
 }
 
 STATIC mp_obj_t microbit_microphone_set_threshold(mp_obj_t self_in, mp_obj_t sound_in, mp_obj_t value_in) {
@@ -90,7 +90,7 @@ STATIC mp_obj_t microbit_microphone_set_threshold(mp_obj_t self_in, mp_obj_t sou
     } else if (sound == SOUND_EVENT_LOUD) {
         kind = 1;
     } else {
-        mp_raise_ValueError("invalid sound");
+        mp_raise_ValueError(MP_ERROR_TEXT("invalid sound"));
     }
     int value = mp_obj_get_int(value_in);
     microphone_init();

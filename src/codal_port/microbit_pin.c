@@ -61,7 +61,7 @@ mp_obj_t microbit_pin_write_digital(mp_obj_t self_in, mp_obj_t value_in) {
     microbit_pin_obj_t *self = (microbit_pin_obj_t*)self_in;
     int val = mp_obj_get_int(value_in);
     if (val >> 1) {
-        mp_raise_ValueError("value must be 0 or 1");
+        mp_raise_ValueError(MP_ERROR_TEXT("value must be 0 or 1"));
     }
     if (microbit_obj_pin_acquire(self, microbit_pin_mode_write_digital)) {
     }
@@ -109,7 +109,7 @@ mp_obj_t microbit_pin_write_analog(mp_obj_t self_in, mp_obj_t value_in) {
         set_value = mp_obj_get_int(value_in);
     }
     if (set_value < 0 || set_value > 1023) {
-        mp_raise_ValueError("value must be between 0 and 1023");
+        mp_raise_ValueError(MP_ERROR_TEXT("value must be between 0 and 1023"));
     }
     if (microbit_obj_pin_acquire(self, microbit_pin_mode_write_analog)) {
     }
@@ -132,7 +132,7 @@ mp_obj_t microbit_pin_set_analog_period(mp_obj_t self_in, mp_obj_t period_in) {
     microbit_pin_obj_t *self = (microbit_pin_obj_t*)self_in;
     mp_int_t period = mp_obj_get_int(period_in) * 1000;
     if (microbit_hal_pin_set_analog_period_us(self->name, period) == -1) {
-        mp_raise_ValueError("invalid period");
+        mp_raise_ValueError(MP_ERROR_TEXT("invalid period"));
     }
     return mp_const_none;
 }
@@ -142,7 +142,7 @@ mp_obj_t microbit_pin_set_analog_period_microseconds(mp_obj_t self_in, mp_obj_t 
     microbit_pin_obj_t *self = (microbit_pin_obj_t*)self_in;
     mp_int_t period = mp_obj_get_int(period_in);
     if (microbit_hal_pin_set_analog_period_us(self->name, period) == -1) {
-        mp_raise_ValueError("invalid period");
+        mp_raise_ValueError(MP_ERROR_TEXT("invalid period"));
     }
     return mp_const_none;
 }
@@ -269,7 +269,7 @@ const microbit_pin_obj_t *microbit_obj_get_pin(mp_const_obj_t o) {
     if (type == &microbit_touch_pin_type || type == &microbit_ad_pin_type || type == &microbit_dig_pin_type) {
         return (microbit_pin_obj_t*)o;
     } else {
-        mp_raise_TypeError("expecting a pin");
+        mp_raise_TypeError(MP_ERROR_TEXT("expecting a pin"));
     }
 }
 
