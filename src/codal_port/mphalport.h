@@ -30,7 +30,6 @@
 // Not implemented and not exposed in utime module.
 #define mp_hal_ticks_cpu() (0)
 
-void mp_sched_schedule_exception(mp_obj_t exc);
 void mp_hal_set_interrupt_char(int c);
 
 static inline uint64_t mp_hal_time_ns(void) {
