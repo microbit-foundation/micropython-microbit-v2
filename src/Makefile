@@ -27,7 +27,7 @@ all: codal_build
 codal_cmake:
 	$(MKDIR) -p $(BUILD)
 	$(call CODAL_PATCH)
-	(cd $(BUILD) && cmake ../$(CODAL_DIR) -DCMAKE_BUILD_TYPE=RelWithDebInfo)
+	(cd $(BUILD) && cmake ../$(CODAL_DIR) -DCMAKE_BUILD_TYPE=MinSizeRel)
 	$(call CODAL_CLEAN)
 
 # Build the codal app and make the final HEX file
