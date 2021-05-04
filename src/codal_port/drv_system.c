@@ -47,5 +47,5 @@ void microbit_hal_timer_callback(void) {
 }
 
 void microbit_hal_serial_interrupt_callback(void) {
-    mp_keyboard_interrupt();
+    mp_sched_keyboard_interrupt();
 }

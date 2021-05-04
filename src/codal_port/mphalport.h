@@ -33,6 +33,11 @@
 void mp_sched_schedule_exception(mp_obj_t exc);
 void mp_hal_set_interrupt_char(int c);
 
+static inline uint64_t mp_hal_time_ns(void) {
+    // Not currently implemented.
+    return 0;
+}
+
 // MicroPython low-level C API for pins
 #include "modmicrobit.h"
 #define mp_hal_pin_obj_t uint8_t
