@@ -91,8 +91,10 @@
 #define MICROPY_MBFS                            (1)
 
 // extra built in names to add to the global namespace
+#if MICROPY_MBFS
 #define MICROPY_PORT_BUILTINS \
     { MP_ROM_QSTR(MP_QSTR_open), MP_ROM_PTR(&mp_builtin_open_obj) },
+#endif
 
 #define MICROBIT_RELEASE "2.0.0-beta.5"
 #define MICROBIT_BOARD_NAME "micro:bit"

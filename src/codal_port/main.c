@@ -53,7 +53,9 @@ void mp_main(void) {
     for (;;) {
         microbit_system_init();
         microbit_display_init();
+        #if MICROPY_MBFS
         microbit_filesystem_init();
+        #endif
 
         gc_init(heap, heap + sizeof(heap));
         mp_init();

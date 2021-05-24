@@ -66,17 +66,20 @@ STATIC mp_obj_t os_uname(void) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(os_uname_obj, os_uname);
 
+#if MICROPY_MBFS
 STATIC mp_obj_t os_size(mp_obj_t filename) {
     mp_obj_tuple_t *tuple = MP_OBJ_TO_PTR(uos_mbfs_stat_obj.fun._1(filename));
     return tuple->items[6];
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(os_size_obj, os_size);
+#endif
 
 STATIC const mp_rom_map_elem_t os_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_os) },
 
     { MP_ROM_QSTR(MP_QSTR_uname), MP_ROM_PTR(&os_uname_obj) },
 
+    #if MICROPY_MBFS
     { MP_ROM_QSTR(MP_QSTR_listdir), MP_ROM_PTR(&uos_mbfs_listdir_obj) },
     { MP_ROM_QSTR(MP_QSTR_ilistdir), MP_ROM_PTR(&uos_mbfs_ilistdir_obj) },
     { MP_ROM_QSTR(MP_QSTR_remove), MP_ROM_PTR(&uos_mbfs_remove_obj) },
@@ -84,6 +87,7 @@ STATIC const mp_rom_map_elem_t os_module_globals_table[] = {
 
     // micro:bit v1 specific
     { MP_ROM_QSTR(MP_QSTR_size), MP_ROM_PTR(&os_size_obj) },
+    #endif
 };
 STATIC MP_DEFINE_CONST_DICT(os_module_globals, os_module_globals_table);
 
