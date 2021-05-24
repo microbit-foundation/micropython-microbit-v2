@@ -35,7 +35,7 @@ void microbit_system_init(void) {
     accelerometer_up_to_date = false;
 }
 
-// Called every 6ms
+// Called every 6ms on a hardware interrupt.
 // TODO: should only enable this when system is ready
 // TODO: perhaps only schedule the callback when we need it
 void microbit_hal_timer_callback(void) {
