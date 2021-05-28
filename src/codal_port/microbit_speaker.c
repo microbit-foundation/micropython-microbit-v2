@@ -54,7 +54,7 @@ STATIC MP_DEFINE_CONST_DICT(microbit_speaker_locals_dict, microbit_speaker_local
 
 STATIC const mp_obj_type_t microbit_speaker_type = {
     { &mp_type_type },
-    .name = MP_QSTR_MicroBitSpeakerPin,
+    .name = MP_QSTR_MicroBitSpeaker,
     .locals_dict = (mp_obj_dict_t *)&microbit_speaker_locals_dict,
 };
 
