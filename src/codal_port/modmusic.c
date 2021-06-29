@@ -105,7 +105,6 @@ void microbit_music_tick(void) {
                 music_data->async_notes_index = 0;
             } else {
                 music_data->async_state = ASYNC_MUSIC_STATE_IDLE;
-                microbit_pin_audio_free();
                 return;
             }
         }
@@ -289,9 +288,8 @@ STATIC mp_obj_t microbit_music_stop(mp_uint_t n_args, const mp_obj_t *args) {
     // Stop any ongoing background music
     music_data->async_state = ASYNC_MUSIC_STATE_IDLE;
 
-    // Turn off the output and free the audio pin
+    // Turn off the output
     music_output_amplitude(MUSIC_OUTPUT_AMPLITUDE_OFF);
-    microbit_pin_audio_free();
 
     return mp_const_none;
 }
@@ -325,9 +323,6 @@ STATIC mp_obj_t microbit_music_play(mp_uint_t n_args, const mp_obj_t *pos_args, 
 
     // Stop any ongoing background music
     music_data->async_state = ASYNC_MUSIC_STATE_IDLE;
-
-    // Release the previous pin
-    microbit_pin_audio_free();
 
     // get the pin to play on
     microbit_pin_audio_select(args[1].u_obj);
@@ -376,15 +371,11 @@ STATIC mp_obj_t microbit_music_pitch(mp_uint_t n_args, const mp_obj_t *pos_args,
     music_data->async_state = ASYNC_MUSIC_STATE_IDLE;
 
     // Update pin modes
-    microbit_pin_audio_free();
     microbit_pin_audio_select(args[2].u_obj);
 
     bool wait = args[3].u_bool;
     music_output_amplitude(MUSIC_OUTPUT_AMPLITUDE_ON);
-    if (frequency == 0) {
-        microbit_pin_audio_free();
-    } else if (music_output_period_us(1000000 / frequency) == -1) {
-        microbit_pin_audio_free();
+    if (frequency != 0 && music_output_period_us(1000000 / frequency) == -1) {
         mp_raise_ValueError(MP_ERROR_TEXT("invalid pitch"));
     }
     if (duration >= 0) {

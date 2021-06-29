@@ -50,7 +50,6 @@ microbit_audio_frame_obj_t *microbit_audio_frame_make_new(void);
 void microbit_audio_stop(void) {
     audio_source_iter = NULL;
     audio_running = false;
-    microbit_pin_audio_free();
 }
 
 STATIC void audio_buffer_ready(void) {
