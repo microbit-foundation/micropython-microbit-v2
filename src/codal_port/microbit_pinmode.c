@@ -25,7 +25,9 @@
  */
 
 #include "py/runtime.h"
+#include "modaudio.h"
 #include "modmicrobit.h"
+#include "modmusic.h"
 
 uint8_t microbit_pinmode_indices[32] = { 0 };
 
@@ -84,6 +86,14 @@ static void analog_release(const microbit_pin_obj_t *pin) {
     // TODO: pwm_release()
 }
 
+static void music_release(const microbit_pin_obj_t *pin) {
+    if (microbit_audio_is_playing() || microbit_music_is_playing()) {
+        pinmode_error(pin);
+    } else {
+        microbit_pin_audio_free();
+    }
+}
+
 const microbit_pinmode_t microbit_pinmodes[] = {
     [MODE_UNUSED]        = { MP_QSTR_unused, noop },
     [MODE_WRITE_ANALOG]  = { MP_QSTR_write_analog, analog_release },
@@ -91,7 +101,7 @@ const microbit_pinmode_t microbit_pinmodes[] = {
     [MODE_WRITE_DIGITAL] = { MP_QSTR_write_digital, noop },
     [MODE_DISPLAY]       = { MP_QSTR_display, pinmode_error },
     [MODE_BUTTON]        = { MP_QSTR_button, pinmode_error },
-    [MODE_MUSIC]         = { MP_QSTR_music, pinmode_error },
+    [MODE_MUSIC]         = { MP_QSTR_music, music_release },
     [MODE_AUDIO_PLAY]    = { MP_QSTR_audio, noop },
     [MODE_TOUCH]         = { MP_QSTR_touch, noop },
     [MODE_I2C]           = { MP_QSTR_i2c, pinmode_error },

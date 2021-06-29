@@ -205,11 +205,11 @@ STATIC mp_obj_t play(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_ar
 MP_DEFINE_CONST_FUN_OBJ_KW(microbit_audio_play_obj, 0, play);
 
 bool microbit_audio_is_playing(void) {
-    return audio_running;
+    return audio_running || microbit_hal_audio_is_expression_active();
 }
 
 mp_obj_t is_playing(void) {
-    return mp_obj_new_bool(audio_running);
+    return mp_obj_new_bool(microbit_audio_is_playing());
 }
 MP_DEFINE_CONST_FUN_OBJ_0(microbit_audio_is_playing_obj, is_playing);
 

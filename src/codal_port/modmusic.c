@@ -76,6 +76,10 @@ STATIC int music_output_period_us(uint32_t period) {
     return microbit_hal_pin_set_analog_period_us(MICROBIT_HAL_PIN_MIXER, period);
 }
 
+bool microbit_music_is_playing(void) {
+    return music_data != NULL && music_data->async_state != ASYNC_MUSIC_STATE_IDLE;
+}
+
 // This runs on a hardware interrupt.
 void microbit_music_tick(void) {
     if (music_data == NULL) {
