@@ -85,6 +85,13 @@ extern "C" {
 #define MICROBIT_HAL_MICROPHONE_LEVEL_THRESHOLD_LOW (1)
 #define MICROBIT_HAL_MICROPHONE_LEVEL_THRESHOLD_HIGH (2)
 
+#define MICROBIT_HAL_LOG_TIMESTAMP_NONE             (0)
+#define MICROBIT_HAL_LOG_TIMESTAMP_MILLISECONDS     (1)
+#define MICROBIT_HAL_LOG_TIMESTAMP_SECONDS          (10)
+#define MICROBIT_HAL_LOG_TIMESTAMP_MINUTES          (600)
+#define MICROBIT_HAL_LOG_TIMESTAMP_HOURS            (36000)
+#define MICROBIT_HAL_LOG_TIMESTAMP_DAYS             (864000)
+
 void microbit_hal_idle(void);
 
 void microbit_hal_reset(void);
@@ -135,6 +142,12 @@ void microbit_hal_microphone_set_threshold(int kind, int value);
 int microbit_hal_microphone_get_level(void);
 
 const uint8_t *microbit_hal_get_font_data(char c);
+
+void microbit_hal_log_delete(bool full_erase);
+void microbit_hal_log_set_timestamp(int period);
+int microbit_hal_log_begin_row(void);
+int microbit_hal_log_end_row(void);
+int microbit_hal_log_data(const char *key, const char *value);
 
 void microbit_hal_audio_select_pin(int pin);
 void microbit_hal_audio_select_speaker(bool enable);

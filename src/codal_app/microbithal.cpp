@@ -349,6 +349,41 @@ const uint8_t *microbit_hal_get_font_data(char c) {
     return BitmapFont::getSystemFont().get(c);
 }
 
+void microbit_hal_log_delete(bool full_erase) {
+    uBit.log.clear(full_erase);
+}
+
+void microbit_hal_log_set_timestamp(int period) {
+    static_assert(MICROBIT_HAL_LOG_TIMESTAMP_NONE == (int)TimeStampFormat::None);
+    static_assert(MICROBIT_HAL_LOG_TIMESTAMP_MILLISECONDS == (int)TimeStampFormat::Milliseconds);
+    static_assert(MICROBIT_HAL_LOG_TIMESTAMP_SECONDS == (int)TimeStampFormat::Seconds);
+    static_assert(MICROBIT_HAL_LOG_TIMESTAMP_MINUTES == (int)TimeStampFormat::Minutes);
+    static_assert(MICROBIT_HAL_LOG_TIMESTAMP_HOURS == (int)TimeStampFormat::Hours);
+    static_assert(MICROBIT_HAL_LOG_TIMESTAMP_DAYS == (int)TimeStampFormat::Days);
+    uBit.log.setTimeStamp((TimeStampFormat)period);
+}
+
+int microbit_hal_log_begin_row(void) {
+    if (uBit.log.beginRow() != DEVICE_OK) {
+        return -1;
+    }
+    return 0;
+}
+
+int microbit_hal_log_end_row(void) {
+    if (uBit.log.endRow() != DEVICE_OK) {
+        return -1;
+    }
+    return 0;
+}
+
+int microbit_hal_log_data(const char *key, const char *value) {
+    if (uBit.log.logData(key, value) != DEVICE_OK) {
+        return -1;
+    }
+    return 0;
+}
+
 // This is needed by the microbitfs implementation.
 uint32_t rng_generate_random_word(void) {
     return uBit.random(65536) << 16 | uBit.random(65536);
