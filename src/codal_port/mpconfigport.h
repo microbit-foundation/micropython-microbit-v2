@@ -105,6 +105,7 @@
 
 extern const struct _mp_obj_module_t antigravity_module;
 extern const struct _mp_obj_module_t audio_module;
+extern const struct _mp_obj_module_t log_module;
 extern const struct _mp_obj_module_t love_module;
 extern const struct _mp_obj_module_t machine_module;
 extern const struct _mp_obj_module_t microbit_module;
@@ -118,6 +119,7 @@ extern const struct _mp_obj_module_t utime_module;
 #define MICROPY_PORT_BUILTIN_MODULES \
     { MP_ROM_QSTR(MP_QSTR_antigravity), MP_ROM_PTR(&antigravity_module) }, \
     { MP_ROM_QSTR(MP_QSTR_audio), MP_ROM_PTR(&audio_module) }, \
+    { MP_ROM_QSTR(MP_QSTR_log), MP_ROM_PTR(&log_module) }, \
     { MP_ROM_QSTR(MP_QSTR_love), MP_ROM_PTR(&love_module) }, \
     { MP_ROM_QSTR(MP_QSTR_machine), MP_ROM_PTR(&machine_module) }, \
     { MP_ROM_QSTR(MP_QSTR_microbit), MP_ROM_PTR(&microbit_module) }, \
