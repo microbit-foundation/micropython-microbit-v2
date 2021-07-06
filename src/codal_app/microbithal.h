@@ -144,6 +144,7 @@ int microbit_hal_microphone_get_level(void);
 const uint8_t *microbit_hal_get_font_data(char c);
 
 void microbit_hal_log_delete(bool full_erase);
+void microbit_hal_log_set_mirroring(bool serial);
 void microbit_hal_log_set_timestamp(int period);
 int microbit_hal_log_begin_row(void);
 int microbit_hal_log_end_row(void);

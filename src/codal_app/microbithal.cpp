@@ -353,6 +353,10 @@ void microbit_hal_log_delete(bool full_erase) {
     uBit.log.clear(full_erase);
 }
 
+void microbit_hal_log_set_mirroring(bool serial) {
+    uBit.log.setSerialMirroring(serial);
+}
+
 void microbit_hal_log_set_timestamp(int period) {
     static_assert(MICROBIT_HAL_LOG_TIMESTAMP_NONE == (int)TimeStampFormat::None);
     static_assert(MICROBIT_HAL_LOG_TIMESTAMP_MILLISECONDS == (int)TimeStampFormat::Milliseconds);
