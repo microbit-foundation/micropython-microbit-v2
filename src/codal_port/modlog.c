@@ -56,7 +56,13 @@ STATIC mp_obj_t log_set_labels(size_t n_args, const mp_obj_t *pos_args, mp_map_t
 
     return mp_const_none;
 }
-MP_DEFINE_CONST_FUN_OBJ_KW(log_set_labels_obj, 0, log_set_labels);
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(log_set_labels_obj, 0, log_set_labels);
+
+STATIC mp_obj_t log_set_mirroring(mp_obj_t serial) {
+    microbit_hal_log_set_mirroring(mp_obj_is_true(serial));
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(log_set_mirroring_obj, log_set_mirroring);
 
 STATIC mp_obj_t log_delete(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_full };
@@ -114,6 +120,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_KW(log_add_obj, 0, log_add);
 STATIC const mp_rom_map_elem_t log_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_log) },
     { MP_ROM_QSTR(MP_QSTR_set_labels), MP_ROM_PTR(&log_set_labels_obj) },
+    { MP_ROM_QSTR(MP_QSTR_set_mirroring), MP_ROM_PTR(&log_set_mirroring_obj) },
     { MP_ROM_QSTR(MP_QSTR_delete), MP_ROM_PTR(&log_delete_obj) },
     { MP_ROM_QSTR(MP_QSTR_add), MP_ROM_PTR(&log_add_obj) },
 
