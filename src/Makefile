@@ -1,7 +1,7 @@
 CODAL_DIR = ../lib/codal
 RM = /bin/rm
 MKDIR = /bin/mkdir
-PYTHON3 ?= python3
+PYTHON ?= python3
 
 BUILD = ./build
 CODAL_BUILD = $(CODAL_DIR)/build
@@ -36,7 +36,7 @@ codal_build: libmicropython
 	make -C $(BUILD)
 	$(call CODAL_CLEAN)
 	arm-none-eabi-size $(CODAL_BUILD)/MICROBIT
-	$(PYTHON3) addlayouttable.py $(SRC_HEX) $(SRC_MAP) -o $(DEST_HEX)
+	$(PYTHON) addlayouttable.py $(SRC_HEX) $(SRC_MAP) -o $(DEST_HEX)
 
 # Build the MicroPython component
 libmicropython: $(CODAL_LIBRARIES) $(BUILD)

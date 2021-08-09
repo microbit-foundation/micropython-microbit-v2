@@ -15,10 +15,17 @@ Then build the MicroPython cross-compiler:
 
     $ make -C lib/micropython/mpy-cross
 
+Note: you may need to add to the line above `PYTHON=python` (or some variant
+thereof) to select your Python executable (this defaults to `python3`); for
+example:
+
+    $ make -C lib/micropython/mpy-cross PYTHON=python
+
 Building and running
 --------------------
 
-After setting up, go to the `src/` directory and build:
+After setting up, go to the `src/` directory and build
+(as above, you may need to add `PYTHON=python` to the `make` command):
 
     $ cd src
     $ make
