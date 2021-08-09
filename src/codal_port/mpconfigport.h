@@ -137,6 +137,7 @@ extern const struct _mp_obj_module_t utime_module;
     void *audio_source; \
     void *speech_data; \
     struct _music_data_t *music_data; \
+    struct _microbit_soft_timer_entry_t *soft_timer_heap; \
 
 // These functions allow nested calls.
 extern void target_disable_irq(void);

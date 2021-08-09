@@ -3,7 +3,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Damien P. George
+ * Copyright (c) 2021 Damien P. George
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,31 +23,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifndef MICROPY_INCLUDED_CODAL_PORT_DRV_SOFTTIMER_H
+#define MICROPY_INCLUDED_CODAL_PORT_DRV_SOFTTIMER_H
 
-#include "py/runtime.h"
-#include "drv_softtimer.h"
-#include "drv_system.h"
-#include "drv_display.h"
-#include "modmusic.h"
+#include "py/pairheap.h"
 
-extern volatile bool accelerometer_up_to_date;
+#define MICROBIT_SOFT_TIMER_FLAG_PY_CALLBACK (1)
+#define MICROBIT_SOFT_TIMER_FLAG_GC_ALLOCATED (2)
 
-void microbit_system_init(void) {
-    accelerometer_up_to_date = false;
-}
+#define MICROBIT_SOFT_TIMER_MODE_ONE_SHOT (1)
+#define MICROBIT_SOFT_TIMER_MODE_PERIODIC (2)
 
-// Called every 6ms on a hardware interrupt.
-// TODO: should only enable this when system is ready
-// TODO: perhaps only schedule the callback when we need it
-void microbit_hal_timer_callback(void) {
-    // Invalidate accelerometer data for gestures so sample is taken on next gesture call.
-    accelerometer_up_to_date = false;
+typedef struct _microbit_soft_timer_entry_t {
+    mp_pairheap_t pairheap;
+    uint16_t flags;
+    uint16_t mode;
+    uint32_t expiry_ms;
+    uint32_t delta_ms; // for periodic mode
+    union {
+        void (*c_callback)(struct _microbit_soft_timer_entry_t *);
+        mp_obj_t py_callback;
+    };
+} microbit_soft_timer_entry_t;
 
-    microbit_display_update();
-    microbit_music_tick();
-    microbit_soft_timer_handler();
-}
+void microbit_soft_timer_deinit(void);
+void microbit_soft_timer_handler(void);
+void microbit_soft_timer_insert(microbit_soft_timer_entry_t *entry, uint32_t initial_delta_ms);
 
-void microbit_hal_serial_interrupt_callback(void) {
-    mp_sched_keyboard_interrupt();
-}
+#endif // MICROPY_INCLUDED_CODAL_PORT_DRV_SOFTTIMER_H

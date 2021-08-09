@@ -26,8 +26,11 @@
 
 #include "py/obj.h"
 #include "py/mphal.h"
+#include "drv_softtimer.h"
 #include "drv_system.h"
 #include "modmicrobit.h"
+
+STATIC mp_obj_t microbit_run_every_new(uint32_t period_ms);
 
 STATIC mp_obj_t microbit_reset_(void) {
     microbit_hal_reset();
@@ -91,6 +94,38 @@ STATIC mp_obj_t microbit_ws2812_write(mp_obj_t pin_in, mp_obj_t buf_in) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(microbit_ws2812_write_obj, microbit_ws2812_write);
 
+STATIC mp_obj_t microbit_run_every(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+    enum { ARG_callback, ARG_days, ARG_h, ARG_min, ARG_s, ARG_ms };
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_callback, MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE} },
+        { MP_QSTR_days, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0} },
+        { MP_QSTR_h, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0} },
+        { MP_QSTR_min, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0} },
+        { MP_QSTR_s, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0} },
+        { MP_QSTR_ms, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0} },
+    };
+
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+
+    uint32_t period_ms = args[ARG_days].u_int * 24 * 60 * 60 * 1000
+        + args[ARG_h].u_int * 60 * 60 * 1000
+        + args[ARG_min].u_int * 60 * 1000
+        + args[ARG_s].u_int * 1000
+        + args[ARG_ms].u_int;
+
+    mp_obj_t run_every = microbit_run_every_new(period_ms);
+
+    if (args[ARG_callback].u_obj == mp_const_none) {
+        // Return decorator-compatible object.
+        return run_every;
+    } else {
+        // Start the timer now.
+        return mp_obj_get_type(run_every)->call(run_every, 1, 0, &args[ARG_callback].u_obj);
+    }
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(microbit_run_every_obj, 0, microbit_run_every);
+
 STATIC const mp_rom_map_elem_t microbit_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_microbit) },
 
@@ -118,6 +153,8 @@ STATIC const mp_rom_map_elem_t microbit_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_temperature), MP_ROM_PTR(&microbit_temperature_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_volume), MP_ROM_PTR(&microbit_set_volume_obj) },
     { MP_ROM_QSTR(MP_QSTR_ws2812_write), MP_ROM_PTR(&microbit_ws2812_write_obj) },
+
+    { MP_ROM_QSTR(MP_QSTR_run_every), MP_ROM_PTR(&microbit_run_every_obj) },
 
     { MP_ROM_QSTR(MP_QSTR_pin0), MP_ROM_PTR(&microbit_p0_obj) },
     { MP_ROM_QSTR(MP_QSTR_pin1), MP_ROM_PTR(&microbit_p1_obj) },
@@ -148,3 +185,41 @@ const mp_obj_module_t microbit_module = {
     .base = { &mp_type_module },
     .globals = (mp_obj_dict_t*)&microbit_module_globals,
 };
+
+/******************************************************************************/
+// run_every object
+
+typedef struct _microbit_run_every_obj_t {
+    microbit_soft_timer_entry_t timer;
+    mp_obj_t user_callback;
+} microbit_run_every_obj_t;
+
+STATIC mp_obj_t microbit_run_every_callback(mp_obj_t self_in) {
+    microbit_run_every_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    return mp_call_function_0(self->user_callback);
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_run_every_callback_obj, microbit_run_every_callback);
+
+STATIC mp_obj_t microbit_run_every_obj_call(mp_obj_t self_in, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+    microbit_run_every_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    mp_arg_check_num(n_args, n_kw, 1, 1, false);
+    self->timer.py_callback = MP_OBJ_FROM_PTR(&microbit_run_every_callback_obj);
+    self->user_callback = args[0];
+    microbit_soft_timer_insert(&self->timer, self->timer.delta_ms);
+    return self_in;
+}
+
+STATIC const mp_obj_type_t microbit_run_every_obj_type = {
+    { &mp_type_type },
+    .name = MP_QSTR_run_every,
+    .call = microbit_run_every_obj_call,
+};
+
+STATIC mp_obj_t microbit_run_every_new(uint32_t period_ms) {
+    microbit_run_every_obj_t *self = m_new_obj(microbit_run_every_obj_t);
+    self->timer.pairheap.base.type = &microbit_run_every_obj_type;
+    self->timer.flags = MICROBIT_SOFT_TIMER_FLAG_PY_CALLBACK | MICROBIT_SOFT_TIMER_FLAG_GC_ALLOCATED;
+    self->timer.mode = MICROBIT_SOFT_TIMER_MODE_PERIODIC;
+    self->timer.delta_ms = period_ms;
+    return MP_OBJ_FROM_PTR(self);
+}

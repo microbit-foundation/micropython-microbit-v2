@@ -37,6 +37,7 @@
 #include "lib/utils/gchelper.h"
 #include "lib/utils/pyexec.h"
 #include "ports/nrf/modules/uos/microbitfs.h"
+#include "drv_softtimer.h"
 #include "drv_system.h"
 #include "drv_display.h"
 #include "modmicrobit.h"
@@ -88,6 +89,7 @@ void mp_main(void) {
         }
 
         mp_printf(MP_PYTHON_PRINTER, "MPY: soft reboot\n");
+        microbit_soft_timer_deinit();
         gc_sweep_all();
         mp_deinit();
     }

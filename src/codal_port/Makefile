@@ -55,6 +55,7 @@ SRC_C += \
 	drv_display.c \
 	drv_image.c \
 	drv_radio.c \
+	drv_softtimer.c \
 	drv_system.c \
 	help.c \
 	iters.c \
