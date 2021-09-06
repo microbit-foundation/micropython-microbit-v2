@@ -171,8 +171,9 @@ STATIC mp_obj_t microbit_image_make_new(const mp_obj_type_t *type_in, mp_uint_t 
 
 greyscale_t *image_shift(microbit_image_obj_t *self, mp_int_t x, mp_int_t y) {
     int w = image_width(self);
-    greyscale_t *result = greyscale_new(w, w);
-    image_blit(self, result, x, y, w, w, 0, 0);
+    int h = image_height(self);
+    greyscale_t *result = greyscale_new(w, h);
+    image_blit(self, result, x, y, w, h, 0, 0);
     return result;
 }
 
