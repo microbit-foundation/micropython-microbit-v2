@@ -24,6 +24,7 @@
  * THE SOFTWARE.
  */
 
+#include <math.h>
 #include "py/runtime.h"
 #include "py/mphal.h"
 #include "modmicrobit.h"
@@ -126,6 +127,15 @@ STATIC mp_obj_t microbit_accelerometer_get_values(mp_obj_t self_in) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_accelerometer_get_values_obj, microbit_accelerometer_get_values);
 
+STATIC mp_obj_t microbit_accelerometer_get_strength(mp_obj_t self_in) {
+    (void)self_in;
+    int axis[3];
+    microbit_hal_accelerometer_get_sample(axis);
+    int strength = sqrtf(axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]);
+    return mp_obj_new_int(strength);
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_accelerometer_get_strength_obj, microbit_accelerometer_get_strength);
+
 STATIC mp_obj_t microbit_accelerometer_current_gesture(mp_obj_t self_in) {
     (void)self_in;
     update_for_gesture();
@@ -173,6 +183,7 @@ STATIC const mp_rom_map_elem_t microbit_accelerometer_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_get_y), MP_ROM_PTR(&microbit_accelerometer_get_y_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_z), MP_ROM_PTR(&microbit_accelerometer_get_z_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_values), MP_ROM_PTR(&microbit_accelerometer_get_values_obj) },
+    { MP_ROM_QSTR(MP_QSTR_get_strength), MP_ROM_PTR(&microbit_accelerometer_get_strength_obj) },
     { MP_ROM_QSTR(MP_QSTR_current_gesture), MP_ROM_PTR(&microbit_accelerometer_current_gesture_obj) },
     { MP_ROM_QSTR(MP_QSTR_is_gesture), MP_ROM_PTR(&microbit_accelerometer_is_gesture_obj) },
     { MP_ROM_QSTR(MP_QSTR_was_gesture), MP_ROM_PTR(&microbit_accelerometer_was_gesture_obj) },
