@@ -30,41 +30,40 @@
 
 #define EVENT_HISTORY_SIZE (8)
 
-#define SOUND_EVENT_NONE (0)
+#define SOUND_EVENT_QUIET (0)
 #define SOUND_EVENT_LOUD (1)
-#define SOUND_EVENT_QUIET (2)
 
 typedef struct _microbit_microphone_obj_t {
     mp_obj_base_t base;
 } microbit_microphone_obj_t;
 
 static const mp_const_obj_t sound_event_obj_map[] = {
-    [SOUND_EVENT_NONE] = MP_ROM_NONE,
-    [SOUND_EVENT_LOUD] = MP_ROM_PTR(&microbit_soundevent_loud_obj),
     [SOUND_EVENT_QUIET] = MP_ROM_PTR(&microbit_soundevent_quiet_obj),
+    [SOUND_EVENT_LOUD] = MP_ROM_PTR(&microbit_soundevent_loud_obj),
 };
 
-static uint8_t sound_event_current = 0;
+static uint8_t sound_event_current = SOUND_EVENT_QUIET;
 static uint8_t sound_event_active_mask = 0;
 static uint8_t sound_event_history_index = 0;
 static uint8_t sound_event_history_array[EVENT_HISTORY_SIZE];
 
 void microbit_hal_level_detector_callback(int value) {
     // Work out the sound event.
-    uint8_t ev = SOUND_EVENT_NONE;
+    uint8_t ev;
     if (value == MICROBIT_HAL_MICROPHONE_LEVEL_THRESHOLD_LOW) {
         ev = SOUND_EVENT_QUIET;
     } else if (value == MICROBIT_HAL_MICROPHONE_LEVEL_THRESHOLD_HIGH) {
         ev = SOUND_EVENT_LOUD;
+    } else {
+        // Ignore unknown events.
+        return;
     }
 
     // Set the sound event as active, and add it to the history.
     sound_event_current = ev;
-    if (ev != SOUND_EVENT_NONE) {
-        sound_event_active_mask |= 1 << ev;
-        if (sound_event_history_index < EVENT_HISTORY_SIZE) {
-            sound_event_history_array[sound_event_history_index++] = ev;
-        }
+    sound_event_active_mask |= 1 << ev;
+    if (sound_event_history_index < EVENT_HISTORY_SIZE) {
+        sound_event_history_array[sound_event_history_index++] = ev;
     }
 }
 
