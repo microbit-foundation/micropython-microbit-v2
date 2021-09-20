@@ -99,8 +99,8 @@ STATIC mp_obj_t mod_radio_config(size_t n_args, const mp_obj_t *pos_args, mp_map
                 }
 
                 case MP_QSTR_data_rate:
-                    if (!(/*value == RADIO_MODE_MODE_Nrf_250Kbit
-                        || */value == RADIO_MODE_MODE_Nrf_1Mbit
+                    if (!(value == 2 /* allow 250K if the user really wants it */
+                        || value == RADIO_MODE_MODE_Nrf_1Mbit
                         || value == RADIO_MODE_MODE_Nrf_2Mbit)) {
                         goto value_error;
                     }
@@ -266,7 +266,11 @@ STATIC const mp_map_elem_t radio_module_globals_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR_receive_bytes_into), (mp_obj_t)&mod_radio_receive_bytes_into_obj },
     { MP_OBJ_NEW_QSTR(MP_QSTR_receive_full), (mp_obj_t)&mod_radio_receive_full_obj },
 
+    // A rate of 250Kbit is physically supported by the nRF52 but it is deprecated,
+    // so don't provide the constant to the Python user.  They can still select this
+    // rate by using a value of "2" if necessary to communicate with a micro:bit v1.
     //{ MP_OBJ_NEW_QSTR(MP_QSTR_RATE_250KBIT), MP_OBJ_NEW_SMALL_INT(RADIO_MODE_MODE_Nrf_250Kbit) },
+
     { MP_OBJ_NEW_QSTR(MP_QSTR_RATE_1MBIT), MP_OBJ_NEW_SMALL_INT(RADIO_MODE_MODE_Nrf_1Mbit) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_RATE_2MBIT), MP_OBJ_NEW_SMALL_INT(RADIO_MODE_MODE_Nrf_2Mbit) },
 };
