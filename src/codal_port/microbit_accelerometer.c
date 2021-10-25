@@ -178,6 +178,13 @@ STATIC mp_obj_t microbit_accelerometer_get_gestures(mp_obj_t self_in) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_accelerometer_get_gestures_obj, microbit_accelerometer_get_gestures);
 
+STATIC mp_obj_t microbit_accelerometer_set_range(mp_obj_t self_in, mp_obj_t g) {
+    (void)self_in;
+    microbit_hal_accelerometer_set_range(mp_obj_get_int(g));
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(microbit_accelerometer_set_range_obj, microbit_accelerometer_set_range);
+
 STATIC const mp_rom_map_elem_t microbit_accelerometer_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_get_x), MP_ROM_PTR(&microbit_accelerometer_get_x_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_y), MP_ROM_PTR(&microbit_accelerometer_get_y_obj) },
@@ -188,7 +195,7 @@ STATIC const mp_rom_map_elem_t microbit_accelerometer_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_is_gesture), MP_ROM_PTR(&microbit_accelerometer_is_gesture_obj) },
     { MP_ROM_QSTR(MP_QSTR_was_gesture), MP_ROM_PTR(&microbit_accelerometer_was_gesture_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_gestures), MP_ROM_PTR(&microbit_accelerometer_get_gestures_obj) },
-
+    { MP_ROM_QSTR(MP_QSTR_set_range), MP_ROM_PTR(&microbit_accelerometer_set_range_obj) },
 };
 STATIC MP_DEFINE_CONST_DICT(microbit_accelerometer_locals_dict, microbit_accelerometer_locals_dict_table);
 
