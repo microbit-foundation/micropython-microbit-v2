@@ -318,6 +318,10 @@ int microbit_hal_accelerometer_get_gesture(void) {
     return uBit.accelerometer.getGesture();
 }
 
+void microbit_hal_accelerometer_set_range(int r) {
+    uBit.accelerometer.setRange(r);
+}
+
 int microbit_hal_compass_is_calibrated(void) {
     return uBit.compass.isCalibrated();
 }

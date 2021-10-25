@@ -129,6 +129,7 @@ int microbit_hal_display_read_light_level(void);
 
 void microbit_hal_accelerometer_get_sample(int axis[3]);
 int microbit_hal_accelerometer_get_gesture(void);
+void microbit_hal_accelerometer_set_range(int r);
 
 int microbit_hal_compass_is_calibrated(void);
 void microbit_hal_compass_clear_calibration(void);
