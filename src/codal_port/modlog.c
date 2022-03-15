@@ -26,7 +26,16 @@
 
 #include "py/runtime.h"
 #include "py/objstr.h"
+#include "py/mperrno.h"
 #include "py/mphal.h"
+
+STATIC void log_check_error(int result) {
+    if (result == MICROBIT_HAL_DEVICE_NO_RESOURCES) {
+        mp_raise_OSError(MP_ENOSPC);
+    } else if (result != MICROBIT_HAL_DEVICE_OK) {
+        mp_raise_OSError(MP_EIO);
+    }
+}
 
 STATIC mp_obj_t log_set_labels(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_timestamp };
@@ -46,12 +55,12 @@ STATIC mp_obj_t log_set_labels(size_t n_args, const mp_obj_t *pos_args, mp_map_t
     if (n_args > 0) {
         // Create a row with empty values, which should just add a
         // heading row to the log data with the given labels/keys.
-        microbit_hal_log_begin_row();
+        log_check_error(microbit_hal_log_begin_row());
         for (size_t i = 0; i < n_args; i++) {
             const char *key = mp_obj_str_get_str(pos_args[i]);
-            microbit_hal_log_data(key, "");
+            log_check_error(microbit_hal_log_data(key, ""));
         }
-        microbit_hal_log_end_row();
+        log_check_error(microbit_hal_log_end_row());
     }
 
     return mp_const_none;
@@ -94,7 +103,7 @@ STATIC mp_obj_t log_add(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_ar
     }
 
     // Add the log row.
-    microbit_hal_log_begin_row();
+    log_check_error(microbit_hal_log_begin_row());
     for (size_t i = 0; i < map->alloc; i++) {
         if (mp_map_slot_is_filled(map, i)) {
             // Get key, which should be a string.
@@ -108,10 +117,10 @@ STATIC mp_obj_t log_add(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_ar
             const char *value_str = mp_obj_str_get_str(value);
 
             // Add log entry.
-            microbit_hal_log_data(key_str, value_str);
+            log_check_error(microbit_hal_log_data(key_str, value_str));
         }
     }
-    microbit_hal_log_end_row();
+    log_check_error(microbit_hal_log_end_row());
 
     return mp_const_none;
 }

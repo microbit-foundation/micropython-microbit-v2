@@ -90,6 +90,26 @@
 #define MICROPY_HW_ENABLE_RNG                   (1)
 #define MICROPY_MBFS                            (1)
 
+// Custom errno list.
+#define MICROPY_PY_UERRNO_LIST \
+    X(EPERM) \
+    X(ENOENT) \
+    X(EIO) \
+    X(EBADF) \
+    X(EAGAIN) \
+    X(ENOMEM) \
+    X(EACCES) \
+    X(EEXIST) \
+    X(ENODEV) \
+    X(EISDIR) \
+    X(EINVAL) \
+    X(ENOSPC) \
+    X(EOPNOTSUPP) \
+    X(ENOTCONN) \
+    X(ETIMEDOUT) \
+    X(EALREADY) \
+    X(EINPROGRESS) \
+
 // extra built in names to add to the global namespace
 #if MICROPY_MBFS
 #define MICROPY_PORT_BUILTINS \
