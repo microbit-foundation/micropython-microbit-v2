@@ -353,6 +353,16 @@ const uint8_t *microbit_hal_get_font_data(char c) {
     return BitmapFont::getSystemFont().get(c);
 }
 
+static int microbit_hal_log_convert_return_value(int result) {
+    if (result == DEVICE_OK) {
+        return MICROBIT_HAL_DEVICE_OK;
+    } else if (result == DEVICE_NO_RESOURCES) {
+        return MICROBIT_HAL_DEVICE_NO_RESOURCES;
+    } else {
+        return MICROBIT_HAL_DEVICE_ERROR;
+    }
+}
+
 void microbit_hal_log_delete(bool full_erase) {
     uBit.log.clear(full_erase);
 }
@@ -372,24 +382,15 @@ void microbit_hal_log_set_timestamp(int period) {
 }
 
 int microbit_hal_log_begin_row(void) {
-    if (uBit.log.beginRow() != DEVICE_OK) {
-        return -1;
-    }
-    return 0;
+    return microbit_hal_log_convert_return_value(uBit.log.beginRow());
 }
 
 int microbit_hal_log_end_row(void) {
-    if (uBit.log.endRow() != DEVICE_OK) {
-        return -1;
-    }
-    return 0;
+    return microbit_hal_log_convert_return_value(uBit.log.endRow());
 }
 
 int microbit_hal_log_data(const char *key, const char *value) {
-    if (uBit.log.logData(key, value) != DEVICE_OK) {
-        return -1;
-    }
-    return 0;
+    return microbit_hal_log_convert_return_value(uBit.log.logData(key, value));
 }
 
 // This is needed by the microbitfs implementation.

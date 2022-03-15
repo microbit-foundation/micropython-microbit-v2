@@ -34,6 +34,11 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 
+// General error codes, only define the ones needed by this HAL.
+#define MICROBIT_HAL_DEVICE_OK  (0)
+#define MICROBIT_HAL_DEVICE_NO_RESOURCES  (-1)
+#define MICROBIT_HAL_DEVICE_ERROR (-2)
+
 // These numbers refer to indices in the (private) pin_obj table.
 #define MICROBIT_HAL_PIN_P0     (0)
 #define MICROBIT_HAL_PIN_P1     (1)
