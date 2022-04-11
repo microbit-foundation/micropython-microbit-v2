@@ -40,7 +40,7 @@ STATIC void log_check_error(int result) {
 STATIC mp_obj_t log_set_labels(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_timestamp };
     static const mp_arg_t allowed_args[] = {
-        { MP_QSTR_timestamp, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_INT(MICROBIT_HAL_LOG_TIMESTAMP_MILLISECONDS)} },
+        { MP_QSTR_timestamp, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_INT(MICROBIT_HAL_LOG_TIMESTAMP_SECONDS)} },
     };
 
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
