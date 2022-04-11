@@ -196,7 +196,33 @@ typedef struct _microbit_run_every_obj_t {
 
 STATIC mp_obj_t microbit_run_every_callback(mp_obj_t self_in) {
     microbit_run_every_obj_t *self = MP_OBJ_TO_PTR(self_in);
-    return mp_call_function_0(self->user_callback);
+
+    if (self->user_callback == MP_OBJ_NULL) {
+        // Callback is disabled.
+        return mp_const_none;
+    }
+
+    nlr_buf_t nlr;
+    if (nlr_push(&nlr) == 0) {
+        mp_call_function_0(self->user_callback);
+        nlr_pop();
+    } else {
+        // Exception raise, so stope this callback from being called again.
+        self->timer.mode = MICROBIT_SOFT_TIMER_MODE_ONE_SHOT;
+        self->user_callback = MP_OBJ_NULL;
+
+        mp_obj_t exc = MP_OBJ_FROM_PTR(nlr.ret_val);
+        if (microbit_outer_nlr_will_handle_soft_timer_exceptions) {
+            // The outer NLR handler will handle this exception so raise it via a SystemExit.
+            mp_obj_t args[2] = {mp_const_none, exc};
+            mp_sched_exception(mp_obj_exception_make_new(&mp_type_SystemExit, 2, 0, args));
+        } else {
+            // Print exception to stdout right now.
+            mp_obj_print_exception(&mp_plat_print, exc);
+        }
+    }
+
+    return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_run_every_callback_obj, microbit_run_every_callback);
 
@@ -221,5 +247,6 @@ STATIC mp_obj_t microbit_run_every_new(uint32_t period_ms) {
     self->timer.flags = MICROBIT_SOFT_TIMER_FLAG_PY_CALLBACK | MICROBIT_SOFT_TIMER_FLAG_GC_ALLOCATED;
     self->timer.mode = MICROBIT_SOFT_TIMER_MODE_PERIODIC;
     self->timer.delta_ms = period_ms;
+    self->user_callback = MP_OBJ_NULL;
     return MP_OBJ_FROM_PTR(self);
 }

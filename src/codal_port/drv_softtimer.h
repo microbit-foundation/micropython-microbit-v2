@@ -46,6 +46,8 @@ typedef struct _microbit_soft_timer_entry_t {
     };
 } microbit_soft_timer_entry_t;
 
+extern bool microbit_outer_nlr_will_handle_soft_timer_exceptions;
+
 void microbit_soft_timer_deinit(void);
 void microbit_soft_timer_handler(void);
 void microbit_soft_timer_insert(microbit_soft_timer_entry_t *entry, uint32_t initial_delta_ms);

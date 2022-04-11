@@ -45,6 +45,9 @@
 // Use a fixed static buffer for the heap.
 static char heap[64 * 1024];
 
+// Set to true if a soft-timer callback can use mp_sched_exception to propagate out an exception.
+bool microbit_outer_nlr_will_handle_soft_timer_exceptions;
+
 void microbit_pyexec_file(const char *filename);
 
 void mp_main(void) {
@@ -142,23 +145,43 @@ void microbit_pyexec_file(const char *filename) {
 
         // Execute the code.
         mp_hal_set_interrupt_char(CHAR_CTRL_C); // allow ctrl-C to interrupt us
+        microbit_outer_nlr_will_handle_soft_timer_exceptions = true;
         mp_call_function_0(module_fun);
+        microbit_outer_nlr_will_handle_soft_timer_exceptions = false;
         mp_hal_set_interrupt_char(-1); // disable interrupt
+        microbit_soft_timer_deinit(); // stop any background timers
         mp_handle_pending(true); // handle any pending exceptions (and any callbacks)
         nlr_pop();
     } else {
         // Handle uncaught exception.
+        microbit_outer_nlr_will_handle_soft_timer_exceptions = false;
         mp_hal_set_interrupt_char(-1); // disable interrupt
+        microbit_soft_timer_deinit(); // stop any background timers
         mp_handle_pending(false); // clear any pending exceptions (and run any callbacks)
 
-        mp_obj_t exc_type = MP_OBJ_FROM_PTR(((mp_obj_base_t *)nlr.ret_val)->type);
+        mp_obj_t exc_obj = MP_OBJ_FROM_PTR(nlr.ret_val);
+        mp_const_obj_t exc_type = MP_OBJ_FROM_PTR(((mp_obj_base_t *)nlr.ret_val)->type);
+
+        // Check if the exception was raised from a run_every callback, and if so
+        // use the exception raised by the run_every as the one to display here.
+        if (exc_type == &mp_type_SystemExit) {
+            mp_obj_exception_t *exc = MP_OBJ_TO_PTR(exc_obj);
+            if (exc->args->len == 2
+                && exc->args->items[0] == mp_const_none
+                && mp_obj_is_exception_instance(exc->args->items[1])) {
+                // Extract run_every exception from second entry in args tuple.
+                exc_obj = exc->args->items[1];
+                exc_type = mp_obj_get_type(exc_obj);
+            }
+        }
+
         if (!mp_obj_is_subclass_fast(exc_type, MP_OBJ_FROM_PTR(&mp_type_SystemExit))) {
             // Print exception to stdout.
-            mp_obj_print_exception(&mp_plat_print, MP_OBJ_FROM_PTR(nlr.ret_val));
+            mp_obj_print_exception(&mp_plat_print, exc_obj);
 
             // Print exception to the display, but not if it's KeyboardInterrupt.
             if (!mp_obj_is_subclass_fast(exc_type, MP_OBJ_FROM_PTR(&mp_type_KeyboardInterrupt))) {
-                microbit_display_exception(MP_OBJ_FROM_PTR(nlr.ret_val));
+                microbit_display_exception(exc_obj);
             }
         }
     }
