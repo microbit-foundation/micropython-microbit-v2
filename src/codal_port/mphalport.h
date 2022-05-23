@@ -26,11 +26,27 @@
 
 #include "py/obj.h"
 #include "microbithal.h"
+#include "nrf.h"
 
 // Not implemented and not exposed in utime module.
 #define mp_hal_ticks_cpu() (0)
 
 void mp_hal_set_interrupt_char(int c);
+
+static inline uint32_t mp_hal_disable_irq(void) {
+    uint32_t state = __get_PRIMASK();
+    __disable_irq();
+    return state;
+}
+
+static inline void mp_hal_enable_irq(uint32_t state) {
+    __set_PRIMASK(state);
+}
+
+static inline void mp_hal_unique_id(uint32_t id[2]) {
+    id[0] = NRF_FICR->DEVICEID[0];
+    id[1] = NRF_FICR->DEVICEID[1];
+}
 
 static inline uint64_t mp_hal_time_ns(void) {
     // Not currently implemented.

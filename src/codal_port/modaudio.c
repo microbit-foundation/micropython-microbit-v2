@@ -25,10 +25,6 @@
  * THE SOFTWARE.
  */
 
-#include <string.h>
-
-#include "nrf_gpio.h"
-
 #include "py/mphal.h"
 #include "drv_system.h"
 #include "modaudio.h"
