@@ -92,10 +92,10 @@ SRC_C += \
 	mphalport.c \
 
 SRC_C += \
-	lib/mp-readline/readline.c \
-	lib/utils/gchelper_native.c \
-	lib/utils/pyexec.c \
-	lib/utils/stdout_helpers.c \
+	shared/readline/readline.c \
+	shared/runtime/gchelper_native.c \
+	shared/runtime/pyexec.c \
+	shared/runtime/stdout_helpers.c \
 	ports/nrf/modules/uos/microbitfs.c \
 	$(abspath $(NRFX_DIR)/drivers/src/nrfx_nvmc.c) \
 	$(abspath $(LOCAL_LIB_DIR)/sam/main.c) \
@@ -105,7 +105,7 @@ SRC_C += \
 	$(abspath $(LOCAL_LIB_DIR)/sam/debug.c) \
 
 SRC_O += \
-	lib/utils/gchelper_m3.o \
+	shared/runtime/gchelper_m3.o \
 
 OBJ = $(PY_O)
 OBJ += $(addprefix $(BUILD)/, $(SRC_O))
