@@ -26,8 +26,6 @@
 #ifndef MICROPY_INCLUDED_CODAL_PORT_DRV_RADIO_H
 #define MICROPY_INCLUDED_CODAL_PORT_DRV_RADIO_H
 
-#include "nrf.h"
-
 // Packets are stored in the queue as a sequence of bytes of the form:
 //  len  - byte
 //  data - "len" bytes
