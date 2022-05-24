@@ -90,10 +90,10 @@ STATIC mp_obj_t mod_radio_config(size_t n_args, const mp_obj_t *pos_args, mp_map
                     break;
 
                 case MP_QSTR_power: {
-                    if (!(0 <= value && value <= 7)) {
+                    if (!(0 <= value && value <= 8)) {
                         goto value_error;
                     }
-                    static int8_t power_dbm_table[8] = {-30, -20, -16, -12, -8, -4, 0, 4};
+                    static int8_t power_dbm_table[9] = {-30, -20, -16, -12, -8, -4, 0, 4, 8};
                     new_config.power_dbm = power_dbm_table[value];
                     break;
                 }
