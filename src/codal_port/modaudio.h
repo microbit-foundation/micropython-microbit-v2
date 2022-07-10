@@ -44,4 +44,6 @@ void microbit_audio_stop(void);
 bool microbit_audio_is_playing(void);
 microbit_audio_frame_obj_t *microbit_audio_frame_make_new(void);
 
+const char *microbit_soundeffect_get_sound_expr_data(mp_obj_t self_in);
+
 #endif // MICROPY_INCLUDED_MICROBIT_MODAUDIO_H

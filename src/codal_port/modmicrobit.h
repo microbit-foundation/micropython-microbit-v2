@@ -85,6 +85,7 @@ extern const mp_obj_type_t microbit_dig_pin_type;
 extern const mp_obj_type_t microbit_touch_pin_type;
 extern const mp_obj_type_t microbit_touch_only_pin_type;
 extern const mp_obj_type_t microbit_sound_type;
+extern const mp_obj_type_t microbit_soundeffect_type;
 extern const mp_obj_type_t microbit_soundevent_type;
 
 extern const struct _microbit_pin_obj_t microbit_p0_obj;

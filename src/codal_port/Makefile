@@ -72,6 +72,7 @@ SRC_C += \
 	microbit_pinaudio.c \
 	microbit_pinmode.c \
 	microbit_sound.c \
+	microbit_soundeffect.c \
 	microbit_soundevent.c \
 	microbit_speaker.c \
 	microbit_spi.c \

@@ -93,10 +93,15 @@ bool microbit_hal_audio_is_expression_active(void) {
     return sound_synth_active_count > 0;
 }
 
-void microbit_hal_audio_play_expression_by_name(const char *name) {
+void microbit_hal_audio_play_expression(const char *expr) {
     ++sound_synth_active_count;
     uBit.audio.soundExpressions.stop();
-    uBit.audio.soundExpressions.playAsync(name);
+
+    // `expr` can be a built-in expression name, or expression data.
+    // If it's expression data this method parses the data and stores
+    // it in another buffer ready to play.  So `expr` does not need
+    // to live for the duration of the playing.
+    uBit.audio.soundExpressions.playAsync(expr);
 }
 
 void microbit_hal_audio_stop_expression(void) {

@@ -137,9 +137,16 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, ui
     audio_init(sample_rate);
     microbit_pin_audio_select(pin_select);
 
+    const char *sound_expr_data = NULL;
     if (mp_obj_is_type(src, &microbit_sound_type)) {
         const microbit_sound_obj_t *sound = (const microbit_sound_obj_t *)MP_OBJ_TO_PTR(src);
-        microbit_hal_audio_play_expression_by_name(sound->name);
+        sound_expr_data = sound->name;
+    } else if (mp_obj_is_type(src, &microbit_soundeffect_type)) {
+        sound_expr_data = microbit_soundeffect_get_sound_expr_data(src);
+    }
+
+    if (sound_expr_data != NULL) {
+        microbit_hal_audio_play_expression(sound_expr_data);
         if (wait) {
             nlr_buf_t nlr;
             if (nlr_push(&nlr) == 0) {
@@ -215,6 +222,7 @@ STATIC const mp_rom_map_elem_t audio_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_play), MP_ROM_PTR(&microbit_audio_play_obj) },
     { MP_ROM_QSTR(MP_QSTR_is_playing), MP_ROM_PTR(&microbit_audio_is_playing_obj) },
     { MP_ROM_QSTR(MP_QSTR_AudioFrame), MP_ROM_PTR(&microbit_audio_frame_type) },
+    { MP_ROM_QSTR(MP_QSTR_SoundEffect), MP_ROM_PTR(&microbit_soundeffect_type) },
 };
 STATIC MP_DEFINE_CONST_DICT(audio_module_globals, audio_globals_table);
 

@@ -160,7 +160,7 @@ void microbit_hal_audio_select_pin(int pin);
 void microbit_hal_audio_select_speaker(bool enable);
 void microbit_hal_audio_set_volume(int value);
 bool microbit_hal_audio_is_expression_active(void);
-void microbit_hal_audio_play_expression_by_name(const char *name);
+void microbit_hal_audio_play_expression(const char *expr);
 void microbit_hal_audio_stop_expression(void);
 
 void microbit_hal_audio_init(uint32_t sample_rate);
