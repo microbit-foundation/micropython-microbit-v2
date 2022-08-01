@@ -64,10 +64,6 @@ void mp_main(void) {
         gc_init(heap, heap + sizeof(heap));
         mp_init();
 
-        mp_obj_list_init(MP_OBJ_TO_PTR(mp_sys_path), 0);
-        mp_obj_list_append(mp_sys_path, MP_OBJ_NEW_QSTR(MP_QSTR_));
-        mp_obj_list_init(MP_OBJ_TO_PTR(mp_sys_argv), 0);
-
         if (pyexec_mode_kind == PYEXEC_MODE_FRIENDLY_REPL) {
             const char *main_py = "main.py";
             if (mp_import_stat(main_py) == MP_IMPORT_STAT_FILE) {
