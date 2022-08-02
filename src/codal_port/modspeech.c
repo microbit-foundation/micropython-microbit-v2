@@ -115,6 +115,8 @@ STATIC void speech_wait_output_drained(void) {
     #if USE_DEDICATED_AUDIO_CHANNEL
     while (speech_output_read >= 0) {
         mp_handle_pending(true);
+        extern void microbit_hal_background_processing(void);
+        microbit_hal_background_processing();
     }
     uint32_t atomic_state = MICROPY_BEGIN_ATOMIC_SECTION();
     int x = speech_output_read;
