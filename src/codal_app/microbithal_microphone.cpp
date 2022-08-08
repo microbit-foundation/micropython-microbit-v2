@@ -51,7 +51,7 @@ void microbit_hal_microphone_init(void) {
 
 void microbit_hal_microphone_set_threshold(int kind, int value) {
     value = value * SOUND_LEVEL_MAXIMUM / 255;
-    if (kind == 0) {
+    if (kind == MICROBIT_HAL_MICROPHONE_LEVEL_THRESHOLD_LOW) {
         level->setLowThreshold(value);
     } else {
         level->setHighThreshold(value);
