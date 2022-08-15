@@ -28,44 +28,38 @@
 #include "microbithal.h"
 #include "MicroBitDevice.h"
 
-extern "C" {
-
 #define SOUND_LEVEL_MAXIMUM (20000)
 
-static NRF52ADCChannel *mic = NULL;
-static StreamNormalizer *processor = NULL;
-static LevelDetector *level = NULL;
+extern "C" void microbit_hal_level_detector_callback(int);
+
+static void level_detector_event_handler(Event evt) {
+    microbit_hal_level_detector_callback(evt.value);
+}
+
+extern "C" {
+
+static bool microphone_init_done = false;
 
 void microbit_hal_microphone_init(void) {
-    if (mic == NULL) {
-        mic = uBit.adc.getChannel(uBit.io.microphone);
-        mic->setGain(7, 0);
-
-        processor = new StreamNormalizer(mic->output, 0.05, true, DATASTREAM_FORMAT_8BIT_SIGNED);
-        level = new LevelDetector(processor->output, 600, 200);
-
-        uBit.io.runmic.setDigitalValue(1);
-        uBit.io.runmic.setHighDrive(true);
+    if (!microphone_init_done) {
+        microphone_init_done = true;
+        uBit.messageBus.listen(DEVICE_ID_SYSTEM_LEVEL_DETECTOR, DEVICE_EVT_ANY, level_detector_event_handler);
     }
 }
 
 void microbit_hal_microphone_set_threshold(int kind, int value) {
     value = value * SOUND_LEVEL_MAXIMUM / 255;
     if (kind == 0) {
-        level->setLowThreshold(value);
+        uBit.audio.level->setLowThreshold(value);
     } else {
-        level->setHighThreshold(value);
+        uBit.audio.level->setHighThreshold(value);
     }
 }
 
 int microbit_hal_microphone_get_level(void) {
-    if (level == NULL) {
-        return -1;
-    } else {
-        int l = level->getValue();
-        l = min(255, l * 255 / SOUND_LEVEL_MAXIMUM);
-        return l;
-    }
+    int l = uBit.audio.level->getValue();
+    l = min(255, l * 255 / SOUND_LEVEL_MAXIMUM);
+    return l;
 }
 
 }
