@@ -34,11 +34,20 @@
 
 STATIC microbit_radio_config_t radio_config;
 
+STATIC mp_obj_t mod_radio_reset(void);
+
 STATIC void ensure_enabled(void) {
     if (MP_STATE_PORT(radio_buf) == NULL) {
         mp_raise_ValueError(MP_ERROR_TEXT("radio is not enabled"));
     }
 }
+
+STATIC mp_obj_t mod_radio___init__(void) {
+    mod_radio_reset();
+    microbit_radio_enable(&radio_config);
+    return mp_const_none;
+}
+MP_DEFINE_CONST_FUN_OBJ_0(mod_radio___init___obj, mod_radio___init__);
 
 STATIC mp_obj_t mod_radio_reset(void) {
     radio_config.max_payload = MICROBIT_RADIO_DEFAULT_MAX_PAYLOAD;
@@ -253,7 +262,7 @@ MP_DEFINE_CONST_FUN_OBJ_0(mod_radio_receive_full_obj, mod_radio_receive_full);
 
 STATIC const mp_map_elem_t radio_module_globals_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_OBJ_NEW_QSTR(MP_QSTR_radio) },
-    { MP_OBJ_NEW_QSTR(MP_QSTR___init__), (mp_obj_t)&mod_radio_reset_obj },
+    { MP_OBJ_NEW_QSTR(MP_QSTR___init__), (mp_obj_t)&mod_radio___init___obj },
 
     { MP_OBJ_NEW_QSTR(MP_QSTR_reset), (mp_obj_t)&mod_radio_reset_obj },
     { MP_OBJ_NEW_QSTR(MP_QSTR_config), (mp_obj_t)&mod_radio_config_obj },
