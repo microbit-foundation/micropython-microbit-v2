@@ -129,6 +129,9 @@ $(MBIT_VER_FILE): FORCE
 	$(PYTHON) $(TOP)/py/makeversionhdr.py $(MBIT_VER_FILE).pre
 	$(CAT) $(MBIT_VER_FILE).pre | $(SED) s/MICROPY_/MICROBIT_/ > $(MBIT_VER_FILE)
 
+# Suppress warnings from SAM library.
+$(BUILD)/$(abspath $(LOCAL_LIB_DIR))/sam/sam.o: CWARN += -Wno-array-bounds
+
 include $(TOP)/py/mkrules.mk
 
 CLEAN_EXTRA += $(LIBMICROPYTHON)
