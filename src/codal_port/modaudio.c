@@ -143,6 +143,24 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, ui
         sound_expr_data = sound->name;
     } else if (mp_obj_is_type(src, &microbit_soundeffect_type)) {
         sound_expr_data = microbit_soundeffect_get_sound_expr_data(src);
+    } else if (mp_obj_is_type(src, &mp_type_tuple) || mp_obj_is_type(src, &mp_type_list)) {
+        // A tuple/list passed in.  Need to check if it contains SoundEffect instances.
+        size_t len;
+        mp_obj_t *items;
+        mp_obj_get_array(src, &len, &items);
+        if (len > 0 && mp_obj_is_type(items[0], &microbit_soundeffect_type)) {
+            // A tuple/list of SoundEffect instances.  Convert it to a long string of
+            // sound expression data, each effect separated by a ",".
+            char *data = m_new(char, len * (SOUND_EXPR_TOTAL_LENGTH + 1));
+            sound_expr_data = data;
+            for (size_t i = 0; i < len; ++i) {
+                memcpy(data, microbit_soundeffect_get_sound_expr_data(items[i]), SOUND_EXPR_TOTAL_LENGTH);
+                data += SOUND_EXPR_TOTAL_LENGTH;
+                *data++ = ',';
+            }
+            // Replace last "," with a string null terminator.
+            data[-1] = '\0';
+        }
     }
 
     if (sound_expr_data != NULL) {

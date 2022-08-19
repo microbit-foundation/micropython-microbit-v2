@@ -32,6 +32,8 @@
 #define LOG_AUDIO_CHUNK_SIZE (5)
 #define AUDIO_CHUNK_SIZE (1 << LOG_AUDIO_CHUNK_SIZE)
 
+#define SOUND_EXPR_TOTAL_LENGTH (72)
+
 typedef struct _microbit_audio_frame_obj_t {
     mp_obj_base_t base;
     uint8_t data[AUDIO_CHUNK_SIZE];

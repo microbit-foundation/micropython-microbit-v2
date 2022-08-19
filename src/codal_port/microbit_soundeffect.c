@@ -28,8 +28,6 @@
 #include "modmicrobit.h"
 #include "modaudio.h"
 
-#define SOUND_EXPR_TOTAL_LENGTH                 (72)
-
 #define SOUND_EXPR_WAVE_OFFSET                  (0)
 #define SOUND_EXPR_WAVE_LENGTH                  (1)
 #define SOUND_EXPR_VOLUME_START_OFFSET          (1)
