@@ -104,6 +104,26 @@ int microbit_hal_temperature(void) {
     return uBit.thermometer.getTemperature();
 }
 
+void microbit_hal_power_wake_on_button(int button) {
+    button_obj[button]->wakeOnActive(true);
+}
+
+void microbit_hal_power_wake_on_pin(int pin) {
+    pin_obj[pin]->wakeOnActive(true);
+}
+
+void microbit_hal_power_off(void) {
+    uBit.power.off();
+}
+
+void microbit_hal_power_deep_sleep(bool wake_on_ms, uint32_t ms) {
+    if (wake_on_ms) {
+        uBit.power.deepSleep(ms);
+    } else {
+        uBit.power.deepSleep();
+    }
+}
+
 void microbit_hal_pin_set_pull(int pin, int pull) {
     pin_obj[pin]->setPull(pin_pull_mode_mapping[pull]);
     pin_pull_state[pin] = pull;

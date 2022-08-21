@@ -103,6 +103,11 @@ void microbit_hal_reset(void);
 void microbit_hal_panic(int);
 int microbit_hal_temperature(void);
 
+void microbit_hal_power_wake_on_button(int button);
+void microbit_hal_power_wake_on_pin(int pin);
+void microbit_hal_power_off(void);
+void microbit_hal_power_deep_sleep(bool wake_on_ms, uint32_t ms);
+
 void microbit_hal_pin_set_pull(int pin, int pull);
 int microbit_hal_pin_get_pull(int pin);
 int microbit_hal_pin_set_analog_period_us(int pin, int period);
