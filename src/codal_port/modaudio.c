@@ -36,32 +36,39 @@
 #define BUFFER_EXPANSION (4) // smooth out the samples via linear interpolation
 #define OUT_CHUNK_SIZE (BUFFER_EXPANSION * AUDIO_CHUNK_SIZE)
 
-static volatile bool audio_running = false;
+typedef enum {
+    AUDIO_OUTPUT_STATE_IDLE,
+    AUDIO_OUTPUT_STATE_DATA_READY,
+    AUDIO_OUTPUT_STATE_DATA_WRITTEN,
+} audio_output_state_t;
+
 static uint8_t audio_output_buffer[OUT_CHUNK_SIZE];
-static volatile int audio_output_read;
-static volatile bool audio_fetecher_scheduled;
+static volatile audio_output_state_t audio_output_state;
+static volatile bool audio_fetcher_scheduled;
 
 microbit_audio_frame_obj_t *microbit_audio_frame_make_new(void);
 
+static inline bool audio_is_running(void) {
+    return audio_source_iter != NULL;
+}
+
 void microbit_audio_stop(void) {
     audio_source_iter = NULL;
-    audio_running = false;
 }
 
 STATIC void audio_buffer_ready(void) {
     uint32_t atomic_state = MICROPY_BEGIN_ATOMIC_SECTION();
-    int x = audio_output_read;
-    audio_output_read = 0;
+    audio_output_state_t old_state = audio_output_state;
+    audio_output_state = AUDIO_OUTPUT_STATE_DATA_READY;
     MICROPY_END_ATOMIC_SECTION(atomic_state);
-    if (x == -2) {
+    if (old_state == AUDIO_OUTPUT_STATE_IDLE) {
         microbit_hal_audio_ready_callback();
     }
 }
 
 STATIC void audio_data_fetcher(void) {
-    audio_fetecher_scheduled = false;
+    audio_fetcher_scheduled = false;
     if (audio_source_iter == NULL) {
-        microbit_audio_stop();
         return;
     }
     mp_obj_t buffer_obj;
@@ -78,11 +85,9 @@ STATIC void audio_data_fetcher(void) {
     }
     if (buffer_obj == MP_OBJ_STOP_ITERATION) {
         // End of audio iterator
-        audio_source_iter = NULL;
         microbit_audio_stop();
     } else if (mp_obj_get_type(buffer_obj) != &microbit_audio_frame_type) {
         // Audio iterator did not return an AudioFrame
-        audio_source_iter = NULL;
         microbit_audio_stop();
         mp_sched_exception(mp_obj_new_exception_msg(&mp_type_TypeError, MP_ERROR_TEXT("not an AudioFrame")));
     } else {
@@ -110,28 +115,28 @@ STATIC mp_obj_t audio_data_fetcher_wrapper(mp_obj_t arg) {
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(audio_data_fetcher_wrapper_obj, audio_data_fetcher_wrapper);
 
 void microbit_hal_audio_ready_callback(void) {
-    if (audio_output_read >= 0) {
+    if (audio_output_state == AUDIO_OUTPUT_STATE_DATA_READY) {
         // there is data ready to send out to the audio pipeline, so send it
         microbit_hal_audio_write_data(&audio_output_buffer[0], OUT_CHUNK_SIZE);
-        audio_output_read = -1;
+        audio_output_state = AUDIO_OUTPUT_STATE_DATA_WRITTEN;
     } else {
         // no data ready, need to call this function later when data is ready
-        audio_output_read = -2;
+        audio_output_state = AUDIO_OUTPUT_STATE_IDLE;
     }
-    if (!audio_fetecher_scheduled) {
+    if (!audio_fetcher_scheduled) {
         // schedule audio_data_fetcher to be executed to prepare the next buffer
-        audio_fetecher_scheduled = mp_sched_schedule(MP_OBJ_FROM_PTR(&audio_data_fetcher_wrapper_obj), mp_const_none);
+        audio_fetcher_scheduled = mp_sched_schedule(MP_OBJ_FROM_PTR(&audio_data_fetcher_wrapper_obj), mp_const_none);
     }
 }
 
 static void audio_init(uint32_t sample_rate) {
-    audio_fetecher_scheduled = false;
-    audio_output_read = -2;
+    audio_fetcher_scheduled = false;
+    audio_output_state = AUDIO_OUTPUT_STATE_IDLE;
     microbit_hal_audio_init(BUFFER_EXPANSION * sample_rate);
 }
 
 void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, uint32_t sample_rate) {
-    if (audio_running) {
+    if (audio_is_running()) {
         microbit_audio_stop();
     }
     audio_init(sample_rate);
@@ -185,12 +190,11 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, ui
 
     // Get the iterator and start the audio running.
     audio_source_iter = mp_getiter(src, NULL);
-    audio_running = true;
     audio_data_fetcher();
 
     if (wait) {
         // Wait the audio to exhaust the iterator.
-        while (audio_running) {
+        while (audio_is_running()) {
             mp_handle_pending(true);
             microbit_hal_idle();
         }
@@ -226,7 +230,7 @@ STATIC mp_obj_t play(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_ar
 MP_DEFINE_CONST_FUN_OBJ_KW(microbit_audio_play_obj, 0, play);
 
 bool microbit_audio_is_playing(void) {
-    return audio_running || microbit_hal_audio_is_expression_active();
+    return audio_is_running() || microbit_hal_audio_is_expression_active();
 }
 
 mp_obj_t is_playing(void) {
