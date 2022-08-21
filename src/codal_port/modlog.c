@@ -88,7 +88,7 @@ STATIC mp_obj_t log_delete(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw
     };
 
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
-    mp_arg_parse_all(0, NULL, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+    mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
 
     microbit_hal_log_delete(args[ARG_full].u_bool);
 
