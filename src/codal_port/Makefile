@@ -87,6 +87,7 @@ SRC_C += \
 	modmusic.c \
 	modmusictunes.c \
 	modos.c \
+	modpower.c \
 	modradio.c \
 	modspeech.c \
 	modthis.c \

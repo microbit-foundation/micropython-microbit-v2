@@ -131,6 +131,7 @@ extern const struct _mp_obj_module_t machine_module;
 extern const struct _mp_obj_module_t microbit_module;
 extern const struct _mp_obj_module_t music_module;
 extern const struct _mp_obj_module_t os_module;
+extern const struct _mp_obj_module_t power_module;
 extern const struct _mp_obj_module_t radio_module;
 extern const struct _mp_obj_module_t speech_module;
 extern const struct _mp_obj_module_t this_module;
@@ -145,6 +146,7 @@ extern const struct _mp_obj_module_t utime_module;
     { MP_ROM_QSTR(MP_QSTR_microbit), MP_ROM_PTR(&microbit_module) }, \
     { MP_ROM_QSTR(MP_QSTR_music), MP_ROM_PTR(&music_module) }, \
     { MP_ROM_QSTR(MP_QSTR_os), MP_ROM_PTR(&os_module) }, \
+    { MP_ROM_QSTR(MP_QSTR_power), MP_ROM_PTR(&power_module) }, \
     { MP_ROM_QSTR(MP_QSTR_radio), MP_ROM_PTR(&radio_module) }, \
     { MP_ROM_QSTR(MP_QSTR_speech), MP_ROM_PTR(&speech_module) }, \
     { MP_ROM_QSTR(MP_QSTR_this), MP_ROM_PTR(&this_module) }, \
