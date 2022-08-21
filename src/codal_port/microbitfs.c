@@ -25,6 +25,9 @@
  * THE SOFTWARE.
  */
 
+// This is a copy of the file micropython:ports/nrf/modules/uos/microbitfs.c with
+// a call to `microbit_file_opened_for_writing` added in `microbit_file_open`.
+
 #include <string.h>
 #include <stdio.h>
 #include <sys/stat.h>
@@ -351,6 +354,7 @@ STATIC file_descriptor_obj *microbit_file_open(const char *name, size_t name_len
         flash_write_byte((uint32_t)&(file_system_chunks[index].marker), FILE_START);
         flash_write_byte((uint32_t)&(file_system_chunks[index].header.name_len), name_len);
         flash_write_bytes((uint32_t)&(file_system_chunks[index].header.filename[0]), (uint8_t*)name, name_len);
+        microbit_file_opened_for_writing(name, name_len);
     } else {
         if (index == FILE_NOT_FOUND) {
             return NULL;

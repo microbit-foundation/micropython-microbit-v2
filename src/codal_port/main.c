@@ -42,6 +42,8 @@
 #include "drv_display.h"
 #include "modmicrobit.h"
 
+#define MAIN_PY "main.py"
+
 // Use a fixed static buffer for the heap.
 static char heap[64 * 1024];
 
@@ -65,7 +67,7 @@ void mp_main(void) {
         mp_init();
 
         if (pyexec_mode_kind == PYEXEC_MODE_FRIENDLY_REPL) {
-            const char *main_py = "main.py";
+            const char *main_py = MAIN_PY;
             if (mp_import_stat(main_py) == MP_IMPORT_STAT_FILE) {
                 // exec("main.py")
                 microbit_pyexec_file(main_py);
@@ -180,6 +182,14 @@ void microbit_pyexec_file(const char *filename) {
                 microbit_display_exception(exc_obj);
             }
         }
+    }
+}
+
+// Callback from microbitfs when a file is opened for writing.
+void microbit_file_opened_for_writing(const char *name, size_t name_len) {
+    if (name_len == strlen(MAIN_PY) && memcmp(name, MAIN_PY, name_len) == 0) {
+        // The file main.py is changed, so invalidate the data logging storage (fast erase).
+        microbit_hal_log_delete(false);
     }
 }
 

@@ -191,4 +191,7 @@ typedef long mp_off_t;
 // Needed for MICROPY_PY_URANDOM_SEED_INIT_FUNC.
 extern uint32_t rng_generate_random_word(void);
 
+// Needed for microbitfs.c:microbit_file_open.
+void microbit_file_opened_for_writing(const char *name, size_t name_len);
+
 #endif
