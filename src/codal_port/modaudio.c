@@ -189,8 +189,11 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, ui
     }
 
     // Get the iterator and start the audio running.
+    // The scheduler must be locked because audio_data_fetcher() can also be called from the scheduler.
     audio_source_iter = mp_getiter(src, NULL);
+    mp_sched_lock();
     audio_data_fetcher();
+    mp_sched_unlock();
 
     if (wait) {
         // Wait the audio to exhaust the iterator.
