@@ -77,6 +77,7 @@ SRC_C += \
 	microbit_speaker.c \
 	microbit_spi.c \
 	microbit_uart.c \
+	microbitfs.c \
 	modantigravity.c \
 	modaudio.c \
 	modlog.c \
@@ -97,7 +98,6 @@ SRC_C += \
 	shared/runtime/gchelper_native.c \
 	shared/runtime/pyexec.c \
 	shared/runtime/stdout_helpers.c \
-	ports/nrf/modules/uos/microbitfs.c \
 	$(abspath $(NRFX_DIR)/drivers/src/nrfx_nvmc.c) \
 	$(abspath $(LOCAL_LIB_DIR)/sam/main.c) \
 	$(abspath $(LOCAL_LIB_DIR)/sam/reciter.c) \
