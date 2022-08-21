@@ -29,6 +29,8 @@
 #include "py/mperrno.h"
 #include "py/mphal.h"
 
+#define TIMESTAMP_DEFAULT_FORMAT (MICROBIT_HAL_LOG_TIMESTAMP_SECONDS)
+
 STATIC void log_check_error(int result) {
     if (result == MICROBIT_HAL_DEVICE_NO_RESOURCES) {
         mp_raise_OSError(MP_ENOSPC);
@@ -37,10 +39,16 @@ STATIC void log_check_error(int result) {
     }
 }
 
+STATIC mp_obj_t log___init__(void) {
+    microbit_hal_log_set_timestamp(TIMESTAMP_DEFAULT_FORMAT);
+    return mp_const_none;
+}
+MP_DEFINE_CONST_FUN_OBJ_0(log___init___obj, log___init__);
+
 STATIC mp_obj_t log_set_labels(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_timestamp };
     static const mp_arg_t allowed_args[] = {
-        { MP_QSTR_timestamp, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_INT(MICROBIT_HAL_LOG_TIMESTAMP_SECONDS)} },
+        { MP_QSTR_timestamp, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_INT(TIMESTAMP_DEFAULT_FORMAT)} },
     };
 
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
@@ -128,6 +136,8 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_KW(log_add_obj, 0, log_add);
 
 STATIC const mp_rom_map_elem_t log_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_log) },
+    { MP_ROM_QSTR(MP_QSTR___init__), MP_ROM_PTR(&log___init___obj) },
+
     { MP_ROM_QSTR(MP_QSTR_set_labels), MP_ROM_PTR(&log_set_labels_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_mirroring), MP_ROM_PTR(&log_set_mirroring_obj) },
     { MP_ROM_QSTR(MP_QSTR_delete), MP_ROM_PTR(&log_delete_obj) },
