@@ -28,6 +28,8 @@
 #include "MicroBitDevice.h"
 #include "neopixel.h"
 
+#define HAL_ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
+
 NRF52Pin *const pin_obj[] = {
     &uBit.io.P0,
     &uBit.io.P1,
@@ -104,12 +106,22 @@ int microbit_hal_temperature(void) {
     return uBit.thermometer.getTemperature();
 }
 
-void microbit_hal_power_wake_on_button(int button) {
-    button_obj[button]->wakeOnActive(true);
+void microbit_hal_power_clear_wake_sources(void) {
+    for (size_t i = 0; i < HAL_ARRAY_SIZE(pin_obj); ++i) {
+        microbit_hal_power_wake_on_pin(i, false);
+    }
+    for (size_t i = 0; i < HAL_ARRAY_SIZE(button_obj); ++i) {
+        microbit_hal_power_wake_on_button(i, false);
+    }
+    // TODO: Clear the run_every wake up source when implemented
 }
 
-void microbit_hal_power_wake_on_pin(int pin) {
-    pin_obj[pin]->wakeOnActive(true);
+void microbit_hal_power_wake_on_button(int button, bool wake_on_active) {
+    button_obj[button]->wakeOnActive(wake_on_active);
+}
+
+void microbit_hal_power_wake_on_pin(int pin, bool wake_on_active) {
+    pin_obj[pin]->wakeOnActive(wake_on_active);
 }
 
 void microbit_hal_power_off(void) {

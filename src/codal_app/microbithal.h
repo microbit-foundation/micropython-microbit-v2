@@ -103,8 +103,9 @@ void microbit_hal_reset(void);
 void microbit_hal_panic(int);
 int microbit_hal_temperature(void);
 
-void microbit_hal_power_wake_on_button(int button);
-void microbit_hal_power_wake_on_pin(int pin);
+void microbit_hal_power_clear_wake_sources(void);
+void microbit_hal_power_wake_on_button(int button, bool wake_on_active);
+void microbit_hal_power_wake_on_pin(int pin, bool wake_on_active);
 void microbit_hal_power_off(void);
 void microbit_hal_power_deep_sleep(bool wake_on_ms, uint32_t ms);
 

@@ -62,11 +62,13 @@ STATIC mp_obj_t power_deep_sleep(size_t n_args, const mp_obj_t *pos_args, mp_map
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
     mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
 
+    microbit_hal_power_clear_wake_sources();
+
     if (args[ARG_pins].u_obj != mp_const_none) {
         mp_obj_t *items;
         size_t len = get_array(&args[ARG_pins].u_obj, &items);
         for (size_t i = 0; i < len; ++i) {
-            microbit_hal_power_wake_on_pin(microbit_obj_get_pin_name(items[i]));
+            microbit_hal_power_wake_on_pin(microbit_obj_get_pin_name(items[i]), true);
         }
     }
 
@@ -75,9 +77,9 @@ STATIC mp_obj_t power_deep_sleep(size_t n_args, const mp_obj_t *pos_args, mp_map
         size_t len = get_array(&args[ARG_buttons].u_obj, &items);
         for (size_t i = 0; i < len; ++i) {
             if (items[i] == MP_OBJ_FROM_PTR(&microbit_button_a_obj)) {
-                microbit_hal_power_wake_on_button(0);
+                microbit_hal_power_wake_on_button(0, true);
             } else if (items[i] == MP_OBJ_FROM_PTR(&microbit_button_b_obj)) {
-                microbit_hal_power_wake_on_button(1);
+                microbit_hal_power_wake_on_button(1, true);
             } else {
                 mp_raise_ValueError(MP_ERROR_TEXT("expecting a button"));
             }
