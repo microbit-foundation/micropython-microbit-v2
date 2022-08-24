@@ -30,6 +30,8 @@
 #define TICKS_PERIOD 0x80000000
 #define TICKS_DIFF(t1, t0) ((int32_t)(((t1 - t0 + TICKS_PERIOD / 2) & (TICKS_PERIOD - 1)) - TICKS_PERIOD / 2))
 
+static bool microbit_soft_timer_paused = false;
+
 STATIC int microbit_soft_timer_lt(mp_pairheap_t *n1, mp_pairheap_t *n2) {
     microbit_soft_timer_entry_t *e1 = (microbit_soft_timer_entry_t *)n1;
     microbit_soft_timer_entry_t *e2 = (microbit_soft_timer_entry_t *)n2;
@@ -38,10 +40,14 @@ STATIC int microbit_soft_timer_lt(mp_pairheap_t *n1, mp_pairheap_t *n2) {
 
 void microbit_soft_timer_deinit(void) {
     MP_STATE_PORT(soft_timer_heap) = NULL;
+    microbit_soft_timer_paused = false;
 }
 
 // This function can be executed at interrupt priority.
 void microbit_soft_timer_handler(void) {
+    if (microbit_soft_timer_paused) {
+        return;
+    }
     uint32_t ticks_ms = mp_hal_ticks_ms();
     microbit_soft_timer_entry_t *heap = MP_STATE_PORT(soft_timer_heap);
     while (heap != NULL && TICKS_DIFF(heap->expiry_ms, ticks_ms) <= 0) {
@@ -66,4 +72,20 @@ void microbit_soft_timer_insert(microbit_soft_timer_entry_t *entry, uint32_t ini
     uint32_t atomic_state = MICROPY_BEGIN_ATOMIC_SECTION();
     MP_STATE_PORT(soft_timer_heap) = (microbit_soft_timer_entry_t *)mp_pairheap_push(microbit_soft_timer_lt, &MP_STATE_PORT(soft_timer_heap)->pairheap, &entry->pairheap);
     MICROPY_END_ATOMIC_SECTION(atomic_state);
+}
+
+void microbit_soft_timer_set_pause(bool paused) {
+    microbit_soft_timer_paused = paused;
+}
+
+uint32_t microbit_soft_timer_get_ms_to_next_expiry(void) {
+    microbit_soft_timer_entry_t *heap = MP_STATE_PORT(soft_timer_heap);
+    if (heap == NULL) {
+        return UINT32_MAX;
+    }
+    int32_t dt = TICKS_DIFF(heap->expiry_ms, mp_hal_ticks_ms());
+    if (dt <= 0) {
+        return 0;
+    }
+    return dt;
 }
