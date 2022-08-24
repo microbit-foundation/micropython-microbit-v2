@@ -266,7 +266,7 @@ const mp_obj_type_t microbit_touch_only_pin_type = {
 
 const microbit_pin_obj_t *microbit_obj_get_pin(mp_const_obj_t o) {
     const mp_obj_type_t *type = mp_obj_get_type(o);
-    if (type == &microbit_touch_pin_type || type == &microbit_ad_pin_type || type == &microbit_dig_pin_type) {
+    if (microbit_obj_type_is_pin(type)) {
         return (microbit_pin_obj_t*)o;
     } else {
         mp_raise_TypeError(MP_ERROR_TEXT("expecting a pin"));

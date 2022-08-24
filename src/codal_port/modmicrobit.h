@@ -80,6 +80,7 @@ typedef struct _microbit_soundevent_obj_t microbit_soundevent_obj_t;
 
 extern const microbit_pinmode_t microbit_pinmodes[];
 
+extern const mp_obj_type_t microbit_button_type;
 extern const mp_obj_type_t microbit_ad_pin_type;
 extern const mp_obj_type_t microbit_dig_pin_type;
 extern const mp_obj_type_t microbit_touch_pin_type;
@@ -191,6 +192,17 @@ extern const struct _microbit_speaker_obj_t microbit_speaker_obj;
 extern const struct _microbit_microphone_obj_t microbit_microphone_obj;
 extern const struct _microbit_button_obj_t microbit_button_a_obj;
 extern const struct _microbit_button_obj_t microbit_button_b_obj;
+
+static inline bool microbit_obj_type_is_button(const mp_obj_type_t *type) {
+    return type == &microbit_button_type;
+}
+
+static inline bool microbit_obj_type_is_pin(const mp_obj_type_t *type) {
+    return type == &microbit_touch_pin_type || type == &microbit_ad_pin_type || type == &microbit_dig_pin_type;
+}
+
+// This function assumes "button" is of type microbit_button_type.
+uint8_t microbit_obj_get_button_id(mp_obj_t button);
 
 const microbit_pin_obj_t *microbit_obj_get_pin(mp_const_obj_t o);
 uint8_t microbit_obj_get_pin_name(mp_obj_t o);

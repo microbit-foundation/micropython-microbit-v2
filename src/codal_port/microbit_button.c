@@ -64,7 +64,7 @@ STATIC const mp_map_elem_t microbit_button_locals_dict_table[] = {
 
 STATIC MP_DEFINE_CONST_DICT(microbit_button_locals_dict, microbit_button_locals_dict_table);
 
-STATIC const mp_obj_type_t microbit_button_type = {
+const mp_obj_type_t microbit_button_type = {
     { &mp_type_type },
     .name = MP_QSTR_MicroBitButton,
     .locals_dict = (mp_obj_dict_t *)&microbit_button_locals_dict,
@@ -81,3 +81,8 @@ const microbit_button_obj_t microbit_button_b_obj = {
     .pin = &microbit_p11_obj,
     .button_id = 1,
 };
+
+// This function assumes "button" is of type microbit_button_type.
+uint8_t microbit_obj_get_button_id(mp_obj_t button) {
+    return ((microbit_button_obj_t *)MP_OBJ_TO_PTR(button))->button_id;
+}
