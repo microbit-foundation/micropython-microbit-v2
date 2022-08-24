@@ -51,11 +51,10 @@ STATIC mp_obj_t power_off(void) {
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(power_off_obj, power_off);
 
 STATIC mp_obj_t power_deep_sleep(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
-    enum { ARG_ms, ARG_pins, ARG_buttons, ARG_run_every };
+    enum { ARG_ms, ARG_wake_on, ARG_run_every };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_ms, MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE} },
-        { MP_QSTR_pins, MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE} },
-        { MP_QSTR_buttons, MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE} },
+        { MP_QSTR_wake_on, MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE} },
         { MP_QSTR_run_every, MP_ARG_BOOL, {.u_bool = false} },
     };
 
@@ -64,25 +63,17 @@ STATIC mp_obj_t power_deep_sleep(size_t n_args, const mp_obj_t *pos_args, mp_map
 
     microbit_hal_power_clear_wake_sources();
 
-    if (args[ARG_pins].u_obj != mp_const_none) {
-        mp_obj_t *items;
-        size_t len = get_array(&args[ARG_pins].u_obj, &items);
-        for (size_t i = 0; i < len; ++i) {
+    // Configure wake-up sources.
+    mp_obj_t *items;
+    size_t len = get_array(&args[ARG_wake_on].u_obj, &items);
+    for (size_t i = 0; i < len; ++i) {
+        const mp_obj_type_t *type = mp_obj_get_type(items[i]);
+        if (microbit_obj_type_is_button(type)) {
+            microbit_hal_power_wake_on_button(microbit_obj_get_button_id(items[i]), true);
+        } else if (microbit_obj_type_is_pin(type)) {
             microbit_hal_power_wake_on_pin(microbit_obj_get_pin_name(items[i]), true);
-        }
-    }
-
-    if (args[ARG_buttons].u_obj != mp_const_none) {
-        mp_obj_t *items;
-        size_t len = get_array(&args[ARG_buttons].u_obj, &items);
-        for (size_t i = 0; i < len; ++i) {
-            if (items[i] == MP_OBJ_FROM_PTR(&microbit_button_a_obj)) {
-                microbit_hal_power_wake_on_button(0, true);
-            } else if (items[i] == MP_OBJ_FROM_PTR(&microbit_button_b_obj)) {
-                microbit_hal_power_wake_on_button(1, true);
-            } else {
-                mp_raise_ValueError(MP_ERROR_TEXT("expecting a button"));
-            }
+        } else {
+            mp_raise_ValueError(MP_ERROR_TEXT("expecting a pin or button"));
         }
     }
 
