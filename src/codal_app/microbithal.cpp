@@ -113,7 +113,6 @@ void microbit_hal_power_clear_wake_sources(void) {
     for (size_t i = 0; i < HAL_ARRAY_SIZE(button_obj); ++i) {
         microbit_hal_power_wake_on_button(i, false);
     }
-    // TODO: Clear the run_every wake up source when implemented
 }
 
 void microbit_hal_power_wake_on_button(int button, bool wake_on_active) {

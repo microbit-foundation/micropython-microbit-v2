@@ -26,6 +26,7 @@
 
 #include "py/runtime.h"
 #include "py/mphal.h"
+#include "drv_softtimer.h"
 
 STATIC size_t get_array(mp_obj_t *src, mp_obj_t **items) {
     if (*src == mp_const_none) {
@@ -63,6 +64,14 @@ STATIC mp_obj_t power_deep_sleep(size_t n_args, const mp_obj_t *pos_args, mp_map
 
     microbit_hal_power_clear_wake_sources();
 
+    // Configure wake-up time, if given.
+    bool wake_on_ms = false;
+    uint32_t wake_ms = UINT32_MAX;
+    if (args[ARG_ms].u_obj != mp_const_none) {
+        wake_on_ms = true;
+        wake_ms = mp_obj_get_int(args[ARG_ms].u_obj);
+    }
+
     // Configure wake-up sources.
     mp_obj_t *items;
     size_t len = get_array(&args[ARG_wake_on].u_obj, &items);
@@ -77,15 +86,24 @@ STATIC mp_obj_t power_deep_sleep(size_t n_args, const mp_obj_t *pos_args, mp_map
         }
     }
 
+    // If run_every is true then check if any soft timers will expire and need to wake the device.
     if (args[ARG_run_every].u_bool) {
-        mp_raise_ValueError(MP_ERROR_TEXT("run_every not implemented"));
+        microbit_soft_timer_set_pause(true);
+        uint32_t ms = microbit_soft_timer_get_ms_to_next_expiry();
+        if (ms != UINT32_MAX) {
+            // A soft timer will expire in "ms" milliseconds.
+            wake_on_ms = true;
+            if (ms < wake_ms) {
+                wake_ms = ms;
+            }
+        }
     }
 
-    if (args[ARG_ms].u_obj == mp_const_none) {
-        microbit_hal_power_deep_sleep(false, 0);
-    } else {
-        microbit_hal_power_deep_sleep(true, mp_obj_get_int(args[ARG_ms].u_obj));
-    }
+    // Enter low power state.
+    microbit_hal_power_deep_sleep(wake_on_ms, wake_ms);
+
+    // Resume soft timer (doesn't hurt to resume even if it wasn't paused).
+    microbit_soft_timer_set_pause(false);
 
     return mp_const_none;
 }
