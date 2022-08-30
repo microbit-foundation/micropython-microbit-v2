@@ -28,7 +28,15 @@
 #include "microbithal.h"
 #include "MicroBitDevice.h"
 
-#define SOUND_LEVEL_MAXIMUM (20000)
+// Range of level values used by CODAL.
+#define CODAL_LEVEL_MIN (52)
+#define CODAL_LEVEL_MAX (86)
+#define CODAL_LEVEL_RANGE (CODAL_LEVEL_MAX - CODAL_LEVEL_MIN)
+
+// Range of level values used by this micro:bit HAL.
+#define HAL_LEVEL_MIN (0)
+#define HAL_LEVEL_MAX (255)
+#define HAL_LEVEL_RANGE (HAL_LEVEL_MAX - HAL_LEVEL_MIN)
 
 extern "C" void microbit_hal_level_detector_callback(int);
 
@@ -48,7 +56,8 @@ void microbit_hal_microphone_init(void) {
 }
 
 void microbit_hal_microphone_set_threshold(int kind, int value) {
-    value = value * SOUND_LEVEL_MAXIMUM / 255;
+    value = (value - HAL_LEVEL_MIN) * CODAL_LEVEL_RANGE / HAL_LEVEL_RANGE + CODAL_LEVEL_MIN;
+    value = min(max(value, CODAL_LEVEL_MIN), CODAL_LEVEL_MAX);
     if (kind == 0) {
         uBit.audio.level->setLowThreshold(value);
     } else {
@@ -57,9 +66,10 @@ void microbit_hal_microphone_set_threshold(int kind, int value) {
 }
 
 int microbit_hal_microphone_get_level(void) {
-    int l = uBit.audio.level->getValue();
-    l = min(255, l * 255 / SOUND_LEVEL_MAXIMUM);
-    return l;
+    int value = uBit.audio.levelSPL->getValue();
+    value = (value - CODAL_LEVEL_MIN) * HAL_LEVEL_RANGE / CODAL_LEVEL_RANGE + HAL_LEVEL_MIN;
+    value = min(max(value, HAL_LEVEL_MIN), HAL_LEVEL_MAX);
+    return value;
 }
 
 }
