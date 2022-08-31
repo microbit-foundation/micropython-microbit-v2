@@ -85,9 +85,9 @@ STATIC mp_obj_t microbit_microphone_set_threshold(mp_obj_t self_in, mp_obj_t sou
     uint8_t sound = sound_event_from_obj(sound_in);
     int kind;
     if (sound == SOUND_EVENT_QUIET) {
-        kind = 0;
+        kind = MICROBIT_HAL_MICROPHONE_SET_THRESHOLD_LOW;
     } else if (sound == SOUND_EVENT_LOUD) {
-        kind = 1;
+        kind = MICROBIT_HAL_MICROPHONE_SET_THRESHOLD_HIGH;
     } else {
         mp_raise_ValueError(MP_ERROR_TEXT("invalid sound"));
     }

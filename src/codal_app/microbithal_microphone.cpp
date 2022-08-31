@@ -58,7 +58,7 @@ void microbit_hal_microphone_init(void) {
 void microbit_hal_microphone_set_threshold(int kind, int value) {
     value = (value - HAL_LEVEL_MIN) * CODAL_LEVEL_RANGE / HAL_LEVEL_RANGE + CODAL_LEVEL_MIN;
     value = min(max(value, CODAL_LEVEL_MIN), CODAL_LEVEL_MAX);
-    if (kind == 0) {
+    if (kind == MICROBIT_HAL_MICROPHONE_SET_THRESHOLD_LOW) {
         uBit.audio.level->setLowThreshold(value);
     } else {
         uBit.audio.level->setHighThreshold(value);
