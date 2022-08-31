@@ -50,9 +50,9 @@ static uint8_t sound_event_history_array[EVENT_HISTORY_SIZE];
 void microbit_hal_level_detector_callback(int value) {
     // Work out the sound event.
     uint8_t ev;
-    if (value == MICROBIT_HAL_MICROPHONE_LEVEL_THRESHOLD_LOW) {
+    if (value == MICROBIT_HAL_MICROPHONE_EVT_THRESHOLD_LOW) {
         ev = SOUND_EVENT_QUIET;
-    } else if (value == MICROBIT_HAL_MICROPHONE_LEVEL_THRESHOLD_HIGH) {
+    } else if (value == MICROBIT_HAL_MICROPHONE_EVT_THRESHOLD_HIGH) {
         ev = SOUND_EVENT_LOUD;
     } else {
         // Ignore unknown events.
