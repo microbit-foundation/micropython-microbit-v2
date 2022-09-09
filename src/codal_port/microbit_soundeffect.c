@@ -28,8 +28,8 @@
 #include "modmicrobit.h"
 #include "modaudio.h"
 
-#define SOUND_EXPR_WAVE_OFFSET                  (0)
-#define SOUND_EXPR_WAVE_LENGTH                  (1)
+#define SOUND_EXPR_WAVEFORM_OFFSET              (0)
+#define SOUND_EXPR_WAVEFORM_LENGTH              (1)
 #define SOUND_EXPR_VOLUME_START_OFFSET          (1)
 #define SOUND_EXPR_VOLUME_START_LENGTH          (4)
 #define SOUND_EXPR_FREQUENCY_START_OFFSET       (5)
@@ -54,11 +54,11 @@
 #define SOUND_EXPR_ENCODE_VOLUME(v)             (((v) * 1023 + 127) / 255)
 #define SOUND_EXPR_DECODE_VOLUME(v)             (((v) * 255 + 511) / 1023)
 
-#define SOUND_EFFECT_WAVE_SINE                  (0)
-#define SOUND_EFFECT_WAVE_SAWTOOTH              (1)
-#define SOUND_EFFECT_WAVE_TRIANGLE              (2)
-#define SOUND_EFFECT_WAVE_SQUARE                (3)
-#define SOUND_EFFECT_WAVE_NOISE                 (4)
+#define SOUND_EFFECT_WAVEFORM_SINE              (0)
+#define SOUND_EFFECT_WAVEFORM_SAWTOOTH          (1)
+#define SOUND_EFFECT_WAVEFORM_TRIANGLE          (2)
+#define SOUND_EFFECT_WAVEFORM_SQUARE            (3)
+#define SOUND_EFFECT_WAVEFORM_NOISE             (4)
 
 #define SOUND_EFFECT_SHAPE_LINEAR               (1)
 #define SOUND_EFFECT_SHAPE_CURVE                (2)
@@ -74,7 +74,7 @@
 #define SOUND_EFFECT_DEFAULT_DURATION           (500)
 #define SOUND_EFFECT_DEFAULT_VOL_START          (255)
 #define SOUND_EFFECT_DEFAULT_VOL_END            (0)
-#define SOUND_EFFECT_DEFAULT_WAVE               (SOUND_EFFECT_WAVE_SQUARE)
+#define SOUND_EFFECT_DEFAULT_WAVEFORM           (SOUND_EFFECT_WAVEFORM_SQUARE)
 #define SOUND_EFFECT_DEFAULT_FX                 (SOUND_EFFECT_FX_NONE)
 #define SOUND_EFFECT_DEFAULT_SHAPE              (SOUND_EFFECT_SHAPE_LOG)
 
@@ -90,12 +90,12 @@ typedef struct _soundeffect_attr_t {
     uint8_t length;
 } soundeffect_attr_t;
 
-STATIC const uint16_t wave_to_qstr_table[5] = {
-    [SOUND_EFFECT_WAVE_SINE] = MP_QSTR_WAVE_SINE,
-    [SOUND_EFFECT_WAVE_SAWTOOTH] = MP_QSTR_WAVE_SAWTOOTH,
-    [SOUND_EFFECT_WAVE_TRIANGLE] = MP_QSTR_WAVE_TRIANGLE,
-    [SOUND_EFFECT_WAVE_SQUARE] = MP_QSTR_WAVE_SQUARE,
-    [SOUND_EFFECT_WAVE_NOISE] = MP_QSTR_WAVE_NOISE,
+STATIC const uint16_t waveform_to_qstr_table[5] = {
+    [SOUND_EFFECT_WAVEFORM_SINE] = MP_QSTR_WAVEFORM_SINE,
+    [SOUND_EFFECT_WAVEFORM_SAWTOOTH] = MP_QSTR_WAVEFORM_SAWTOOTH,
+    [SOUND_EFFECT_WAVEFORM_TRIANGLE] = MP_QSTR_WAVEFORM_TRIANGLE,
+    [SOUND_EFFECT_WAVEFORM_SQUARE] = MP_QSTR_WAVEFORM_SQUARE,
+    [SOUND_EFFECT_WAVEFORM_NOISE] = MP_QSTR_WAVEFORM_NOISE,
 };
 
 STATIC const uint16_t fx_to_qstr_table[4] = {
@@ -111,7 +111,7 @@ STATIC const soundeffect_attr_t soundeffect_attr_table[] = {
     { MP_QSTR_duration, SOUND_EXPR_DURATION_OFFSET, SOUND_EXPR_DURATION_LENGTH },
     { MP_QSTR_vol_start, SOUND_EXPR_VOLUME_START_OFFSET, SOUND_EXPR_VOLUME_START_LENGTH },
     { MP_QSTR_vol_end, SOUND_EXPR_VOLUME_END_OFFSET, SOUND_EXPR_VOLUME_END_LENGTH },
-    { MP_QSTR_wave, SOUND_EXPR_WAVE_OFFSET, SOUND_EXPR_WAVE_LENGTH },
+    { MP_QSTR_waveform, SOUND_EXPR_WAVEFORM_OFFSET, SOUND_EXPR_WAVEFORM_LENGTH },
     { MP_QSTR_fx, SOUND_EXPR_FX_CHOICE_OFFSET, SOUND_EXPR_FX_CHOICE_LENGTH },
     { MP_QSTR_shape, SOUND_EXPR_SHAPE_OFFSET, SOUND_EXPR_SHAPE_LENGTH },
 };
@@ -150,7 +150,7 @@ STATIC void microbit_soundeffect_print(const mp_print_t *print, mp_obj_t self_in
     unsigned int duration = sound_expr_decode(self, SOUND_EXPR_DURATION_OFFSET, SOUND_EXPR_DURATION_LENGTH);
     unsigned int vol_start = sound_expr_decode(self, SOUND_EXPR_VOLUME_START_OFFSET, SOUND_EXPR_VOLUME_START_LENGTH);
     unsigned int vol_end = sound_expr_decode(self, SOUND_EXPR_VOLUME_END_OFFSET, SOUND_EXPR_VOLUME_END_LENGTH);
-    unsigned int wave = sound_expr_decode(self, SOUND_EXPR_WAVE_OFFSET, SOUND_EXPR_WAVE_LENGTH);
+    unsigned int waveform = sound_expr_decode(self, SOUND_EXPR_WAVEFORM_OFFSET, SOUND_EXPR_WAVEFORM_LENGTH);
     unsigned int fx = sound_expr_decode(self, SOUND_EXPR_FX_CHOICE_OFFSET, SOUND_EXPR_FX_CHOICE_LENGTH);
     unsigned int shape = sound_expr_decode(self, SOUND_EXPR_SHAPE_OFFSET, SOUND_EXPR_SHAPE_LENGTH);
 
@@ -161,14 +161,14 @@ STATIC void microbit_soundeffect_print(const mp_print_t *print, mp_obj_t self_in
             "duration=%d, "
             "vol_start=%d, "
             "vol_end=%d, "
-            "wave=%q, "
+            "waveform=%q, "
             "fx=%q, ",
             freq_start,
             freq_end,
             duration,
             vol_start,
             vol_end,
-            wave_to_qstr_table[wave],
+            waveform_to_qstr_table[waveform],
             fx_to_qstr_table[fx]
         );
 
@@ -190,21 +190,21 @@ STATIC void microbit_soundeffect_print(const mp_print_t *print, mp_obj_t self_in
     } else {
         // PRINT_REPR
         mp_printf(print, "SoundEffect(%d, %d, %d, %d, %d, %d, %d, %d)",
-            freq_start, freq_end, duration, vol_start, vol_end, wave, fx, shape);
+            freq_start, freq_end, duration, vol_start, vol_end, waveform, fx, shape);
     }
 }
 
 // Constructor:
-// SoundEffect(freq_start, freq_end, duration, vol_start, vol_end, wave, fx, shape)
+// SoundEffect(freq_start, freq_end, duration, vol_start, vol_end, waveform, fx, shape)
 STATIC mp_obj_t microbit_soundeffect_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args_in) {
-    enum { ARG_freq_start, ARG_freq_end, ARG_duration, ARG_vol_start, ARG_vol_end, ARG_wave, ARG_fx, ARG_shape };
+    enum { ARG_freq_start, ARG_freq_end, ARG_duration, ARG_vol_start, ARG_vol_end, ARG_waveform, ARG_fx, ARG_shape };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_freq_start,       MP_ARG_INT, {.u_int = SOUND_EFFECT_DEFAULT_FREQ_START} },
         { MP_QSTR_freq_end,         MP_ARG_INT, {.u_int = SOUND_EFFECT_DEFAULT_FREQ_END} },
         { MP_QSTR_duration,         MP_ARG_INT, {.u_int = SOUND_EFFECT_DEFAULT_DURATION} },
         { MP_QSTR_vol_start,        MP_ARG_INT, {.u_int = SOUND_EFFECT_DEFAULT_VOL_START} },
         { MP_QSTR_vol_end,          MP_ARG_INT, {.u_int = SOUND_EFFECT_DEFAULT_VOL_END} },
-        { MP_QSTR_wave,             MP_ARG_INT, {.u_int = SOUND_EFFECT_DEFAULT_WAVE} },
+        { MP_QSTR_waveform,         MP_ARG_INT, {.u_int = SOUND_EFFECT_DEFAULT_WAVEFORM} },
         { MP_QSTR_fx,               MP_ARG_INT, {.u_int = SOUND_EFFECT_DEFAULT_FX} },
         { MP_QSTR_shape,            MP_ARG_INT, {.u_int = SOUND_EFFECT_DEFAULT_SHAPE} },
     };
@@ -230,7 +230,7 @@ STATIC mp_obj_t microbit_soundeffect_make_new(const mp_obj_type_t *type, size_t 
     sound_expr_encode(self, SOUND_EXPR_DURATION_OFFSET, SOUND_EXPR_DURATION_LENGTH, args[ARG_duration].u_int);
     sound_expr_encode(self, SOUND_EXPR_VOLUME_START_OFFSET, SOUND_EXPR_VOLUME_START_LENGTH, args[ARG_vol_start].u_int);
     sound_expr_encode(self, SOUND_EXPR_VOLUME_END_OFFSET, SOUND_EXPR_VOLUME_END_LENGTH, args[ARG_vol_end].u_int);
-    sound_expr_encode(self, SOUND_EXPR_WAVE_OFFSET, SOUND_EXPR_WAVE_LENGTH, args[ARG_wave].u_int);
+    sound_expr_encode(self, SOUND_EXPR_WAVEFORM_OFFSET, SOUND_EXPR_WAVEFORM_LENGTH, args[ARG_waveform].u_int);
     sound_expr_encode(self, SOUND_EXPR_FX_CHOICE_OFFSET, SOUND_EXPR_FX_CHOICE_LENGTH, args[ARG_fx].u_int);
     sound_expr_encode(self, SOUND_EXPR_SHAPE_OFFSET, SOUND_EXPR_SHAPE_LENGTH, args[ARG_shape].u_int);
 
@@ -313,11 +313,11 @@ STATIC const mp_rom_map_elem_t microbit_soundeffect_locals_dict_table[] = {
     // Class constants.
     #define C(NAME) { MP_ROM_QSTR(MP_QSTR_ ## NAME), MP_ROM_INT(SOUND_EFFECT_ ## NAME) }
 
-    C(WAVE_SINE),
-    C(WAVE_SAWTOOTH),
-    C(WAVE_TRIANGLE),
-    C(WAVE_SQUARE),
-    C(WAVE_NOISE),
+    C(WAVEFORM_SINE),
+    C(WAVEFORM_SAWTOOTH),
+    C(WAVEFORM_TRIANGLE),
+    C(WAVEFORM_SQUARE),
+    C(WAVEFORM_NOISE),
 
     C(SHAPE_LINEAR),
     C(SHAPE_CURVE),
