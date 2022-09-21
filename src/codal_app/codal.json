@@ -2,7 +2,7 @@
     "target": {
         "name": "codal-microbit-v2",
         "url": "https://github.com/lancaster-university/codal-microbit-v2",
-        "branch": "v0.2.42-hotfix.1",
+        "branch": "v0.2.43",
         "type": "git",
         "test_ignore": true
     } ,
@@ -11,7 +11,8 @@
         "MICROBIT_BLE_ENABLED" : 0,
         "MICROBIT_BLE_PAIRING_MODE": 1,
         "MICROBIT_BLE_PARTIAL_FLASHING" : 1,
-        "MICROBIT_BLE_SECURITY_MODE": 2
+        "MICROBIT_BLE_SECURITY_MODE": 2,
+        "MICROBIT_USB_SERIAL_WAKE": 1
     },
     "application": "../../src/codal_app",
     "output_folder": "../../src/build"
