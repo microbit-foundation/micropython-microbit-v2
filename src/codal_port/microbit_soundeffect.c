@@ -129,6 +129,15 @@ STATIC void sound_expr_encode(microbit_soundeffect_obj_t *self, size_t offset, s
         self->sound_expr[offset + i - 1] = '0' + value % 10;
         value /= 10;
     }
+    if (value != 0) {
+        if (length == 1) {
+            mp_raise_ValueError(MP_ERROR_TEXT("maximum value is 9"));
+        } else if (length == 2) {
+            mp_raise_ValueError(MP_ERROR_TEXT("maximum value is 99"));
+        } else {
+            mp_raise_ValueError(MP_ERROR_TEXT("maximum value is 9999"));
+        }
+    }
 }
 
 STATIC unsigned int sound_expr_decode(const microbit_soundeffect_obj_t *self, size_t offset, size_t length) {
