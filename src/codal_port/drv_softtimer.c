@@ -43,11 +43,7 @@ void microbit_soft_timer_deinit(void) {
     microbit_soft_timer_paused = false;
 }
 
-// This function can be executed at interrupt priority.
-void microbit_soft_timer_handler(void) {
-    if (microbit_soft_timer_paused) {
-        return;
-    }
+void microbit_soft_timer_handler_run(void) {
     uint32_t ticks_ms = mp_hal_ticks_ms();
     microbit_soft_timer_entry_t *heap = MP_STATE_PORT(soft_timer_heap);
     while (heap != NULL && TICKS_DIFF(heap->expiry_ms, ticks_ms) <= 0) {
@@ -66,6 +62,13 @@ void microbit_soft_timer_handler(void) {
     MP_STATE_PORT(soft_timer_heap) = heap;
 }
 
+// This function can be executed at interrupt priority.
+void microbit_soft_timer_handler(void) {
+    if (!microbit_soft_timer_paused) {
+        microbit_soft_timer_handler_run();
+    }
+}
+
 void microbit_soft_timer_insert(microbit_soft_timer_entry_t *entry, uint32_t initial_delta_ms) {
     mp_pairheap_init_node(microbit_soft_timer_lt, &entry->pairheap);
     entry->expiry_ms = mp_hal_ticks_ms() + initial_delta_ms;
@@ -75,6 +78,10 @@ void microbit_soft_timer_insert(microbit_soft_timer_entry_t *entry, uint32_t ini
 }
 
 void microbit_soft_timer_set_pause(bool paused) {
+    if (microbit_soft_timer_paused && !paused) {
+        // Explicitly run the soft timer before unpausing, to catch up on any queued events.
+        microbit_soft_timer_handler_run();
+    }
     microbit_soft_timer_paused = paused;
 }
 
