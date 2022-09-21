@@ -112,7 +112,7 @@ void microbit_hal_power_clear_wake_sources(void);
 void microbit_hal_power_wake_on_button(int button, bool wake_on_active);
 void microbit_hal_power_wake_on_pin(int pin, bool wake_on_active);
 void microbit_hal_power_off(void);
-void microbit_hal_power_deep_sleep(bool wake_on_ms, uint32_t ms);
+bool microbit_hal_power_deep_sleep(bool wake_on_ms, uint32_t ms);
 
 void microbit_hal_pin_set_pull(int pin, int pull);
 int microbit_hal_pin_get_pull(int pin);

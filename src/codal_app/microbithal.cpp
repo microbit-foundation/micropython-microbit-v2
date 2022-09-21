@@ -127,11 +127,12 @@ void microbit_hal_power_off(void) {
     uBit.power.off();
 }
 
-void microbit_hal_power_deep_sleep(bool wake_on_ms, uint32_t ms) {
+bool microbit_hal_power_deep_sleep(bool wake_on_ms, uint32_t ms) {
     if (wake_on_ms) {
-        uBit.power.deepSleep(ms, true);
+        return uBit.power.deepSleep(ms, true);
     } else {
         uBit.power.deepSleep();
+        return true; // Sleep was interrupted by a wake event.
     }
 }
 
