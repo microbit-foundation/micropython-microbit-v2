@@ -12,7 +12,8 @@
         "MICROBIT_BLE_PAIRING_MODE": 1,
         "MICROBIT_BLE_PARTIAL_FLASHING" : 1,
         "MICROBIT_BLE_SECURITY_MODE": 2,
-        "MICROBIT_USB_SERIAL_WAKE": 1
+        "MICROBIT_USB_SERIAL_WAKE": 1,
+        "LEVEL_DETECTOR_SPL_8BIT_000_POINT": 52.0 
     },
     "application": "../../src/codal_app",
     "output_folder": "../../src/build"
