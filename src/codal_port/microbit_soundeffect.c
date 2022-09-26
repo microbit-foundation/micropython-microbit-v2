@@ -123,6 +123,9 @@ const char *microbit_soundeffect_get_sound_expr_data(mp_obj_t self_in) {
 
 STATIC void sound_expr_encode(microbit_soundeffect_obj_t *self, size_t offset, size_t length, unsigned int value) {
     if (offset == SOUND_EXPR_VOLUME_START_OFFSET || offset == SOUND_EXPR_VOLUME_END_OFFSET) {
+        if (value > 255) {
+            mp_raise_ValueError(MP_ERROR_TEXT("maximum value is 255"));
+        }
         value = SOUND_EXPR_ENCODE_VOLUME(value);
     }
     for (size_t i = length; i > 0; --i) {
