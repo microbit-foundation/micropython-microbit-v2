@@ -264,18 +264,11 @@ STATIC void microbit_soundeffect_attr(mp_obj_t self_in, qstr attr, mp_obj_t *des
     if (dest[0] == MP_OBJ_NULL) {
         // Load attribute.
         unsigned int value = sound_expr_decode(self, soundeffect_attr->offset, soundeffect_attr->length);
-        if (attr == MP_QSTR_fx && value == 0) {
-            dest[0] = mp_const_none;
-        } else {
-            dest[0] = MP_OBJ_NEW_SMALL_INT(value);
-        }
+        dest[0] = MP_OBJ_NEW_SMALL_INT(value);
     } else if (dest[1] != MP_OBJ_NULL) {
         // Store attribute.
         if (self->is_mutable) {
-            unsigned int value = 0;
-            if (dest[1] != mp_const_none) {
-                value = mp_obj_get_int(dest[1]);
-            }
+            unsigned int value = mp_obj_get_int(dest[1]);
             sound_expr_encode(self, soundeffect_attr->offset, soundeffect_attr->length, value);
             dest[0] = MP_OBJ_NULL; // Indicate store succeeded.
         }
