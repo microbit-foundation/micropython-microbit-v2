@@ -93,9 +93,11 @@ STATIC mp_obj_t power_deep_sleep(size_t n_args, const mp_obj_t *pos_args, mp_map
         bool wake = wake_on_ms;
         uint32_t ms = remain_ms;
 
+        // Pause the soft timer.
+        microbit_soft_timer_set_pause(true, true);
+
         // If run_every is true then check if any soft timers will expire and need to wake the device.
         if (args[ARG_run_every].u_bool) {
-            microbit_soft_timer_set_pause(true);
             uint32_t soft_timer_ms = microbit_soft_timer_get_ms_to_next_expiry();
             if (soft_timer_ms != UINT32_MAX) {
                 // A soft timer will expire in "ms" milliseconds.
@@ -109,8 +111,8 @@ STATIC mp_obj_t power_deep_sleep(size_t n_args, const mp_obj_t *pos_args, mp_map
         // Enter low power state.
         bool interrupted = microbit_hal_power_deep_sleep(wake, ms);
 
-        // Resume soft timer (doesn't hurt to resume even if it wasn't paused).
-        microbit_soft_timer_set_pause(false);
+        // Resume the soft timer, and run outstanding events if run_every=True.
+        microbit_soft_timer_set_pause(false, args[ARG_run_every].u_bool);
 
         // Run all outstanding scheduled functions.
         while (MP_STATE_VM(sched_state) == MP_SCHED_PENDING) {

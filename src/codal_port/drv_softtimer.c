@@ -43,16 +43,18 @@ void microbit_soft_timer_deinit(void) {
     microbit_soft_timer_paused = false;
 }
 
-void microbit_soft_timer_handler_run(void) {
+static void microbit_soft_timer_handler_run(bool run_callbacks) {
     uint32_t ticks_ms = mp_hal_ticks_ms();
     microbit_soft_timer_entry_t *heap = MP_STATE_PORT(soft_timer_heap);
     while (heap != NULL && TICKS_DIFF(heap->expiry_ms, ticks_ms) <= 0) {
         microbit_soft_timer_entry_t *entry = heap;
         heap = (microbit_soft_timer_entry_t *)mp_pairheap_pop(microbit_soft_timer_lt, &heap->pairheap);
-        if (entry->flags & MICROBIT_SOFT_TIMER_FLAG_PY_CALLBACK) {
-            mp_sched_schedule(entry->py_callback, MP_OBJ_FROM_PTR(entry));
-        } else {
-            entry->c_callback(entry);
+        if (run_callbacks) {
+            if (entry->flags & MICROBIT_SOFT_TIMER_FLAG_PY_CALLBACK) {
+                mp_sched_schedule(entry->py_callback, MP_OBJ_FROM_PTR(entry));
+            } else {
+                entry->c_callback(entry);
+            }
         }
         if (entry->mode == MICROBIT_SOFT_TIMER_MODE_PERIODIC) {
             entry->expiry_ms += entry->delta_ms;
@@ -65,7 +67,7 @@ void microbit_soft_timer_handler_run(void) {
 // This function can be executed at interrupt priority.
 void microbit_soft_timer_handler(void) {
     if (!microbit_soft_timer_paused) {
-        microbit_soft_timer_handler_run();
+        microbit_soft_timer_handler_run(true);
     }
 }
 
@@ -77,10 +79,10 @@ void microbit_soft_timer_insert(microbit_soft_timer_entry_t *entry, uint32_t ini
     MICROPY_END_ATOMIC_SECTION(atomic_state);
 }
 
-void microbit_soft_timer_set_pause(bool paused) {
+void microbit_soft_timer_set_pause(bool paused, bool run_callbacks) {
     if (microbit_soft_timer_paused && !paused) {
         // Explicitly run the soft timer before unpausing, to catch up on any queued events.
-        microbit_soft_timer_handler_run();
+        microbit_soft_timer_handler_run(run_callbacks);
     }
     microbit_soft_timer_paused = paused;
 }
