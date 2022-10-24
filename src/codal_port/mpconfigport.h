@@ -68,6 +68,7 @@
 // Fine control over Python builtins, classes, modules, etc
 #define MICROPY_PY_BUILTINS_STR_UNICODE         (1)
 #define MICROPY_PY_BUILTINS_MEMORYVIEW          (1)
+#define MICROPY_PY_BUILTINS_FROZENSET           (1)
 #define MICROPY_PY_BUILTINS_INPUT               (1)
 #define MICROPY_PY_BUILTINS_HELP                (1)
 #define MICROPY_PY_BUILTINS_HELP_TEXT           microbit_help_text
