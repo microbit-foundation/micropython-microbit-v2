@@ -67,6 +67,7 @@ STATIC void wait_for_event() {
         // allow CTRL-C to stop the animation
         if (MP_STATE_THREAD(mp_pending_exception) != MP_OBJ_NULL) {
             async_stop();
+            mp_handle_pending(true);
             return;
         }
         microbit_hal_idle();
