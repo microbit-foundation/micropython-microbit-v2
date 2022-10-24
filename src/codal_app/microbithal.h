@@ -51,7 +51,7 @@ extern "C" {
 #define MICROBIT_HAL_PIN_P8     (8)
 #define MICROBIT_HAL_PIN_P9     (9)
 #define MICROBIT_HAL_PIN_P10    (10)
-#define MICROBIT_HAL_PIN_P11    (12)
+#define MICROBIT_HAL_PIN_P11    (11)
 #define MICROBIT_HAL_PIN_P12    (12)
 #define MICROBIT_HAL_PIN_P13    (13)
 #define MICROBIT_HAL_PIN_P14    (14)
