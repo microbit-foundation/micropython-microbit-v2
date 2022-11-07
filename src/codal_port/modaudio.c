@@ -140,7 +140,7 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, ui
         microbit_audio_stop();
     }
     audio_init(sample_rate);
-    microbit_pin_audio_select(pin_select);
+    microbit_pin_audio_select(pin_select, microbit_pin_mode_audio_play);
 
     const char *sound_expr_data = NULL;
     if (mp_obj_is_type(src, &microbit_sound_type)) {

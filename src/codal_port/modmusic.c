@@ -284,7 +284,7 @@ STATIC mp_obj_t microbit_music_stop(mp_uint_t n_args, const mp_obj_t *args) {
         pin = args[0];
     }
     // Raise exception if the pin we are trying to stop is not in a compatible mode.
-    microbit_pin_audio_select(pin);
+    microbit_pin_audio_select(pin, microbit_pin_mode_music);
 
     // Stop any ongoing background music
     music_data->async_state = ASYNC_MUSIC_STATE_IDLE;
@@ -326,7 +326,7 @@ STATIC mp_obj_t microbit_music_play(mp_uint_t n_args, const mp_obj_t *pos_args, 
     music_data->async_state = ASYNC_MUSIC_STATE_IDLE;
 
     // get the pin to play on
-    microbit_pin_audio_select(args[1].u_obj);
+    microbit_pin_audio_select(args[1].u_obj, microbit_pin_mode_music);
 
     // start the tune running in the background
     music_data->async_wait_ticks = mp_hal_ticks_ms();
@@ -372,7 +372,7 @@ STATIC mp_obj_t microbit_music_pitch(mp_uint_t n_args, const mp_obj_t *pos_args,
     music_data->async_state = ASYNC_MUSIC_STATE_IDLE;
 
     // Update pin modes
-    microbit_pin_audio_select(args[2].u_obj);
+    microbit_pin_audio_select(args[2].u_obj, microbit_pin_mode_music);
 
     bool wait = args[3].u_bool;
     music_output_amplitude(MUSIC_OUTPUT_AMPLITUDE_ON);

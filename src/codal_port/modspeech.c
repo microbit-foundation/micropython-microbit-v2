@@ -421,7 +421,7 @@ STATIC mp_obj_t articulate(mp_obj_t phonemes, mp_uint_t n_args, const mp_obj_t *
 
     #if USE_DEDICATED_AUDIO_CHANNEL
     sam_output_reset(NULL);
-    microbit_pin_audio_select(args[7].u_obj);
+    microbit_pin_audio_select(args[7].u_obj, microbit_pin_mode_audio_play);
     microbit_hal_audio_speech_init(sample_rate);
     #else
     speech_iterator_t *src = make_speech_iter();

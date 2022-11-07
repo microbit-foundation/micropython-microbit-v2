@@ -30,7 +30,7 @@
 // The currently selected pin output for the audio.
 STATIC const microbit_pin_obj_t *audio_routed_pin = NULL;
 
-void microbit_pin_audio_select(mp_const_obj_t select) {
+void microbit_pin_audio_select(mp_const_obj_t select, const microbit_pinmode_t *pinmode) {
     // Work out which pins are requested for the audio output.
     const microbit_pin_obj_t *pin_selected;
     if (select == mp_const_none) {
@@ -50,9 +50,12 @@ void microbit_pin_audio_select(mp_const_obj_t select) {
         if (audio_routed_pin == NULL) {
             microbit_hal_audio_select_pin(-1);
         } else {
-            microbit_obj_pin_acquire(audio_routed_pin, microbit_pin_mode_music);
+            microbit_obj_pin_acquire(audio_routed_pin, pinmode);
             microbit_hal_audio_select_pin(audio_routed_pin->name);
         }
+    } else if (audio_routed_pin != NULL) {
+        // Update the pin acquisition mode, to make sure pin.get_mode() reflects the current mode.
+        microbit_pin_set_mode(audio_routed_pin, pinmode);
     }
 }
 

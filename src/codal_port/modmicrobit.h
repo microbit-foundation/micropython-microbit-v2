@@ -220,11 +220,15 @@ bool microbit_obj_pin_can_be_acquired(const microbit_pin_obj_t *pin);
 // Not safe to call in an interrupt as it may raise if pin can't be acquired.
 bool microbit_obj_pin_acquire(const microbit_pin_obj_t *pin, const microbit_pinmode_t *mode);
 
+// Change the mode of a pin.  This does not check the existing mode, nor release any
+// resources, and should only be used if pin resources are managed by the caller.
+void microbit_pin_set_mode(const microbit_pin_obj_t *pin, const microbit_pinmode_t *mode);
+
 const microbit_pinmode_t *microbit_pin_get_mode(const microbit_pin_obj_t *pin);
 void pinmode_error(const microbit_pin_obj_t *pin);
 
 void microbit_pin_audio_speaker_enable(bool enable);
-void microbit_pin_audio_select(mp_const_obj_t select);
+void microbit_pin_audio_select(mp_const_obj_t select, const microbit_pinmode_t *pinmode);
 void microbit_pin_audio_free(void);
 
 MP_DECLARE_CONST_FUN_OBJ_0(microbit_reset_obj);

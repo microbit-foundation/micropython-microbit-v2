@@ -39,15 +39,15 @@ const microbit_pinmode_t *microbit_pin_get_mode(const microbit_pin_obj_t *pin) {
     return &microbit_pinmodes[pinmode];
 }
 
-static void set_mode(uint32_t pin, const microbit_pinmode_t *mode) {
+void microbit_pin_set_mode(const microbit_pin_obj_t *pin, const microbit_pinmode_t *mode) {
     uint32_t index = mode - &microbit_pinmodes[0];
-    microbit_pinmode_indices[pin] = index;
+    microbit_pinmode_indices[pin->number] = index;
     return;
 }
 
 void microbit_obj_pin_free(const microbit_pin_obj_t *pin) {
     if (pin != NULL) {
-        set_mode(pin->number, microbit_pin_mode_unused);
+        microbit_pin_set_mode(pin, microbit_pin_mode_unused);
     }
 }
 
@@ -66,7 +66,7 @@ bool microbit_obj_pin_acquire(const microbit_pin_obj_t *pin, const microbit_pinm
 
     if (current_mode != new_mode) {
         current_mode->release(pin);
-        set_mode(pin->number, new_mode);
+        microbit_pin_set_mode(pin, new_mode);
         return true;
     } else {
         return false;
@@ -86,7 +86,7 @@ static void analog_release(const microbit_pin_obj_t *pin) {
     // TODO: pwm_release()
 }
 
-static void music_release(const microbit_pin_obj_t *pin) {
+static void audio_music_release(const microbit_pin_obj_t *pin) {
     if (microbit_audio_is_playing() || microbit_music_is_playing()) {
         pinmode_error(pin);
     } else {
@@ -101,8 +101,8 @@ const microbit_pinmode_t microbit_pinmodes[] = {
     [MODE_WRITE_DIGITAL] = { MP_QSTR_write_digital, noop },
     [MODE_DISPLAY]       = { MP_QSTR_display, pinmode_error },
     [MODE_BUTTON]        = { MP_QSTR_button, pinmode_error },
-    [MODE_MUSIC]         = { MP_QSTR_music, music_release },
-    [MODE_AUDIO_PLAY]    = { MP_QSTR_audio, noop },
+    [MODE_MUSIC]         = { MP_QSTR_music, audio_music_release },
+    [MODE_AUDIO_PLAY]    = { MP_QSTR_audio, audio_music_release },
     [MODE_TOUCH]         = { MP_QSTR_touch, noop },
     [MODE_I2C]           = { MP_QSTR_i2c, pinmode_error },
     [MODE_SPI]           = { MP_QSTR_spi, pinmode_error }
