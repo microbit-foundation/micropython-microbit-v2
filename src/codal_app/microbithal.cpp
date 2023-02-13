@@ -50,7 +50,7 @@ NRF52Pin *const pin_obj[] = {
     &uBit.io.P16,
     &uBit.io.P19, // external I2C SCL
     &uBit.io.P20, // external I2C SDA
-    &uBit.io.face,
+    &uBit.io.logo,
     &uBit.io.speaker,
     &uBit.io.runmic,
     &uBit.io.microphone,
@@ -203,8 +203,8 @@ void microbit_hal_pin_write_analog_u10(int pin, int value) {
 }
 
 int microbit_hal_pin_is_touched(int pin) {
-    if (pin == MICROBIT_HAL_PIN_FACE) {
-        // For touch on the face/logo, delegate to the TouchButton instance.
+    if (pin == MICROBIT_HAL_PIN_LOGO) {
+        // For touch on the logo pin, delegate to the TouchButton instance.
         return uBit.logo.buttonActive();
     }
     return pin_obj[pin]->isTouched();
