@@ -258,11 +258,16 @@ int microbit_hal_uart_init(int tx, int rx, int baudrate, int bits, int parity, i
 static NRF52SPI *spi = NULL;
 
 int microbit_hal_spi_init(int sclk, int mosi, int miso, int frequency, int bits, int mode) {
-    if (spi != NULL) {
-        delete spi;
+    int ret;
+    if (spi == NULL) {
+        spi = new NRF52SPI(*pin_obj[mosi], *pin_obj[miso], *pin_obj[sclk], NRF_SPIM2);
+    } else {
+        ret = spi->redirect(*pin_obj[mosi], *pin_obj[miso], *pin_obj[sclk]);
+        if (ret != DEVICE_OK) {
+            return ret;
+        }
     }
-    spi = new NRF52SPI(*pin_obj[mosi], *pin_obj[miso], *pin_obj[sclk], NRF_SPIM2);
-    int ret = spi->setFrequency(frequency);
+    ret = spi->setFrequency(frequency);
     if (ret != DEVICE_OK) {
         return ret;
     }
