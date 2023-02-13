@@ -215,10 +215,13 @@ void microbit_hal_pin_write_ws2812(int pin, const uint8_t *buf, size_t len) {
 }
 
 int microbit_hal_i2c_init(int scl, int sda, int freq) {
-    // TODO set pins
-    int ret = uBit.i2c.setFrequency(freq);
+    int ret = uBit.i2c.redirect(*pin_obj[sda], *pin_obj[scl]);
     if (ret != DEVICE_OK) {
-        return ret;;
+        return ret;
+    }
+    ret = uBit.i2c.setFrequency(freq);
+    if (ret != DEVICE_OK) {
+        return ret;
     }
     return 0;
 }
