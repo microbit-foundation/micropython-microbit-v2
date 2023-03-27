@@ -163,7 +163,7 @@ MP_DEFINE_CONST_FUN_OBJ_1(microbit_display_read_light_level_obj, microbit_displa
 
 mp_obj_t microbit_display_clear_func(mp_obj_t self) {
     (void)self;
-    microbit_hal_display_clear();
+    microbit_display_clear();
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_1(microbit_display_clear_obj, microbit_display_clear_func);

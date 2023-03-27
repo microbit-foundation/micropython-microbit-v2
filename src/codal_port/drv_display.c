@@ -142,6 +142,8 @@ void microbit_display_update(void) {
 }
 
 void microbit_display_clear(void) {
+    // Reset repeat state, cancel animation and clear screen.
+    // The actual screen clearing will be done by microbit_display_update.
     wakeup_event = false;
     async_mode = ASYNC_MODE_CLEAR;
     async_tick = async_delay - MILLISECONDS_PER_MACRO_TICK;
