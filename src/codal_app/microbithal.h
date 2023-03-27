@@ -138,7 +138,6 @@ int microbit_hal_spi_transfer(size_t len, const uint8_t *src, uint8_t *dest);
 int microbit_hal_button_state(int button, int *was_pressed, int *num_presses);
 
 void microbit_hal_display_enable(int value);
-void microbit_hal_display_clear(void);
 int microbit_hal_display_get_pixel(int x, int y);
 void microbit_hal_display_set_pixel(int x, int y, int bright);
 int microbit_hal_display_read_light_level(void);

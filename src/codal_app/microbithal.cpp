@@ -319,10 +319,6 @@ void microbit_hal_display_enable(int value) {
     }
 }
 
-void microbit_hal_display_clear(void) {
-    uBit.display.clear();
-}
-
 int microbit_hal_display_get_pixel(int x, int y) {
     uint32_t pixel = uBit.display.image.getPixelValue(x, y);
     if (pixel == 255) {
