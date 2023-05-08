@@ -124,7 +124,7 @@ def parse_map_file(filename, symbols):
             line = line.strip()
             if line == "Linker script and memory map":
                 parse_symbols = True
-            elif parse_symbols and line.startswith("0x00"):
+            elif parse_symbols and line.startswith(("0x00", "0x20")):
                 line = line.split()
                 if len(line) >= 2 and line[1] in symbols:
                     symbols[line[1]] = int(line[0], 16)
