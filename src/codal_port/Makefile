@@ -131,6 +131,9 @@ $(MBIT_VER_FILE): FORCE
 	$(PYTHON) $(TOP)/py/makeversionhdr.py $(MBIT_VER_FILE).pre
 	$(CAT) $(MBIT_VER_FILE).pre | $(SED) s/MICROPY_/MICROBIT_/ > $(MBIT_VER_FILE)
 
+# Suppress warnings bulding stackctrl.c (fixed post v1.20.0).
+$(BUILD)/py/stackctrl.o: CWARN += -Wno-dangling-pointer
+
 # Suppress warnings from SAM library.
 $(BUILD)/$(abspath $(LOCAL_LIB_DIR))/sam/sam.o: CWARN += -Wno-array-bounds
 
