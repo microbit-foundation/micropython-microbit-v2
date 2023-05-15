@@ -228,11 +228,11 @@ def main():
 
     # Print information.
     if args.output is not sys.stdout:
-        fmt = "{:13} 0x{:05x}..0x{:05x}"
-        print(fmt.format("SoftDevice", sd_start, sd_end))
-        print(fmt.format("MicroPython", mp_start, mp_end))
-        print(fmt.format("Layout table", layout_addr, layout_addr + len(layout.data)))
-        print(fmt.format("Filesystem", fs_start, fs_end))
+        fmt = "{:13} 0x{:05x}..0x{:05x}  {:6} bytes"
+        print(fmt.format("SoftDevice", sd_start, sd_end, sd_end - sd_start))
+        print(fmt.format("MicroPython", mp_start, mp_end, mp_end - mp_start))
+        print(fmt.format("Layout table", layout_addr, layout_addr + len(layout.data), len(layout.data)))
+        print(fmt.format("Filesystem", fs_start, fs_end, fs_end - fs_start))
 
     # Output the new firmware as a hex file.
     output_firmware(args.output, firmware, layout_addr, layout.data)
