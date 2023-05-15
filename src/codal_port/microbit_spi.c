@@ -114,7 +114,7 @@ STATIC mp_obj_t microbit_spi_read(size_t n_args, const mp_obj_t *args) {
     if (ret != 0) {
         mp_raise_OSError(ret);
     }
-    return mp_obj_new_str_from_vstr(&mp_type_bytes, &vstr);
+    return mp_obj_new_bytes_from_vstr(&vstr);
 }
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(microbit_spi_read_obj, 2, 3, microbit_spi_read);
 
@@ -140,11 +140,12 @@ STATIC const mp_rom_map_elem_t microbit_spi_locals_dict_table[] = {
 };
 STATIC MP_DEFINE_CONST_DICT(microbit_spi_locals_dict, microbit_spi_locals_dict_table);
 
-STATIC const mp_obj_type_t microbit_spi_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_MicroBitSPI,
-    .locals_dict = (mp_obj_dict_t *)&microbit_spi_locals_dict,
-};
+STATIC MP_DEFINE_CONST_OBJ_TYPE(
+    microbit_spi_type,
+    MP_QSTR_MicroBitSPI,
+    MP_TYPE_FLAG_NONE,
+    locals_dict, &microbit_spi_locals_dict
+    );
 
 const microbit_spi_obj_t microbit_spi_obj = {
     { &microbit_spi_type },

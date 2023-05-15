@@ -210,3 +210,5 @@ const mp_obj_module_t antigravity_module = {
     .base = { &mp_type_module },
     .globals = (mp_obj_dict_t *)&antigravity_module_globals,
 };
+
+MP_REGISTER_MODULE(MP_QSTR_antigravity, antigravity_module);

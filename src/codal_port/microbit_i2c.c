@@ -103,7 +103,7 @@ STATIC mp_obj_t microbit_i2c_read(mp_uint_t n_args, const mp_obj_t *pos_args, mp
     }
 
     // Return bytes object with read data.
-    return mp_obj_new_str_from_vstr(&mp_type_bytes, &vstr);
+    return mp_obj_new_bytes_from_vstr(&vstr);
 }
 MP_DEFINE_CONST_FUN_OBJ_KW(microbit_i2c_read_obj, 1, microbit_i2c_read);
 
@@ -142,11 +142,12 @@ STATIC const mp_rom_map_elem_t microbit_i2c_locals_dict_table[] = {
 };
 STATIC MP_DEFINE_CONST_DICT(microbit_i2c_locals_dict, microbit_i2c_locals_dict_table);
 
-STATIC const mp_obj_type_t microbit_i2c_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_MicroBitI2C,
-    .locals_dict = (mp_obj_dict_t *)&microbit_i2c_locals_dict,
-};
+STATIC MP_DEFINE_CONST_OBJ_TYPE(
+    microbit_i2c_type,
+    MP_QSTR_MicroBitI2C,
+    MP_TYPE_FLAG_NONE,
+    locals_dict, &microbit_i2c_locals_dict
+    );
 
 const microbit_i2c_obj_t microbit_i2c_obj = {
     { &microbit_i2c_type },

@@ -29,6 +29,7 @@
 #include "py/mphal.h"
 #include "drv_softtimer.h"
 #include "drv_system.h"
+#include "modaudio.h"
 #include "modmicrobit.h"
 
 STATIC mp_obj_t microbit_run_every_new(uint32_t period_ms);
@@ -122,7 +123,7 @@ STATIC mp_obj_t microbit_run_every(size_t n_args, const mp_obj_t *pos_args, mp_m
         return run_every;
     } else {
         // Start the timer now.
-        return mp_obj_get_type(run_every)->call(run_every, 1, 0, &args[ARG_callback].u_obj);
+        return MP_OBJ_TYPE_GET_SLOT(mp_obj_get_type(run_every), call)(run_every, 1, 0, &args[ARG_callback].u_obj);
     }
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_KW(microbit_run_every_obj, 0, microbit_run_every);
@@ -223,6 +224,8 @@ const mp_obj_module_t microbit_module = {
     .globals = (mp_obj_dict_t*)&microbit_module_globals,
 };
 
+MP_REGISTER_MODULE(MP_QSTR_microbit, microbit_module);
+
 /******************************************************************************/
 // run_every object
 
@@ -272,11 +275,12 @@ STATIC mp_obj_t microbit_run_every_obj_call(mp_obj_t self_in, size_t n_args, siz
     return self_in;
 }
 
-STATIC const mp_obj_type_t microbit_run_every_obj_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_run_every,
-    .call = microbit_run_every_obj_call,
-};
+STATIC MP_DEFINE_CONST_OBJ_TYPE(
+    microbit_run_every_obj_type,
+    MP_QSTR_run_every,
+    MP_TYPE_FLAG_NONE,
+    call, microbit_run_every_obj_call
+    );
 
 STATIC mp_obj_t microbit_run_every_new(uint32_t period_ms) {
     microbit_run_every_obj_t *self = m_new_obj(microbit_run_every_obj_t);

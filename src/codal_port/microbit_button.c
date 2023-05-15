@@ -64,11 +64,12 @@ STATIC const mp_map_elem_t microbit_button_locals_dict_table[] = {
 
 STATIC MP_DEFINE_CONST_DICT(microbit_button_locals_dict, microbit_button_locals_dict_table);
 
-const mp_obj_type_t microbit_button_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_MicroBitButton,
-    .locals_dict = (mp_obj_dict_t *)&microbit_button_locals_dict,
-};
+MP_DEFINE_CONST_OBJ_TYPE(
+    microbit_button_type,
+    MP_QSTR_MicroBitButton,
+    MP_TYPE_FLAG_NONE,
+    locals_dict, &microbit_button_locals_dict
+    );
 
 const microbit_button_obj_t microbit_button_a_obj = {
     .base = { &microbit_button_type },

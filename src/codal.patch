@@ -20,6 +20,6 @@ index b89e1d0..b53224b 100644
 +set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${PROJECT_SOURCE_DIR}/../../src/codal_port/filesystem.ld")
 +add_library(micropython STATIC IMPORTED)
 +set_target_properties(micropython PROPERTIES
-+    IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/../../src/codal_port/libmicropython.a"
++    IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/../../src/codal_port/build/libmicropython.a"
 +)
 +target_link_libraries("MICROBIT" micropython)

@@ -210,14 +210,14 @@ STATIC const mp_rom_map_elem_t microbit_display_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_is_on), MP_ROM_PTR(&microbit_display_is_on_obj) },
     { MP_ROM_QSTR(MP_QSTR_read_light_level),MP_ROM_PTR(&microbit_display_read_light_level_obj) },
 };
-
 STATIC MP_DEFINE_CONST_DICT(microbit_display_locals_dict, microbit_display_locals_dict_table);
 
-STATIC const mp_obj_type_t microbit_display_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_MicroBitDisplay,
-    .locals_dict = (mp_obj_dict_t*)&microbit_display_locals_dict,
-};
+STATIC MP_DEFINE_CONST_OBJ_TYPE(
+    microbit_display_type,
+    MP_QSTR_MicroBitDisplay,
+    MP_TYPE_FLAG_NONE,
+    locals_dict, &microbit_display_locals_dict
+    );
 
 microbit_display_obj_t microbit_display_obj = {
     .base = {&microbit_display_type},

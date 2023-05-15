@@ -173,12 +173,13 @@ STATIC const mp_stream_p_t microbit_uart_stream_p = {
     .is_text = false,
 };
 
-STATIC const mp_obj_type_t microbit_uart_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_MicroBitUART,
-    .protocol = &microbit_uart_stream_p,
-    .locals_dict = (mp_obj_dict_t *)&microbit_uart_locals_dict,
-};
+STATIC MP_DEFINE_CONST_OBJ_TYPE(
+    microbit_uart_type,
+    MP_QSTR_MicroBitUART,
+    MP_TYPE_FLAG_NONE,
+    protocol, &microbit_uart_stream_p,
+    locals_dict, &microbit_uart_locals_dict
+    );
 
 const microbit_uart_obj_t microbit_uart_obj = {
     { &microbit_uart_type },

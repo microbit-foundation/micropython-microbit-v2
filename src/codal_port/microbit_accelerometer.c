@@ -199,11 +199,12 @@ STATIC const mp_rom_map_elem_t microbit_accelerometer_locals_dict_table[] = {
 };
 STATIC MP_DEFINE_CONST_DICT(microbit_accelerometer_locals_dict, microbit_accelerometer_locals_dict_table);
 
-const mp_obj_type_t microbit_accelerometer_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_MicroBitAccelerometer,
-    .locals_dict = (mp_obj_dict_t *)&microbit_accelerometer_locals_dict,
-};
+STATIC MP_DEFINE_CONST_OBJ_TYPE(
+    microbit_accelerometer_type,
+    MP_QSTR_MicroBitAccelerometer,
+    MP_TYPE_FLAG_NONE,
+    locals_dict, &microbit_accelerometer_locals_dict
+    );
 
 const microbit_accelerometer_obj_t microbit_accelerometer_obj = {
     { &microbit_accelerometer_type },

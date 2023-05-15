@@ -1,4 +1,3 @@
 src/build
 src/MICROBIT.hex
 src/codal_port/build
-src/codal_port/libmicropython.a

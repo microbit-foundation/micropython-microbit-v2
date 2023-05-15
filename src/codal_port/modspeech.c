@@ -487,3 +487,7 @@ const mp_obj_module_t speech_module = {
     .base = { &mp_type_module },
     .globals = (mp_obj_dict_t*)&_globals,
 };
+
+MP_REGISTER_MODULE(MP_QSTR_speech, speech_module);
+
+MP_REGISTER_ROOT_POINTER(void *speech_data);

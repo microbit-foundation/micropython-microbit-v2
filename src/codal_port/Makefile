@@ -14,6 +14,13 @@ QSTR_DEFS = qstrdefsport.h
 
 # Include py core make definitions.
 include $(TOP)/py/py.mk
+include $(TOP)/extmod/extmod.mk
+
+# The micropython-lib submodule is not needed by this project, but the MicroPython
+# build system requires it if FROZEN_MANIFEST is set (which it is below).  To avoid
+# needing to check out the micropython-lib submodule, point MPY_LIB_DIR to a dummy
+# location that has a README.md file.
+MPY_LIB_DIR = $(TOP)
 
 MP_VER_FILE = $(HEADER_BUILD)/mpversion.h
 MBIT_VER_FILE = $(HEADER_BUILD)/microbitversion.h
@@ -107,7 +114,7 @@ SRC_C += \
 	$(abspath $(LOCAL_LIB_DIR)/sam/debug.c) \
 
 SRC_O += \
-	shared/runtime/gchelper_m3.o \
+	shared/runtime/gchelper_thumb2.o \
 
 OBJ = $(PY_O)
 OBJ += $(addprefix $(BUILD)/, $(SRC_O))
@@ -138,5 +145,3 @@ $(BUILD)/py/stackctrl.o: CWARN += -Wno-dangling-pointer
 $(BUILD)/$(abspath $(LOCAL_LIB_DIR))/sam/sam.o: CWARN += -Wno-array-bounds
 
 include $(TOP)/py/mkrules.mk
-
-CLEAN_EXTRA += $(LIBMICROPYTHON)

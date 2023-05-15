@@ -42,12 +42,12 @@ static mp_obj_t microbit_repeat_iter_next(mp_obj_t iter_in) {
     return mp_obj_subscr(iter->iterable, MP_OBJ_NEW_SMALL_INT(iter->index), MP_OBJ_SENTINEL);
 }
 
-const mp_obj_type_t microbit_repeat_iterator_type = {
-    .base = { &mp_type_type },
-    .name = MP_QSTR_iterator,
-    .getiter = mp_identity_getiter,
-    .iternext = microbit_repeat_iter_next,
-};
+STATIC MP_DEFINE_CONST_OBJ_TYPE(
+    microbit_repeat_iterator_type,
+    MP_QSTR_iterator,
+    MP_TYPE_FLAG_ITER_IS_ITERNEXT,
+    iter, microbit_repeat_iter_next
+    );
 
 mp_obj_t microbit_repeat_iterator(mp_obj_t iterable) {
     repeat_iterator_t *result = m_new_obj(repeat_iterator_t);

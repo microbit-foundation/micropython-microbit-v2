@@ -52,11 +52,12 @@ STATIC const mp_rom_map_elem_t microbit_speaker_locals_dict_table[] = {
 };
 STATIC MP_DEFINE_CONST_DICT(microbit_speaker_locals_dict, microbit_speaker_locals_dict_table);
 
-STATIC const mp_obj_type_t microbit_speaker_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_MicroBitSpeaker,
-    .locals_dict = (mp_obj_dict_t *)&microbit_speaker_locals_dict,
-};
+STATIC MP_DEFINE_CONST_OBJ_TYPE(
+    microbit_speaker_type,
+    MP_QSTR_MicroBitSpeaker,
+    MP_TYPE_FLAG_NONE,
+    locals_dict, &microbit_speaker_locals_dict
+    );
 
 const microbit_speaker_obj_t microbit_speaker_obj = {
     { &microbit_speaker_type },

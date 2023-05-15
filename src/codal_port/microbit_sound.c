@@ -69,9 +69,10 @@ STATIC const mp_rom_map_elem_t microbit_sound_locals_dict_table[] = {
 };
 STATIC MP_DEFINE_CONST_DICT(microbit_sound_locals_dict, microbit_sound_locals_dict_table);
 
-const mp_obj_type_t microbit_sound_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_MicroBitSound,
-    .print = microbit_sound_print,
-    .locals_dict = (mp_obj_dict_t *)&microbit_sound_locals_dict,
-};
+MP_DEFINE_CONST_OBJ_TYPE(
+    microbit_sound_type,
+    MP_QSTR_MicroBitSound,
+    MP_TYPE_FLAG_NONE,
+    print, microbit_sound_print,
+    locals_dict, &microbit_sound_locals_dict
+    );

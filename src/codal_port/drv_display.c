@@ -192,3 +192,5 @@ void microbit_display_animate(mp_obj_t iterable, mp_int_t delay, bool clear, boo
         wait_for_event();
     }
 }
+
+MP_REGISTER_ROOT_POINTER(void *display_data);

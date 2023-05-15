@@ -40,6 +40,7 @@ typedef struct _microbit_audio_frame_obj_t {
 } microbit_audio_frame_obj_t;
 
 extern const mp_obj_type_t microbit_audio_frame_type;
+extern const mp_obj_module_t audio_module;
 
 void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, uint32_t sample_rate);
 void microbit_audio_stop(void);

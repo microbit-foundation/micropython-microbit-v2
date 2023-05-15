@@ -283,3 +283,5 @@ void microbit_radio_pop(void) {
     // Re-enable the radio IRQ.
     NVIC_EnableIRQ(RADIO_IRQn);
 }
+
+MP_REGISTER_ROOT_POINTER(uint8_t *radio_buf);

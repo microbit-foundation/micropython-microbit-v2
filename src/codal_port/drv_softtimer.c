@@ -98,3 +98,5 @@ uint32_t microbit_soft_timer_get_ms_to_next_expiry(void) {
     }
     return dt;
 }
+
+MP_REGISTER_ROOT_POINTER(struct _microbit_soft_timer_entry_t *soft_timer_heap);

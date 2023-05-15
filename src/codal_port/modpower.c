@@ -150,3 +150,5 @@ const mp_obj_module_t power_module = {
     .base = { &mp_type_module },
     .globals = (mp_obj_dict_t *)&power_module_globals,
 };
+
+MP_REGISTER_MODULE(MP_QSTR_power, power_module);

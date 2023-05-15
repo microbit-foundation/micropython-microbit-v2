@@ -256,6 +256,8 @@ const mp_obj_module_t audio_module = {
     .globals = (mp_obj_dict_t *)&audio_module_globals,
 };
 
+MP_REGISTER_MODULE(MP_QSTR_audio, audio_module);
+
 /******************************************************************************/
 // AudioFrame class
 
@@ -408,16 +410,17 @@ STATIC const mp_map_elem_t microbit_audio_frame_locals_dict_table[] = {
 };
 STATIC MP_DEFINE_CONST_DICT(microbit_audio_frame_locals_dict, microbit_audio_frame_locals_dict_table);
 
-const mp_obj_type_t microbit_audio_frame_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_AudioFrame,
-    .make_new = microbit_audio_frame_new,
-    .unary_op = audio_frame_unary_op,
-    .binary_op = audio_frame_binary_op,
-    .subscr = audio_frame_subscr,
-    .buffer_p = { .get_buffer = audio_frame_get_buffer },
-    .locals_dict = (mp_obj_dict_t*)&microbit_audio_frame_locals_dict,
-};
+MP_DEFINE_CONST_OBJ_TYPE(
+    microbit_audio_frame_type,
+    MP_QSTR_AudioFrame,
+    MP_TYPE_FLAG_NONE,
+    make_new, microbit_audio_frame_new,
+    unary_op, audio_frame_unary_op,
+    binary_op, audio_frame_binary_op,
+    subscr, audio_frame_subscr,
+    buffer, audio_frame_get_buffer,
+    locals_dict, &microbit_audio_frame_locals_dict
+    );
 
 microbit_audio_frame_obj_t *microbit_audio_frame_make_new(void) {
     microbit_audio_frame_obj_t *res = m_new_obj(microbit_audio_frame_obj_t);
@@ -425,3 +428,5 @@ microbit_audio_frame_obj_t *microbit_audio_frame_make_new(void) {
     memset(res->data, 128, AUDIO_CHUNK_SIZE);
     return res;
 }
+
+MP_REGISTER_ROOT_POINTER(void *audio_source);

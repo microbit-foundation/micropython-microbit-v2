@@ -473,3 +473,8 @@ const mp_obj_module_t music_module = {
     .base = { &mp_type_module },
     .globals = (mp_obj_dict_t *)&microbit_music_locals_dict,
 };
+
+MP_REGISTER_MODULE(MP_QSTR_music, music_module);
+
+#undef music_data
+MP_REGISTER_ROOT_POINTER(struct _music_data_t *music_data);

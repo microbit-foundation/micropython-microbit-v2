@@ -337,11 +337,12 @@ STATIC const mp_rom_map_elem_t microbit_soundeffect_locals_dict_table[] = {
 };
 STATIC MP_DEFINE_CONST_DICT(microbit_soundeffect_locals_dict, microbit_soundeffect_locals_dict_table);
 
-const mp_obj_type_t microbit_soundeffect_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_MicroBitSoundEffect,
-    .print = microbit_soundeffect_print,
-    .make_new = microbit_soundeffect_make_new,
-    .attr = microbit_soundeffect_attr,
-    .locals_dict = (mp_obj_dict_t *)&microbit_soundeffect_locals_dict,
-};
+MP_DEFINE_CONST_OBJ_TYPE(
+    microbit_soundeffect_type,
+    MP_QSTR_MicroBitSoundEffect,
+    MP_TYPE_FLAG_NONE,
+    make_new, microbit_soundeffect_make_new,
+    print, microbit_soundeffect_print,
+    attr, microbit_soundeffect_attr,
+    locals_dict, &microbit_soundeffect_locals_dict
+    );
