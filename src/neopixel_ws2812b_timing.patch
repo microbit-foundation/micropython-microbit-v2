@@ -1,0 +1,17 @@
+diff --git a/inc/WS2812B.h b/inc/WS2812B.h
+index 3a6deb6..a24967b 100644
+--- a/inc/WS2812B.h
++++ b/inc/WS2812B.h
+@@ -32,9 +32,9 @@ DEALINGS IN THE SOFTWARE.
+ 
+ #define WS2812B_BUFFER_SIZE         256
+ #define WS2812B_PAD                 (0x8000)
+-#define WS2812B_LOW                 (0x8000 | 6)
+-#define WS2812B_HIGH                (0x8000 | 10)
+-#define WS2812B_PWM_FREQ            500000
++#define WS2812B_LOW                 (0x8000 | 5) // 320ns
++#define WS2812B_HIGH                (0x8000 | 12) // 760ns
++#define WS2812B_PWM_FREQ            800000
+ #define WS2812B_ZERO_PADDING        50
+ 
+ /**
