@@ -78,6 +78,7 @@ static const PullMode pin_pull_mode_mapping[] = {
 };
 
 static uint8_t pin_pull_state[32 + 6];
+static uint16_t touch_state[4];
 static uint16_t button_state[2];
 
 extern "C" {
@@ -202,11 +203,32 @@ void microbit_hal_pin_write_analog_u10(int pin, int value) {
     pin_obj[pin]->setAnalogValue(value);
 }
 
-int microbit_hal_pin_is_touched(int pin) {
-    if (pin == MICROBIT_HAL_PIN_LOGO) {
-        // For touch on the logo pin, delegate to the TouchButton instance.
-        return uBit.logo.buttonActive();
+int microbit_hal_pin_touch_state(int pin, int *was_touched, int *num_touches) {
+    if (was_touched != NULL || num_touches != NULL) {
+        int pin_state_index;
+        if (pin == MICROBIT_HAL_PIN_LOGO) {
+            pin_state_index = 3;
+        } else {
+            pin_state_index = pin; // pin0/1/2
+        }
+        int t = pin_obj[pin]->wasTouched();
+        uint16_t state = touch_state[pin_state_index];
+        if (t) {
+            // Update state based on number of touches since last call.
+            // Low bit is "was touched at least once", upper bits are "number of touches".
+            state = (state + (t << 1)) | 1;
+        }
+        if (was_touched != NULL) {
+            *was_touched = state & 1;
+            state &= ~1;
+        }
+        if (num_touches != NULL) {
+            *num_touches = state >> 1;
+            state &= 1;
+        }
+        touch_state[pin_state_index] = state;
     }
+
     return pin_obj[pin]->isTouched();
 }
 
