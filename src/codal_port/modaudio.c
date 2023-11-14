@@ -48,6 +48,7 @@ static uint8_t audio_output_buffer[AUDIO_CHUNK_SIZE];
 static volatile audio_output_state_t audio_output_state;
 static volatile bool audio_fetcher_scheduled;
 static size_t audio_raw_offset;
+static uint32_t audio_current_sound_level;
 
 microbit_audio_frame_obj_t *microbit_audio_frame_make_new(size_t size);
 
@@ -59,6 +60,7 @@ void microbit_audio_stop(void) {
     audio_source_frame = NULL;
     audio_source_iter = NULL;
     audio_raw_offset = 0;
+    audio_current_sound_level = 0;
     microbit_hal_audio_stop_expression();
 }
 
@@ -126,10 +128,14 @@ static void audio_data_fetcher(void) {
     audio_raw_offset += AUDIO_CHUNK_SIZE;
 
     uint8_t *dest = &audio_output_buffer[0];
+    uint32_t sound_level = 0;
     for (int i = 0; i < AUDIO_CHUNK_SIZE; ++i) {
         // Copy sample to the buffer.
         *dest++ = src[i];
+        // Compute the sound level.
+        sound_level += (src[i] - 128) * (src[i] - 128);
     }
+    audio_current_sound_level = sound_level / AUDIO_CHUNK_SIZE / AUDIO_CHUNK_SIZE;
 
     audio_buffer_ready();
 }
@@ -271,11 +277,17 @@ mp_obj_t is_playing(void) {
 }
 MP_DEFINE_CONST_FUN_OBJ_0(microbit_audio_is_playing_obj, is_playing);
 
+static mp_obj_t microbit_audio_sound_level(void) {
+    return MP_OBJ_NEW_SMALL_INT(audio_current_sound_level);
+}
+static MP_DEFINE_CONST_FUN_OBJ_0(microbit_audio_sound_level_obj, microbit_audio_sound_level);
+
 static const mp_rom_map_elem_t audio_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_audio) },
     { MP_ROM_QSTR(MP_QSTR_stop), MP_ROM_PTR(&microbit_audio_stop_obj) },
     { MP_ROM_QSTR(MP_QSTR_play), MP_ROM_PTR(&microbit_audio_play_obj) },
     { MP_ROM_QSTR(MP_QSTR_is_playing), MP_ROM_PTR(&microbit_audio_is_playing_obj) },
+    { MP_ROM_QSTR(MP_QSTR_sound_level), MP_ROM_PTR(&microbit_audio_sound_level_obj) },
     { MP_ROM_QSTR(MP_QSTR_AudioFrame), MP_ROM_PTR(&microbit_audio_frame_type) },
     { MP_ROM_QSTR(MP_QSTR_SoundEffect), MP_ROM_PTR(&microbit_soundeffect_type) },
 };
