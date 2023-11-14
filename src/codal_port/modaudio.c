@@ -32,6 +32,8 @@
 
 #define audio_source_iter MP_STATE_PORT(audio_source)
 
+#define LOG_AUDIO_CHUNK_SIZE (5)
+#define AUDIO_CHUNK_SIZE (1 << LOG_AUDIO_CHUNK_SIZE)
 #define DEFAULT_SAMPLE_RATE (7812)
 #define BUFFER_EXPANSION (4) // smooth out the samples via linear interpolation
 #define OUT_CHUNK_SIZE (BUFFER_EXPANSION * AUDIO_CHUNK_SIZE)
@@ -46,7 +48,7 @@ static uint8_t audio_output_buffer[OUT_CHUNK_SIZE];
 static volatile audio_output_state_t audio_output_state;
 static volatile bool audio_fetcher_scheduled;
 
-microbit_audio_frame_obj_t *microbit_audio_frame_make_new(void);
+microbit_audio_frame_obj_t *microbit_audio_frame_make_new(size_t size);
 
 static inline bool audio_is_running(void) {
     return audio_source_iter != NULL;
@@ -261,14 +263,21 @@ MP_REGISTER_MODULE(MP_QSTR_audio, audio_module);
 static mp_obj_t microbit_audio_frame_new(const mp_obj_type_t *type_in, mp_uint_t n_args, mp_uint_t n_kw, const mp_obj_t *args) {
     (void)type_in;
     (void)args;
-    mp_arg_check_num(n_args, n_kw, 0, 0, false);
-    return microbit_audio_frame_make_new();
+    mp_arg_check_num(n_args, n_kw, 0, 1, false);
+    size_t size = AUDIO_CHUNK_SIZE;
+    if (n_args == 1) {
+        size = mp_obj_get_int(args[0]);
+        if (size <= 0) {
+            mp_raise_ValueError(MP_ERROR_TEXT("size out of bounds"));
+        }
+    }
+    return microbit_audio_frame_make_new(size);
 }
 
 static mp_obj_t audio_frame_subscr(mp_obj_t self_in, mp_obj_t index_in, mp_obj_t value_in) {
     microbit_audio_frame_obj_t *self = (microbit_audio_frame_obj_t *)self_in;
     mp_int_t index = mp_obj_get_int(index_in);
-    if (index < 0 || index >= AUDIO_CHUNK_SIZE) {
+    if (index < 0 || index >= self->size) {
          mp_raise_ValueError(MP_ERROR_TEXT("index out of bounds"));
     }
     if (value_in == MP_OBJ_NULL) {
@@ -288,10 +297,10 @@ static mp_obj_t audio_frame_subscr(mp_obj_t self_in, mp_obj_t index_in, mp_obj_t
 }
 
 static mp_obj_t audio_frame_unary_op(mp_unary_op_t op, mp_obj_t self_in) {
-    (void)self_in;
+    microbit_audio_frame_obj_t *self = (microbit_audio_frame_obj_t *)self_in;
     switch (op) {
         case MP_UNARY_OP_LEN:
-            return MP_OBJ_NEW_SMALL_INT(32);
+            return MP_OBJ_NEW_SMALL_INT(self->size);
         default:
             return MP_OBJ_NULL; // op not supported
     }
@@ -301,14 +310,15 @@ static mp_int_t audio_frame_get_buffer(mp_obj_t self_in, mp_buffer_info_t *bufin
     (void)flags;
     microbit_audio_frame_obj_t *self = (microbit_audio_frame_obj_t *)self_in;
     bufinfo->buf = self->data;
-    bufinfo->len = AUDIO_CHUNK_SIZE;
+    bufinfo->len = self->size;
     bufinfo->typecode = 'b';
     return 0;
 }
 
 static void add_into(microbit_audio_frame_obj_t *self, microbit_audio_frame_obj_t *other, bool add) {
     int mult = add ? 1 : -1;
-    for (int i = 0; i < AUDIO_CHUNK_SIZE; i++) {
+    size_t size = MIN(self->size, other->size);
+    for (int i = 0; i < size; i++) {
         unsigned val = (int)self->data[i] + mult*(other->data[i]-128);
         // Clamp to 0-255
         if (val > 255) {
@@ -319,8 +329,8 @@ static void add_into(microbit_audio_frame_obj_t *self, microbit_audio_frame_obj_
 }
 
 static microbit_audio_frame_obj_t *copy(microbit_audio_frame_obj_t *self) {
-    microbit_audio_frame_obj_t *result = microbit_audio_frame_make_new();
-    for (int i = 0; i < AUDIO_CHUNK_SIZE; i++) {
+    microbit_audio_frame_obj_t *result = microbit_audio_frame_make_new(self->size);
+    for (int i = 0; i < self->size; i++) {
         result->data[i] = self->data[i];
     }
     return result;
@@ -330,7 +340,7 @@ mp_obj_t copyfrom(mp_obj_t self_in, mp_obj_t other) {
     microbit_audio_frame_obj_t *self = (microbit_audio_frame_obj_t *)self_in;
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(other, &bufinfo, MP_BUFFER_READ);
-    uint32_t len = bufinfo.len > AUDIO_CHUNK_SIZE ? AUDIO_CHUNK_SIZE : bufinfo.len;
+    uint32_t len = MIN(bufinfo.len, self->size);
     for (uint32_t i = 0; i < len; i++) {
         self->data[i] = ((uint8_t *)bufinfo.buf)[i];
     }
@@ -367,7 +377,7 @@ int32_t float_to_fixed(float f, uint32_t scale) {
 
 static void mult(microbit_audio_frame_obj_t *self, float f) {
     int scaled = float_to_fixed(f, 15);
-    for (int i = 0; i < AUDIO_CHUNK_SIZE; i++) {
+    for (int i = 0; i < self->size; i++) {
         unsigned val = ((((int)self->data[i]-128) * scaled) >> 15)+128;
         if (val > 255) {
             val = (1-(val>>31))*255;
@@ -419,10 +429,11 @@ MP_DEFINE_CONST_OBJ_TYPE(
     locals_dict, &microbit_audio_frame_locals_dict
     );
 
-microbit_audio_frame_obj_t *microbit_audio_frame_make_new(void) {
-    microbit_audio_frame_obj_t *res = m_new_obj(microbit_audio_frame_obj_t);
+microbit_audio_frame_obj_t *microbit_audio_frame_make_new(size_t size) {
+    microbit_audio_frame_obj_t *res = m_new_obj_var(microbit_audio_frame_obj_t, uint8_t, size);
     res->base.type = &microbit_audio_frame_type;
-    memset(res->data, 128, AUDIO_CHUNK_SIZE);
+    res->size = size;
+    memset(res->data, 128, size);
     return res;
 }
 
