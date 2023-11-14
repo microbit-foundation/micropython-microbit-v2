@@ -168,6 +168,9 @@ void microbit_hal_microphone_init(void);
 void microbit_hal_microphone_set_threshold(int kind, int value);
 int microbit_hal_microphone_get_level(void);
 float microbit_hal_microphone_get_level_db(void);
+void microbit_hal_microphone_start_recording(uint8_t *buf, size_t len, int rate);
+bool microbit_hal_microphone_is_recording(void);
+void microbit_hal_microphone_stop_recording(void);
 
 const uint8_t *microbit_hal_get_font_data(char c);
 

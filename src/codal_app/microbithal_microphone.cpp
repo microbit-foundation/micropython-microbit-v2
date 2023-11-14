@@ -28,11 +28,62 @@
 #include "microbithal.h"
 #include "MicroBitDevice.h"
 
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
 extern "C" void microbit_hal_level_detector_callback(int);
 
 static void level_detector_event_handler(Event evt) {
     microbit_hal_level_detector_callback(evt.value);
 }
+
+class MyStreamRecording : public DataSink
+{
+    public:
+    DataSource &upStream;
+
+    public:
+    uint8_t *dest;
+    size_t dest_pos;
+    size_t dest_max;
+    bool request_stop;
+
+    MyStreamRecording(DataSource &source);
+    virtual ~MyStreamRecording();
+
+    virtual int pullRequest();
+};
+
+MyStreamRecording::MyStreamRecording( DataSource &source ) : upStream( source )
+{
+}
+
+MyStreamRecording::~MyStreamRecording()
+{
+}
+
+int MyStreamRecording::pullRequest()
+{
+    ManagedBuffer data = this->upStream.pull();
+
+    size_t n = MIN((size_t)data.length(), this->dest_max - this->dest_pos);
+    if (n == 0 || this->request_stop) {
+        this->upStream.disconnect();
+        this->request_stop = false;
+    } else {
+        // Copy and convert signed 8-bit to unsigned 8-bit data.
+        const uint8_t *src = data.getBytes();
+        uint8_t *dest = this->dest + this->dest_pos;
+        for (size_t i = 0; i < n; ++i) {
+            *dest++ = *src++ + 128;
+        }
+        this->dest_pos += n;
+    }
+
+    return DEVICE_OK;
+}
+
+static MyStreamRecording *recording = NULL;
+static SplitterChannel *splitterChannel = NULL;
 
 extern "C" {
 
@@ -64,6 +115,44 @@ float microbit_hal_microphone_get_level_db(void) {
     float value = uBit.audio.levelSPL->getValue();
     uBit.audio.levelSPL->setUnit(LEVEL_DETECTOR_SPL_8BIT);
     return value;
+}
+
+void microbit_hal_microphone_start_recording(uint8_t *buf, size_t len, int rate) {
+    if (splitterChannel == NULL) {
+        splitterChannel = uBit.audio.splitter->createChannel();
+        splitterChannel->setFormat(DATASTREAM_FORMAT_8BIT_UNSIGNED);
+        // Increase sample period to 64us, so we can get our desired rate.
+        splitterChannel->requestSampleRate(1000000 / 64);
+    }
+    splitterChannel->requestSampleRate(rate);
+
+    if (recording == NULL) {
+        recording = new MyStreamRecording(*splitterChannel);
+    } else {
+        if (microbit_hal_microphone_is_recording()) {
+            microbit_hal_microphone_stop_recording();
+            while (microbit_hal_microphone_is_recording()) {
+                microbit_hal_idle();
+            }
+        }
+    }
+
+    recording->dest = buf;
+    recording->dest_pos = 0;
+    recording->dest_max = len;
+    recording->request_stop = false;
+
+    splitterChannel->connect(*recording);
+}
+
+bool microbit_hal_microphone_is_recording(void) {
+    return recording != NULL && splitterChannel->isConnected();
+}
+
+void microbit_hal_microphone_stop_recording(void) {
+    if (recording != NULL) {
+        recording->request_stop = true;
+    }
 }
 
 }
