@@ -37,8 +37,6 @@
 #define LOG_AUDIO_CHUNK_SIZE (5)
 #define AUDIO_CHUNK_SIZE (1 << LOG_AUDIO_CHUNK_SIZE)
 #define DEFAULT_SAMPLE_RATE (7812)
-#define BUFFER_EXPANSION (4) // smooth out the samples via linear interpolation
-#define OUT_CHUNK_SIZE (BUFFER_EXPANSION * AUDIO_CHUNK_SIZE)
 
 typedef enum {
     AUDIO_OUTPUT_STATE_IDLE,
@@ -46,7 +44,7 @@ typedef enum {
     AUDIO_OUTPUT_STATE_DATA_WRITTEN,
 } audio_output_state_t;
 
-static uint8_t audio_output_buffer[OUT_CHUNK_SIZE];
+static uint8_t audio_output_buffer[AUDIO_CHUNK_SIZE];
 static volatile audio_output_state_t audio_output_state;
 static volatile bool audio_fetcher_scheduled;
 static size_t audio_raw_offset;
@@ -128,16 +126,9 @@ static void audio_data_fetcher(void) {
     audio_raw_offset += AUDIO_CHUNK_SIZE;
 
     uint8_t *dest = &audio_output_buffer[0];
-    uint32_t last = dest[OUT_CHUNK_SIZE - 1];
     for (int i = 0; i < AUDIO_CHUNK_SIZE; ++i) {
-        uint32_t cur = src[i];
-        for (int j = 0; j < BUFFER_EXPANSION; ++j) {
-            // Get next sample with linear interpolation.
-            uint32_t sample = ((BUFFER_EXPANSION - 1 - j) * last + (j + 1) * cur) / BUFFER_EXPANSION;
-            // Write sample to the buffer.
-            *dest++ = sample;
-        }
-        last = cur;
+        // Copy sample to the buffer.
+        *dest++ = src[i];
     }
 
     audio_buffer_ready();
@@ -152,7 +143,7 @@ static MP_DEFINE_CONST_FUN_OBJ_1(audio_data_fetcher_wrapper_obj, audio_data_fetc
 void microbit_hal_audio_raw_ready_callback(void) {
     if (audio_output_state == AUDIO_OUTPUT_STATE_DATA_READY) {
         // there is data ready to send out to the audio pipeline, so send it
-        microbit_hal_audio_raw_write_data(&audio_output_buffer[0], OUT_CHUNK_SIZE);
+        microbit_hal_audio_raw_write_data(&audio_output_buffer[0], AUDIO_CHUNK_SIZE);
         audio_output_state = AUDIO_OUTPUT_STATE_DATA_WRITTEN;
     } else {
         // no data ready, need to call this function later when data is ready
@@ -167,7 +158,7 @@ void microbit_hal_audio_raw_ready_callback(void) {
 static void audio_init(uint32_t sample_rate) {
     audio_fetcher_scheduled = false;
     audio_output_state = AUDIO_OUTPUT_STATE_IDLE;
-    microbit_hal_audio_raw_init(BUFFER_EXPANSION * sample_rate);
+    microbit_hal_audio_raw_init(sample_rate);
 }
 
 void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, uint32_t sample_rate) {
