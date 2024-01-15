@@ -35,6 +35,7 @@ typedef struct _microbit_audio_frame_obj_t {
     mp_obj_base_t base;
     size_t alloc_size;
     size_t used_size;
+    uint32_t rate;
     uint8_t data[];
 } microbit_audio_frame_obj_t;
 
@@ -45,7 +46,7 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, ui
 void microbit_audio_stop(void);
 bool microbit_audio_is_playing(void);
 
-microbit_audio_frame_obj_t *microbit_audio_frame_make_new(size_t size);
+microbit_audio_frame_obj_t *microbit_audio_frame_make_new(size_t size, uint32_t rate);
 
 const char *microbit_soundeffect_get_sound_expr_data(mp_obj_t self_in);
 

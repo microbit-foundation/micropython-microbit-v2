@@ -301,18 +301,32 @@ MP_REGISTER_MODULE(MP_QSTR_audio, audio_module);
 /******************************************************************************/
 // AudioFrame class
 
-static mp_obj_t microbit_audio_frame_new(const mp_obj_type_t *type_in, mp_uint_t n_args, mp_uint_t n_kw, const mp_obj_t *args) {
+static mp_obj_t microbit_audio_frame_new(const mp_obj_type_t *type_in, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
     (void)type_in;
-    (void)args;
-    mp_arg_check_num(n_args, n_kw, 0, 1, false);
-    size_t size = AUDIO_CHUNK_SIZE;
-    if (n_args == 1) {
-        size = mp_obj_get_int(args[0]);
-        if (size <= 0) {
-            mp_raise_ValueError(MP_ERROR_TEXT("size out of bounds"));
-        }
+
+    enum { ARG_duration, ARG_rate };
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_duration, MP_ARG_INT, {.u_int = -1} },
+        { MP_QSTR_rate, MP_ARG_INT, {.u_int = DEFAULT_SAMPLE_RATE} },
+    };
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all_kw_array(n_args, n_kw, all_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+
+    mp_int_t rate = args[ARG_rate].u_int;
+    if (rate <= 0) {
+        mp_raise_ValueError(MP_ERROR_TEXT("rate out of bounds"));
     }
-    return microbit_audio_frame_make_new(size);
+
+    size_t size;
+    if (args[ARG_duration].u_int < 0) {
+        size = AUDIO_CHUNK_SIZE;
+    } else if (args[ARG_duration].u_int == 0) {
+        mp_raise_ValueError(MP_ERROR_TEXT("size out of bounds"));
+    } else {
+        size = args[ARG_duration].u_int * rate / 1000;
+    }
+
+    return microbit_audio_frame_make_new(size, rate);
 }
 
 static mp_obj_t audio_frame_subscr(mp_obj_t self_in, mp_obj_t index_in, mp_obj_t value_in) {
@@ -370,7 +384,7 @@ static void add_into(microbit_audio_frame_obj_t *self, microbit_audio_frame_obj_
 }
 
 static microbit_audio_frame_obj_t *copy(microbit_audio_frame_obj_t *self) {
-    microbit_audio_frame_obj_t *result = microbit_audio_frame_make_new(self->alloc_size);
+    microbit_audio_frame_obj_t *result = microbit_audio_frame_make_new(self->alloc_size, self->rate);
     result->used_size = self->used_size;
     for (int i = 0; i < self->alloc_size; i++) {
         result->data[i] = self->data[i];
@@ -454,7 +468,26 @@ static mp_obj_t audio_frame_binary_op(mp_binary_op_t op, mp_obj_t lhs_in, mp_obj
     }
 }
 
+static mp_obj_t audio_frame_get_rate(mp_obj_t self_in) {
+    microbit_audio_frame_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    return MP_OBJ_NEW_SMALL_INT(self->rate);
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(audio_frame_get_rate_obj, audio_frame_get_rate);
+
+static mp_obj_t audio_frame_set_rate(mp_obj_t self_in, mp_obj_t rate_in) {
+    microbit_audio_frame_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    mp_int_t rate = mp_obj_get_int(rate_in);
+    if (rate <= 0) {
+        mp_raise_ValueError(MP_ERROR_TEXT("rate out of bounds"));
+    }
+    self->rate = rate;
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_2(audio_frame_set_rate_obj, audio_frame_set_rate);
+
 static const mp_map_elem_t microbit_audio_frame_locals_dict_table[] = {
+    { MP_OBJ_NEW_QSTR(MP_QSTR_get_rate), (mp_obj_t)&audio_frame_get_rate_obj },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_set_rate), (mp_obj_t)&audio_frame_set_rate_obj },
     { MP_OBJ_NEW_QSTR(MP_QSTR_copyfrom), (mp_obj_t)&copyfrom_obj },
 };
 static MP_DEFINE_CONST_DICT(microbit_audio_frame_locals_dict, microbit_audio_frame_locals_dict_table);
@@ -471,11 +504,12 @@ MP_DEFINE_CONST_OBJ_TYPE(
     locals_dict, &microbit_audio_frame_locals_dict
     );
 
-microbit_audio_frame_obj_t *microbit_audio_frame_make_new(size_t size) {
+microbit_audio_frame_obj_t *microbit_audio_frame_make_new(size_t size, uint32_t rate) {
     microbit_audio_frame_obj_t *res = m_new_obj_var(microbit_audio_frame_obj_t, uint8_t, size);
     res->base.type = &microbit_audio_frame_type;
     res->alloc_size = size;
     res->used_size = 0;
+    res->rate = rate;
     memset(res->data, 128, size);
     return res;
 }
