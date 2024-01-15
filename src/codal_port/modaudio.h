@@ -33,7 +33,7 @@
 
 typedef struct _microbit_audio_frame_obj_t {
     mp_obj_base_t base;
-    size_t size;
+    size_t alloc_size;
     uint8_t data[];
 } microbit_audio_frame_obj_t;
 
