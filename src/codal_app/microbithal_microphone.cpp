@@ -43,7 +43,7 @@ class MyStreamRecording : public DataSink
 
     public:
     uint8_t *dest;
-    size_t dest_pos;
+    size_t *dest_pos_ptr;
     size_t dest_max;
     bool request_stop;
 
@@ -65,18 +65,18 @@ int MyStreamRecording::pullRequest()
 {
     ManagedBuffer data = this->upStream.pull();
 
-    size_t n = MIN((size_t)data.length(), this->dest_max - this->dest_pos);
+    size_t n = MIN((size_t)data.length(), this->dest_max - *this->dest_pos_ptr);
     if (n == 0 || this->request_stop) {
         this->upStream.disconnect();
         this->request_stop = false;
     } else {
         // Copy and convert signed 8-bit to unsigned 8-bit data.
         const uint8_t *src = data.getBytes();
-        uint8_t *dest = this->dest + this->dest_pos;
+        uint8_t *dest = this->dest + *this->dest_pos_ptr;
         for (size_t i = 0; i < n; ++i) {
             *dest++ = *src++ + 128;
         }
-        this->dest_pos += n;
+        *this->dest_pos_ptr += n;
     }
 
     return DEVICE_OK;
@@ -117,7 +117,7 @@ float microbit_hal_microphone_get_level_db(void) {
     return value;
 }
 
-void microbit_hal_microphone_start_recording(uint8_t *buf, size_t len, int rate) {
+void microbit_hal_microphone_start_recording(uint8_t *buf, size_t max_len, size_t *cur_len, int rate) {
     if (splitterChannel == NULL) {
         splitterChannel = uBit.audio.splitter->createChannel();
         splitterChannel->setFormat(DATASTREAM_FORMAT_8BIT_UNSIGNED);
@@ -138,8 +138,9 @@ void microbit_hal_microphone_start_recording(uint8_t *buf, size_t len, int rate)
     }
 
     recording->dest = buf;
-    recording->dest_pos = 0;
-    recording->dest_max = len;
+    recording->dest_pos_ptr = cur_len;
+    *recording->dest_pos_ptr = 0;
+    recording->dest_max = max_len;
     recording->request_stop = false;
 
     splitterChannel->connect(*recording);
