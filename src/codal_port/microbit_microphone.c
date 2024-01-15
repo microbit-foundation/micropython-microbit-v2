@@ -198,7 +198,7 @@ static mp_obj_t microbit_microphone_record_into(mp_uint_t n_args, const mp_obj_t
     enum { ARG_buffer, ARG_rate, ARG_wait, };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_buffer, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
-        { MP_QSTR_rate, MP_ARG_INT, {.u_int = 7812} },
+        { MP_QSTR_rate, MP_ARG_INT, {.u_int = 0} },
         { MP_QSTR_wait, MP_ARG_KW_ONLY | MP_ARG_BOOL, {.u_bool = true} },
     };
 
@@ -212,8 +212,13 @@ static mp_obj_t microbit_microphone_record_into(mp_uint_t n_args, const mp_obj_t
     }
     microbit_audio_frame_obj_t *audio_frame = MP_OBJ_TO_PTR(args[ARG_buffer].u_obj);
 
+    // Set the rate of the AudioFrame, if specified.
+    if (args[ARG_rate].u_int > 0) {
+        audio_frame->rate = args[ARG_rate].u_int;
+    }
+
     // Start the recording.
-    microbit_hal_microphone_start_recording(audio_frame->data, audio_frame->alloc_size, &audio_frame->used_size, args[ARG_rate].u_int);
+    microbit_hal_microphone_start_recording(audio_frame->data, audio_frame->alloc_size, &audio_frame->used_size, audio_frame->rate);
 
     return mp_const_none;
 }
