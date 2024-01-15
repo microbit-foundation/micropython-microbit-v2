@@ -120,6 +120,7 @@ static void audio_data_fetcher(void) {
         // We have the next AudioFrame.
         audio_source_frame = MP_OBJ_TO_PTR(frame_obj);
         audio_raw_offset = 0;
+        microbit_hal_audio_raw_set_rate(audio_source_frame->rate);
     }
 
     const uint8_t *src = &audio_source_frame->data[audio_raw_offset];
@@ -181,6 +182,7 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, ui
     } else if (mp_obj_is_type(src, &microbit_audio_frame_type)) {
         audio_source_frame = MP_OBJ_TO_PTR(src);
         audio_raw_offset = 0;
+        microbit_hal_audio_raw_set_rate(audio_source_frame->rate);
     } else if (mp_obj_is_type(src, &mp_type_tuple) || mp_obj_is_type(src, &mp_type_list)) {
         // A tuple/list passed in.  Need to check if it contains SoundEffect instances.
         size_t len;
@@ -481,6 +483,8 @@ static mp_obj_t audio_frame_set_rate(mp_obj_t self_in, mp_obj_t rate_in) {
         mp_raise_ValueError(MP_ERROR_TEXT("rate out of bounds"));
     }
     self->rate = rate;
+    // TODO: only set if this frame is currently being played
+    microbit_hal_audio_raw_set_rate(rate);
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_2(audio_frame_set_rate_obj, audio_frame_set_rate);
