@@ -104,7 +104,7 @@ extern "C" {
 
 void microbit_hal_idle(void);
 
-void microbit_hal_reset(void);
+__attribute__((noreturn)) void microbit_hal_reset(void);
 void microbit_hal_panic(int);
 int microbit_hal_temperature(void);
 

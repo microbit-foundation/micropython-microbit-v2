@@ -95,7 +95,7 @@ void microbit_hal_idle(void) {
     __WFI();
 }
 
-void microbit_hal_reset(void) {
+__attribute__((noreturn)) void microbit_hal_reset(void) {
     microbit_reset();
 }
 
