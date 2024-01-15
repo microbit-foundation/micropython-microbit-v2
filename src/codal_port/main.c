@@ -36,7 +36,7 @@
 #include "shared/readline/readline.h"
 #include "shared/runtime/gchelper.h"
 #include "shared/runtime/pyexec.h"
-#include "ports/nrf/modules/uos/microbitfs.h"
+#include "ports/nrf/modules/os/microbitfs.h"
 #include "drv_softtimer.h"
 #include "drv_system.h"
 #include "drv_display.h"
@@ -136,7 +136,7 @@ void microbit_pyexec_file(const char *filename) {
     nlr_buf_t nlr;
     if (nlr_push(&nlr) == 0) {
         // Parse and comple the file.
-        mp_lexer_t *lex = mp_lexer_new_from_file(filename);
+        mp_lexer_t *lex = mp_lexer_new_from_file(qstr_from_str(filename));
         qstr source_name = lex->source_name;
         mp_parse_tree_t parse_tree = mp_parse(lex, MP_PARSE_FILE_INPUT);
         mp_obj_t module_fun = mp_compile(&parse_tree, source_name, false);
@@ -194,16 +194,16 @@ void microbit_file_opened_for_writing(const char *name, size_t name_len) {
 }
 
 #if MICROPY_MBFS
-mp_lexer_t *mp_lexer_new_from_file(const char *filename) {
-    return uos_mbfs_new_reader(filename);
+mp_lexer_t *mp_lexer_new_from_file(qstr filename) {
+    return os_mbfs_new_reader(qstr_str(filename));
 }
 
 mp_import_stat_t mp_import_stat(const char *path) {
-    return uos_mbfs_import_stat(path);
+    return os_mbfs_import_stat(path);
 }
 
 mp_obj_t mp_builtin_open(size_t n_args, const mp_obj_t *args, mp_map_t *kwargs) {
-    return uos_mbfs_open(n_args, args);
+    return os_mbfs_open(n_args, args);
 }
 MP_DEFINE_CONST_FUN_OBJ_KW(mp_builtin_open_obj, 1, mp_builtin_open);
 #endif

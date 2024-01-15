@@ -59,9 +59,6 @@
 #define MICROPY_FLOAT_IMPL                      (MICROPY_FLOAT_IMPL_FLOAT)
 #define MICROPY_STREAMS_NON_BLOCK               (1)
 #define MICROPY_MODULE_BUILTIN_INIT             (1)
-#define MICROPY_MODULE_WEAK_LINKS               (1)
-#define MICROPY_MODULE_FROZEN_MPY               (1)
-#define MICROPY_QSTR_EXTRA_POOL                 mp_qstr_frozen_const_pool
 #define MICROPY_USE_INTERNAL_ERRNO              (1)
 #define MICROPY_ENABLE_SCHEDULER                (1)
 
@@ -81,19 +78,18 @@
 #define MICROPY_PY_SYS_PLATFORM                 "microbit"
 
 // Extended modules
-#define MICROPY_PY_UERRNO                       (1)
-#define MICROPY_PY_UTIME_MP_HAL                 (1)
-#define MICROPY_PY_URANDOM                      (1)
-#define MICROPY_PY_URANDOM_SEED_INIT_FUNC       (rng_generate_random_word())
-#define MICROPY_PY_URANDOM_EXTRA_FUNCS          (1)
-#define MICROPY_PY_MACHINE                      (1)
+#define MICROPY_PY_ERRNO                        (1)
+#define MICROPY_PY_RANDOM                       (1)
+#define MICROPY_PY_RANDOM_SEED_INIT_FUNC        (rng_generate_random_word())
+#define MICROPY_PY_RANDOM_EXTRA_FUNCS           (1)
+#define MICROPY_PY_TIME                         (1)
 #define MICROPY_PY_MACHINE_PULSE                (1)
 
 #define MICROPY_HW_ENABLE_RNG                   (1)
 #define MICROPY_MBFS                            (1)
 
 // Custom errno list.
-#define MICROPY_PY_UERRNO_LIST \
+#define MICROPY_PY_ERRNO_LIST \
     X(EPERM) \
     X(ENOENT) \
     X(EIO) \
@@ -154,7 +150,7 @@ typedef long mp_off_t;
 // We need to provide a declaration/definition of alloca()
 #include <alloca.h>
 
-// Needed for MICROPY_PY_URANDOM_SEED_INIT_FUNC.
+// Needed for MICROPY_PY_RANDOM_SEED_INIT_FUNC.
 extern uint32_t rng_generate_random_word(void);
 
 // Needed for microbitfs.c:microbit_file_open.

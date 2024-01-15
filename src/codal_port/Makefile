@@ -98,7 +98,6 @@ SRC_C += \
 	modradio.c \
 	modspeech.c \
 	modthis.c \
-	modutime.c \
 	mphalport.c \
 
 SRC_C += \
@@ -135,11 +134,7 @@ all: lib $(MBIT_VER_FILE)
 # Also rebuild MicroPython version header in correct directory to pick up git hash.
 $(MBIT_VER_FILE): FORCE
 	(cd $(TOP) && $(PYTHON) py/makeversionhdr.py $(abspath $(MP_VER_FILE)))
-	$(PYTHON) $(TOP)/py/makeversionhdr.py $(MBIT_VER_FILE).pre
-	$(CAT) $(MBIT_VER_FILE).pre | $(SED) s/MICROPY_/MICROBIT_/ > $(MBIT_VER_FILE)
-
-# Suppress warnings bulding stackctrl.c (fixed post v1.20.0).
-$(BUILD)/py/stackctrl.o: CWARN += -Wno-dangling-pointer
+	$(PYTHON) make_microbit_version_hdr.py $(MBIT_VER_FILE)
 
 # Suppress warnings from SAM library.
 $(BUILD)/$(abspath $(LOCAL_LIB_DIR))/sam/sam.o: CWARN += -Wno-array-bounds

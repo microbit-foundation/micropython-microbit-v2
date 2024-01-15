@@ -28,8 +28,14 @@
 #include "microbithal.h"
 #include "nrf.h"
 
-// Not implemented and not exposed in utime module.
-#define mp_hal_ticks_cpu() (0)
+static inline mp_uint_t mp_hal_ticks_cpu(void) {
+    if (!(DWT->CTRL & DWT_CTRL_CYCCNTENA_Msk)) {
+        CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+        DWT->CYCCNT = 0;
+        DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+    }
+    return DWT->CYCCNT;
+}
 
 void mp_hal_set_interrupt_char(int c);
 

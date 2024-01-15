@@ -43,7 +43,7 @@ STATIC uint8_t monochrome_get_pixel(monochrome_5by5_t *self, mp_int_t x, mp_int_
 }
 
 greyscale_t *greyscale_new(mp_int_t w, mp_int_t h) {
-    greyscale_t *result = m_new_obj_var(greyscale_t, uint8_t, (w*h+1)>>1);
+    greyscale_t *result = m_new_obj_var(greyscale_t, byte_data, uint8_t, (w*h+1)>>1);
     result->base.type = &microbit_image_type;
     result->five = 0;
     result->width = w;

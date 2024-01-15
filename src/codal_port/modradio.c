@@ -252,7 +252,7 @@ STATIC mp_obj_t mod_radio_receive_full(void) {
         mp_obj_t tuple[3] = {
             mp_obj_new_bytes(buf + 1, len),
             MP_OBJ_NEW_SMALL_INT(rssi),
-            MP_OBJ_NEW_SMALL_INT(timestamp_us & (MICROPY_PY_UTIME_TICKS_PERIOD - 1))
+            MP_OBJ_NEW_SMALL_INT(timestamp_us & (MICROPY_PY_TIME_TICKS_PERIOD - 1))
         };
         microbit_radio_pop();
         return mp_obj_new_tuple(3, tuple);

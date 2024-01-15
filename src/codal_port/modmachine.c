@@ -24,12 +24,13 @@
  * THE SOFTWARE.
  */
 
-#include "py/mpconfig.h"
-#include "extmod/machine_mem.h"
-#include "extmod/machine_pulse.h"
+#include "py/runtime.h"
 #include "modmicrobit.h"
 
-#if MICROPY_PY_MACHINE
+#undef MICROPY_PY_MACHINE
+#define MICROPY_PY_MACHINE (1)
+#include "extmod/machine_mem.c"
+#undef MICROPY_PY_MACHINE
 
 // Returns a string of 8 bytes (64 bits), which is the unique ID for the MCU
 STATIC mp_obj_t machine_unique_id(void) {
@@ -37,13 +38,13 @@ STATIC mp_obj_t machine_unique_id(void) {
     mp_hal_unique_id(dev_id);
     return mp_obj_new_bytes((const void*)&dev_id, 8);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(machine_unique_id_obj, machine_unique_id);
+STATIC MP_DEFINE_CONST_FUN_OBJ_0(microbit_unique_id_obj, machine_unique_id);
 
 // Get the MCU frequency
 STATIC mp_obj_t machine_freq(void) {
     return MP_OBJ_NEW_SMALL_INT(64000000);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(machine_freq_obj, machine_freq);
+STATIC MP_DEFINE_CONST_FUN_OBJ_0(microbit_freq_obj, machine_freq);
 
 // Disable interrupt requests
 STATIC mp_obj_t machine_disable_irq(void) {
@@ -61,9 +62,9 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(machine_enable_irq_obj, machine_enable_irq);
 
 STATIC const mp_rom_map_elem_t machine_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_machine) },
-    { MP_ROM_QSTR(MP_QSTR_unique_id), MP_ROM_PTR(&machine_unique_id_obj) },
+    { MP_ROM_QSTR(MP_QSTR_unique_id), MP_ROM_PTR(&microbit_unique_id_obj) },
     { MP_ROM_QSTR(MP_QSTR_reset), MP_ROM_PTR(&microbit_reset_obj) },
-    { MP_ROM_QSTR(MP_QSTR_freq), MP_ROM_PTR(&machine_freq_obj) },
+    { MP_ROM_QSTR(MP_QSTR_freq), MP_ROM_PTR(&microbit_freq_obj) },
 
     { MP_ROM_QSTR(MP_QSTR_disable_irq), MP_ROM_PTR(&machine_disable_irq_obj) },
     { MP_ROM_QSTR(MP_QSTR_enable_irq), MP_ROM_PTR(&machine_enable_irq_obj) },
@@ -82,5 +83,3 @@ const mp_obj_module_t machine_module = {
 };
 
 MP_REGISTER_MODULE(MP_QSTR_machine, machine_module);
-
-#endif // MICROPY_PY_MACHINE

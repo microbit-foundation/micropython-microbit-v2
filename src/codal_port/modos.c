@@ -27,7 +27,7 @@
 #include "py/obj.h"
 #include "py/objtuple.h"
 #include "py/objstr.h"
-#include "ports/nrf/modules/uos/microbitfs.h"
+#include "ports/nrf/modules/os/microbitfs.h"
 
 // Include MicroPython and micro:bit version information.
 #include "genhdr/mpversion.h"
@@ -68,7 +68,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_0(os_uname_obj, os_uname);
 
 #if MICROPY_MBFS
 STATIC mp_obj_t os_size(mp_obj_t filename) {
-    mp_obj_tuple_t *tuple = MP_OBJ_TO_PTR(uos_mbfs_stat_obj.fun._1(filename));
+    mp_obj_tuple_t *tuple = MP_OBJ_TO_PTR(os_mbfs_stat_obj.fun._1(filename));
     return tuple->items[6];
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(os_size_obj, os_size);
@@ -80,10 +80,10 @@ STATIC const mp_rom_map_elem_t os_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_uname), MP_ROM_PTR(&os_uname_obj) },
 
     #if MICROPY_MBFS
-    { MP_ROM_QSTR(MP_QSTR_listdir), MP_ROM_PTR(&uos_mbfs_listdir_obj) },
-    { MP_ROM_QSTR(MP_QSTR_ilistdir), MP_ROM_PTR(&uos_mbfs_ilistdir_obj) },
-    { MP_ROM_QSTR(MP_QSTR_remove), MP_ROM_PTR(&uos_mbfs_remove_obj) },
-    { MP_ROM_QSTR(MP_QSTR_stat), MP_ROM_PTR(&uos_mbfs_stat_obj) },
+    { MP_ROM_QSTR(MP_QSTR_listdir), MP_ROM_PTR(&os_mbfs_listdir_obj) },
+    { MP_ROM_QSTR(MP_QSTR_ilistdir), MP_ROM_PTR(&os_mbfs_ilistdir_obj) },
+    { MP_ROM_QSTR(MP_QSTR_remove), MP_ROM_PTR(&os_mbfs_remove_obj) },
+    { MP_ROM_QSTR(MP_QSTR_stat), MP_ROM_PTR(&os_mbfs_stat_obj) },
 
     // micro:bit v1 specific
     { MP_ROM_QSTR(MP_QSTR_size), MP_ROM_PTR(&os_size_obj) },
