@@ -22,15 +22,11 @@ play = Image(
     "00000"
 )
 
-RECORDING_RATE = 7812
-RECORDING_SECONDS = 5
-RECORDING_SIZE = RECORDING_RATE * RECORDING_SECONDS
-
-my_recording = audio.AudioFrame(RECORDING_SIZE)
+my_recording = audio.AudioFrame(5000)
 
 while True:
     if button_a.is_pressed():
-        microphone.record_into(my_recording, rate=RECORDING_RATE, wait=False)
+        microphone.record_into(my_recording, wait=False)
         display.show([mouth_open, mouth_closed], loop=True, wait=False, delay=150)
         while button_a.is_pressed() and microphone.is_recording():
             sleep(50)
@@ -51,7 +47,7 @@ while True:
                 level *= 0.95
             display.show(play * min(1, level / 100))
             x = accelerometer.get_x()
-            audio.set_rate(max(2250, scale(x, (-1000, 1000), (2250, 13374))))
+            my_recording.set_rate(max(2250, scale(x, (-1000, 1000), (2250, 13374))))
             sleep(5)
         display.clear()
     sleep(100)
