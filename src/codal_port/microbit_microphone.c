@@ -185,7 +185,7 @@ static mp_obj_t microbit_microphone_record(mp_uint_t n_args, const mp_obj_t *pos
 
     // Create the AudioFrame to record into.
     size_t size = args[ARG_duration].u_int * args[ARG_rate].u_int / 1000;
-    microbit_audio_frame_obj_t *audio_frame = microbit_audio_frame_make_new(size);
+    microbit_audio_frame_obj_t *audio_frame = microbit_audio_frame_make_new(size, args[ARG_rate].u_int);
 
     microbit_microphone_record_helper(audio_frame, args[ARG_rate].u_int, true);
 
