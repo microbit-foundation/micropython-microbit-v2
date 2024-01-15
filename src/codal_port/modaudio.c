@@ -50,8 +50,6 @@ static volatile bool audio_fetcher_scheduled;
 static size_t audio_raw_offset;
 static uint32_t audio_current_sound_level;
 
-microbit_audio_frame_obj_t *microbit_audio_frame_make_new(size_t size);
-
 static inline bool audio_is_running(void) {
     return audio_source_frame != NULL || audio_source_iter != MP_OBJ_NULL;
 }
