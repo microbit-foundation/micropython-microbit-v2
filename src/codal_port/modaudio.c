@@ -77,7 +77,7 @@ static void audio_data_fetcher(void) {
 
     if (audio_source_frame != NULL) {
         // An existing AudioFrame is being played, see if there's any data left.
-        if (audio_raw_offset >= audio_source_frame->alloc_size) {
+        if (audio_raw_offset >= audio_source_frame->used_size) {
             // AudioFrame is exhausted.
             audio_source_frame = NULL;
         }
@@ -318,7 +318,7 @@ static mp_obj_t microbit_audio_frame_new(const mp_obj_type_t *type_in, mp_uint_t
 static mp_obj_t audio_frame_subscr(mp_obj_t self_in, mp_obj_t index_in, mp_obj_t value_in) {
     microbit_audio_frame_obj_t *self = (microbit_audio_frame_obj_t *)self_in;
     mp_int_t index = mp_obj_get_int(index_in);
-    if (index < 0 || index >= self->alloc_size) {
+    if (index < 0 || index >= self->used_size) {
          mp_raise_ValueError(MP_ERROR_TEXT("index out of bounds"));
     }
     if (value_in == MP_OBJ_NULL) {
@@ -341,7 +341,7 @@ static mp_obj_t audio_frame_unary_op(mp_unary_op_t op, mp_obj_t self_in) {
     microbit_audio_frame_obj_t *self = (microbit_audio_frame_obj_t *)self_in;
     switch (op) {
         case MP_UNARY_OP_LEN:
-            return MP_OBJ_NEW_SMALL_INT(self->alloc_size);
+            return MP_OBJ_NEW_SMALL_INT(self->used_size);
         default:
             return MP_OBJ_NULL; // op not supported
     }
@@ -351,14 +351,14 @@ static mp_int_t audio_frame_get_buffer(mp_obj_t self_in, mp_buffer_info_t *bufin
     (void)flags;
     microbit_audio_frame_obj_t *self = (microbit_audio_frame_obj_t *)self_in;
     bufinfo->buf = self->data;
-    bufinfo->len = self->alloc_size;
+    bufinfo->len = self->used_size;
     bufinfo->typecode = 'b';
     return 0;
 }
 
 static void add_into(microbit_audio_frame_obj_t *self, microbit_audio_frame_obj_t *other, bool add) {
     int mult = add ? 1 : -1;
-    size_t size = MIN(self->alloc_size, other->alloc_size);
+    size_t size = MIN(self->used_size, other->used_size);
     for (int i = 0; i < size; i++) {
         unsigned val = (int)self->data[i] + mult*(other->data[i]-128);
         // Clamp to 0-255
@@ -371,6 +371,7 @@ static void add_into(microbit_audio_frame_obj_t *self, microbit_audio_frame_obj_
 
 static microbit_audio_frame_obj_t *copy(microbit_audio_frame_obj_t *self) {
     microbit_audio_frame_obj_t *result = microbit_audio_frame_make_new(self->alloc_size);
+    result->used_size = self->used_size;
     for (int i = 0; i < self->alloc_size; i++) {
         result->data[i] = self->data[i];
     }
@@ -381,7 +382,7 @@ mp_obj_t copyfrom(mp_obj_t self_in, mp_obj_t other) {
     microbit_audio_frame_obj_t *self = (microbit_audio_frame_obj_t *)self_in;
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(other, &bufinfo, MP_BUFFER_READ);
-    uint32_t len = MIN(bufinfo.len, self->alloc_size);
+    uint32_t len = MIN(bufinfo.len, self->used_size);
     for (uint32_t i = 0; i < len; i++) {
         self->data[i] = ((uint8_t *)bufinfo.buf)[i];
     }
@@ -418,7 +419,7 @@ int32_t float_to_fixed(float f, uint32_t scale) {
 
 static void mult(microbit_audio_frame_obj_t *self, float f) {
     int scaled = float_to_fixed(f, 15);
-    for (int i = 0; i < self->alloc_size; i++) {
+    for (int i = 0; i < self->used_size; i++) {
         unsigned val = ((((int)self->data[i]-128) * scaled) >> 15)+128;
         if (val > 255) {
             val = (1-(val>>31))*255;
@@ -474,6 +475,7 @@ microbit_audio_frame_obj_t *microbit_audio_frame_make_new(size_t size) {
     microbit_audio_frame_obj_t *res = m_new_obj_var(microbit_audio_frame_obj_t, uint8_t, size);
     res->base.type = &microbit_audio_frame_type;
     res->alloc_size = size;
+    res->used_size = 0;
     memset(res->data, 128, size);
     return res;
 }

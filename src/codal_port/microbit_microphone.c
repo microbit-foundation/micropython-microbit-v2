@@ -161,7 +161,7 @@ static MP_DEFINE_CONST_FUN_OBJ_1(microbit_microphone_get_events_obj, microbit_mi
 
 static void microbit_microphone_record_helper(microbit_audio_frame_obj_t *audio_frame, int rate, bool wait) {
     // Start the recording.
-    microbit_hal_microphone_start_recording(audio_frame->data, audio_frame->alloc_size, rate);
+    microbit_hal_microphone_start_recording(audio_frame->data, audio_frame->alloc_size, &audio_frame->used_size, rate);
 
     if (wait) {
         // Wait for the recording to finish.
@@ -206,10 +206,14 @@ static mp_obj_t microbit_microphone_record_into(mp_uint_t n_args, const mp_obj_t
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
     mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
 
-    mp_buffer_info_t bufinfo;
-    mp_get_buffer_raise(args[ARG_buffer].u_obj, &bufinfo, MP_BUFFER_READ);
+    // Check that the buffer is an AudioFrame instance.
+    if (!mp_obj_is_type(args[ARG_buffer].u_obj, &microbit_audio_frame_type)) {
+        mp_raise_TypeError(MP_ERROR_TEXT("expecting an AudioFrame"));
+    }
+    microbit_audio_frame_obj_t *audio_frame = MP_OBJ_TO_PTR(args[ARG_buffer].u_obj);
 
-    microbit_hal_microphone_start_recording(bufinfo.buf, bufinfo.len, args[ARG_rate].u_int);
+    // Start the recording.
+    microbit_hal_microphone_start_recording(audio_frame->data, audio_frame->alloc_size, &audio_frame->used_size, args[ARG_rate].u_int);
 
     return mp_const_none;
 }
