@@ -25,6 +25,7 @@
  * THE SOFTWARE.
  */
 
+#include <math.h>
 #include "py/mphal.h"
 #include "drv_system.h"
 #include "modaudio.h"
@@ -134,7 +135,7 @@ static void audio_data_fetcher(void) {
         // Compute the sound level.
         sound_level += (src[i] - 128) * (src[i] - 128);
     }
-    audio_current_sound_level = sound_level / AUDIO_CHUNK_SIZE / AUDIO_CHUNK_SIZE;
+    audio_current_sound_level = sound_level / AUDIO_CHUNK_SIZE;
 
     audio_buffer_ready();
 }
@@ -277,8 +278,10 @@ mp_obj_t is_playing(void) {
 }
 MP_DEFINE_CONST_FUN_OBJ_0(microbit_audio_is_playing_obj, is_playing);
 
+// Returns a number between 0 and 254, being the average intensity of the sound played
+// from the most recent chunk of data.
 static mp_obj_t microbit_audio_sound_level(void) {
-    return MP_OBJ_NEW_SMALL_INT(audio_current_sound_level);
+    return MP_OBJ_NEW_SMALL_INT(2 * sqrt(audio_current_sound_level));
 }
 static MP_DEFINE_CONST_FUN_OBJ_0(microbit_audio_sound_level_obj, microbit_audio_sound_level);
 
