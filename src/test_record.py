@@ -35,7 +35,7 @@ while True:
         while button_a.is_pressed():
             sleep(50)
         display.clear()
-        my_recording *= 5
+        my_recording *= 2  # amplify volume
     if button_b.is_pressed():
         audio.play(my_recording, wait=False)
         level = 0
