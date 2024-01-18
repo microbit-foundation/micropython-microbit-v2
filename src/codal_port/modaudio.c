@@ -354,6 +354,7 @@ static mp_obj_t audio_frame_subscr(mp_obj_t self_in, mp_obj_t index_in, mp_obj_t
             mp_raise_ValueError(MP_ERROR_TEXT("value out of range"));
         }
         self->data[index] = value;
+        self->used_size = MAX(self->used_size, index + 1);
         return mp_const_none;
     }
 }
@@ -374,6 +375,10 @@ static mp_int_t audio_frame_get_buffer(mp_obj_t self_in, mp_buffer_info_t *bufin
     bufinfo->buf = self->data;
     bufinfo->len = self->alloc_size;
     bufinfo->typecode = 'b';
+    if (flags == MP_BUFFER_WRITE) {
+        // Assume that writing to the buffer will make all data valid for playback.
+        self->used_size = self->alloc_size;
+    }
     return 0;
 }
 
