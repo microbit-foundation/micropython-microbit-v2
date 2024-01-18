@@ -75,6 +75,9 @@ int main() {
     uBit.audio.setSpeakerEnabled(true);
     uBit.audio.setPinEnabled(false);
 
+    // Set the microphone gain to a reasonable value.
+    uBit.audio.processor->setGain(0.2);
+
     mp_main();
     return 0;
 }
