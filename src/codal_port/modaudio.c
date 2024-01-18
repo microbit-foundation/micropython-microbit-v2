@@ -519,7 +519,7 @@ MP_DEFINE_CONST_OBJ_TYPE(
     );
 
 microbit_audio_frame_obj_t *microbit_audio_frame_make_new(size_t size, uint32_t rate) {
-    microbit_audio_frame_obj_t *res = m_new_obj_var(microbit_audio_frame_obj_t, uint8_t, size);
+    microbit_audio_frame_obj_t *res = m_new_obj_var(microbit_audio_frame_obj_t, data, uint8_t, size);
     res->base.type = &microbit_audio_frame_type;
     res->alloc_size = size;
     res->used_size = 0;
