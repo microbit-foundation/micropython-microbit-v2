@@ -329,6 +329,8 @@ static mp_obj_t microbit_audio_frame_new(const mp_obj_type_t *type_in, size_t n_
         mp_raise_ValueError(MP_ERROR_TEXT("size out of bounds"));
     } else {
         size = args[ARG_duration].u_int * rate / 1000;
+        // Round up the size to the nearest AUDIO_CHUNK_SIZE.
+        size = (size + AUDIO_CHUNK_SIZE - 1) & ~(AUDIO_CHUNK_SIZE - 1);
     }
 
     return microbit_audio_frame_make_new(size, rate);
