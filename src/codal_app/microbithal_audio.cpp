@@ -33,6 +33,7 @@ public:
     DataSink *sink;
     ManagedBuffer buf;
     void (*callback)(void);
+    MixerChannel *channel;
 
     AudioSource()
         : started(false) {
@@ -109,7 +110,9 @@ void microbit_hal_audio_init(uint32_t sample_rate) {
         MicroBitAudio::requestActivation();
         data_source.started = true;
         data_source.callback = microbit_hal_audio_ready_callback;
-        uBit.audio.mixer.addChannel(data_source, sample_rate, 255);
+        data_source.channel = uBit.audio.mixer.addChannel(data_source, sample_rate, 255);
+    } else {
+        data_source.channel->setSampleRate(sample_rate);
     }
 }
 
@@ -126,7 +129,9 @@ void microbit_hal_audio_speech_init(uint32_t sample_rate) {
         MicroBitAudio::requestActivation();
         speech_source.started = true;
         speech_source.callback = microbit_hal_audio_speech_ready_callback;
-        uBit.audio.mixer.addChannel(speech_source, sample_rate, 255);
+        speech_source.channel = uBit.audio.mixer.addChannel(speech_source, sample_rate, 255);
+    } else {
+        speech_source.channel->setSampleRate(sample_rate);
     }
 }
 
