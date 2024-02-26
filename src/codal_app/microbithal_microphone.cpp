@@ -39,7 +39,7 @@ static void level_detector_event_handler(Event evt) {
 class MyStreamRecording : public DataSink
 {
     public:
-    DataSource &upStream;
+    SplitterChannel *upStream;
 
     public:
     uint8_t *dest;
@@ -47,13 +47,13 @@ class MyStreamRecording : public DataSink
     size_t dest_max;
     bool request_stop;
 
-    MyStreamRecording(DataSource &source);
+    MyStreamRecording(SplitterChannel *source);
     virtual ~MyStreamRecording();
 
     virtual int pullRequest();
 };
 
-MyStreamRecording::MyStreamRecording( DataSource &source ) : upStream( source )
+MyStreamRecording::MyStreamRecording(SplitterChannel *source) : upStream(source)
 {
 }
 
@@ -63,18 +63,20 @@ MyStreamRecording::~MyStreamRecording()
 
 int MyStreamRecording::pullRequest()
 {
-    ManagedBuffer data = this->upStream.pull();
+    uint8_t *pull_buf = this->dest + *this->dest_pos_ptr;
+    size_t n = this->dest_max - *this->dest_pos_ptr;
 
-    size_t n = MIN((size_t)data.length(), this->dest_max - *this->dest_pos_ptr);
+    if (n > 0) {
+        n = this->upStream->pullInto(pull_buf, n) - pull_buf;
+    }
+
     if (n == 0 || this->request_stop) {
-        this->upStream.disconnect();
+        this->upStream->disconnect();
         this->request_stop = false;
     } else {
-        // Copy and convert signed 8-bit to unsigned 8-bit data.
-        const uint8_t *src = data.getBytes();
-        uint8_t *dest = this->dest + *this->dest_pos_ptr;
+        // Convert signed 8-bit to unsigned 8-bit data.
         for (size_t i = 0; i < n; ++i) {
-            *dest++ = *src++ + 128;
+            pull_buf[i] += 128;
         }
         *this->dest_pos_ptr += n;
     }
@@ -127,7 +129,7 @@ void microbit_hal_microphone_start_recording(uint8_t *buf, size_t max_len, size_
     splitterChannel->requestSampleRate(rate);
 
     if (recording == NULL) {
-        recording = new MyStreamRecording(*splitterChannel);
+        recording = new MyStreamRecording(splitterChannel);
     } else {
         if (microbit_hal_microphone_is_recording()) {
             microbit_hal_microphone_stop_recording();
