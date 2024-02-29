@@ -37,6 +37,17 @@
 #include "sam/reciter.h"
 #include "sam/sam.h"
 
+// The default `mode` for say/pronounce/sing can be configured externally.
+// The allowed values are:
+//  - 0 = traditional micro:bit v1, 15625Hz (not supported with USE_DEDICATED_AUDIO_CHANNEL)
+//  - 1 = standard sampling fidelity, 19000Hz
+//  - 2 = standard sampling fidelity, 19000Hz, with sample smoothing
+//  - 3 = higher sampling fidelity, 38000Hz
+//  - 4 = higher sampling fidelity, 38000Hz, with sample smoothing
+#ifndef MICROPY_PY_SPEECH_DEFAULT_MODE
+#define MICROPY_PY_SPEECH_DEFAULT_MODE (1)
+#endif
+
 // If disabled, pipe speech through audio module output.
 // If enabled, use a dedicated audio mixer channer with a double buffer.
 #define USE_DEDICATED_AUDIO_CHANNEL (1)
@@ -386,7 +397,7 @@ STATIC mp_obj_t articulate(mp_obj_t phonemes, mp_uint_t n_args, const mp_obj_t *
         { MP_QSTR_mouth,    MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = DEFAULT_MOUTH} },
         { MP_QSTR_throat,   MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = DEFAULT_THROAT} },
         { MP_QSTR_debug,    MP_ARG_KW_ONLY | MP_ARG_BOOL, {.u_bool = false} },
-        { MP_QSTR_mode,     MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 1} },
+        { MP_QSTR_mode,     MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = MICROPY_PY_SPEECH_DEFAULT_MODE} },
         { MP_QSTR_volume,   MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 4} },
         { MP_QSTR_pin,      MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_PTR(&microbit_pin_default_audio_obj)} },
     };
