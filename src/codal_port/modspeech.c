@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "py/mphal.h"
 #include "py/obj.h"
 #include "py/objtuple.h"
 #include "py/objstr.h"
