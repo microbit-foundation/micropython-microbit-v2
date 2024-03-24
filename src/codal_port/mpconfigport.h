@@ -121,23 +121,6 @@
 
 #define MP_STATE_PORT MP_STATE_VM
 
-// These functions allow nested calls.
-extern void target_disable_irq(void);
-extern void target_enable_irq(void);
-
-static inline uint32_t disable_irq(void) {
-    target_disable_irq();
-    return 0;
-}
-
-static inline void enable_irq(uint32_t state) {
-    (void)state;
-    target_enable_irq();
-}
-
-#define MICROPY_BEGIN_ATOMIC_SECTION() disable_irq()
-#define MICROPY_END_ATOMIC_SECTION(state) enable_irq(state)
-
 #define MICROPY_MAKE_POINTER_CALLABLE(p) ((void *)((uint32_t)(p) | 1))
 
 #define MP_SSIZE_MAX (0x7fffffff)

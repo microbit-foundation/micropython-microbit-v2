@@ -28,6 +28,23 @@
 #include "microbithal.h"
 #include "nrf.h"
 
+#define MICROPY_BEGIN_ATOMIC_SECTION() disable_irq()
+#define MICROPY_END_ATOMIC_SECTION(state) enable_irq(state)
+
+// These functions allow nested calls.
+extern void target_disable_irq(void);
+extern void target_enable_irq(void);
+
+static inline uint32_t disable_irq(void) {
+    target_disable_irq();
+    return 0;
+}
+
+static inline void enable_irq(uint32_t state) {
+    (void)state;
+    target_enable_irq();
+}
+
 static inline mp_uint_t mp_hal_ticks_cpu(void) {
     if (!(DWT->CTRL & DWT_CTRL_CYCCNTENA_Msk)) {
         CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
