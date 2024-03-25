@@ -69,6 +69,14 @@
 #define SOUND_EFFECT_FX_VIBRATO                 (1)
 #define SOUND_EFFECT_FX_WARBLE                  (3)
 
+// These default fx values are the same as used by MakeCode.
+#define SOUND_EFFECT_FX_VIBRATO_DEFAULT_PARAM   (2)
+#define SOUND_EFFECT_FX_TREMOLO_DEFAULT_PARAM   (3)
+#define SOUND_EFFECT_FX_WARBLE_DEFAULT_PARAM    (2)
+#define SOUND_EFFECT_FX_VIBRATO_DEFAULT_STEPS   (512)
+#define SOUND_EFFECT_FX_TREMOLO_DEFAULT_STEPS   (900)
+#define SOUND_EFFECT_FX_WARBLE_DEFAULT_STEPS    (700)
+
 #define SOUND_EFFECT_DEFAULT_FREQ_START         (500)
 #define SOUND_EFFECT_DEFAULT_FREQ_END           (2500)
 #define SOUND_EFFECT_DEFAULT_DURATION           (500)
@@ -114,6 +122,18 @@ STATIC const soundeffect_attr_t soundeffect_attr_table[] = {
     { MP_QSTR_waveform, SOUND_EXPR_WAVEFORM_OFFSET, SOUND_EXPR_WAVEFORM_LENGTH },
     { MP_QSTR_fx, SOUND_EXPR_FX_CHOICE_OFFSET, SOUND_EXPR_FX_CHOICE_LENGTH },
     { MP_QSTR_shape, SOUND_EXPR_SHAPE_OFFSET, SOUND_EXPR_SHAPE_LENGTH },
+};
+
+static const uint8_t fx_default_param[] = {
+    [SOUND_EFFECT_FX_VIBRATO] = SOUND_EFFECT_FX_VIBRATO_DEFAULT_PARAM,
+    [SOUND_EFFECT_FX_TREMOLO] = SOUND_EFFECT_FX_TREMOLO_DEFAULT_PARAM,
+    [SOUND_EFFECT_FX_WARBLE] = SOUND_EFFECT_FX_WARBLE_DEFAULT_PARAM,
+};
+
+static const uint16_t fx_default_steps[] = {
+    [SOUND_EFFECT_FX_VIBRATO] = SOUND_EFFECT_FX_VIBRATO_DEFAULT_STEPS,
+    [SOUND_EFFECT_FX_TREMOLO] = SOUND_EFFECT_FX_TREMOLO_DEFAULT_STEPS,
+    [SOUND_EFFECT_FX_WARBLE] = SOUND_EFFECT_FX_WARBLE_DEFAULT_STEPS,
 };
 
 const char *microbit_soundeffect_get_sound_expr_data(mp_obj_t self_in) {
@@ -273,6 +293,11 @@ STATIC void microbit_soundeffect_attr(mp_obj_t self_in, qstr attr, mp_obj_t *des
         if (self->is_mutable) {
             unsigned int value = mp_obj_get_int(dest[1]);
             sound_expr_encode(self, soundeffect_attr->offset, soundeffect_attr->length, value);
+            if (soundeffect_attr->offset == SOUND_EXPR_FX_CHOICE_OFFSET) {
+                // Changing the fx choice, so also update the fx parameters for that choice.
+                sound_expr_encode(self, SOUND_EXPR_FX_PARAM_OFFSET, SOUND_EXPR_FX_PARAM_LENGTH, fx_default_param[value]);
+                sound_expr_encode(self, SOUND_EXPR_FX_STEPS_OFFSET, SOUND_EXPR_FX_STEPS_LENGTH, fx_default_steps[value]);
+            }
             dest[0] = MP_OBJ_NULL; // Indicate store succeeded.
         }
     }
