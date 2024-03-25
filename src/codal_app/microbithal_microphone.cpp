@@ -123,8 +123,6 @@ void microbit_hal_microphone_start_recording(uint8_t *buf, size_t max_len, size_
     if (splitterChannel == NULL) {
         splitterChannel = uBit.audio.splitter->createChannel();
         splitterChannel->setFormat(DATASTREAM_FORMAT_8BIT_UNSIGNED);
-        // Increase sample period to 64us, so we can get our desired rate.
-        splitterChannel->requestSampleRate(1000000 / 64);
     }
     splitterChannel->requestSampleRate(rate);
 
