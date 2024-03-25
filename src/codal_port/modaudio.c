@@ -25,16 +25,19 @@
  * THE SOFTWARE.
  */
 
+#include <math.h>
 #include "py/mphal.h"
 #include "drv_system.h"
 #include "modaudio.h"
 #include "modmicrobit.h"
 
-#define audio_source_iter MP_STATE_PORT(audio_source)
+// Convenience macros to access the root-pointer state.
+#define audio_source_frame MP_STATE_PORT(audio_source_frame_state)
+#define audio_source_iter MP_STATE_PORT(audio_source_iter_state)
 
+#define LOG_AUDIO_CHUNK_SIZE (5)
+#define AUDIO_CHUNK_SIZE (1 << LOG_AUDIO_CHUNK_SIZE)
 #define DEFAULT_SAMPLE_RATE (7812)
-#define BUFFER_EXPANSION (4) // smooth out the samples via linear interpolation
-#define OUT_CHUNK_SIZE (BUFFER_EXPANSION * AUDIO_CHUNK_SIZE)
 
 typedef enum {
     AUDIO_OUTPUT_STATE_IDLE,
@@ -42,18 +45,21 @@ typedef enum {
     AUDIO_OUTPUT_STATE_DATA_WRITTEN,
 } audio_output_state_t;
 
-static uint8_t audio_output_buffer[OUT_CHUNK_SIZE];
+static uint8_t audio_output_buffer[AUDIO_CHUNK_SIZE];
 static volatile audio_output_state_t audio_output_state;
 static volatile bool audio_fetcher_scheduled;
-
-microbit_audio_frame_obj_t *microbit_audio_frame_make_new(void);
+static size_t audio_raw_offset;
+static uint32_t audio_current_sound_level;
 
 static inline bool audio_is_running(void) {
-    return audio_source_iter != NULL;
+    return audio_source_frame != NULL || audio_source_iter != MP_OBJ_NULL;
 }
 
 void microbit_audio_stop(void) {
+    audio_source_frame = NULL;
     audio_source_iter = NULL;
+    audio_raw_offset = 0;
+    audio_current_sound_level = 0;
 }
 
 STATIC void audio_buffer_ready(void) {
@@ -62,50 +68,75 @@ STATIC void audio_buffer_ready(void) {
     audio_output_state = AUDIO_OUTPUT_STATE_DATA_READY;
     MICROPY_END_ATOMIC_SECTION(atomic_state);
     if (old_state == AUDIO_OUTPUT_STATE_IDLE) {
-        microbit_hal_audio_ready_callback();
+        microbit_hal_audio_raw_ready_callback();
     }
 }
 
 STATIC void audio_data_fetcher(void) {
     audio_fetcher_scheduled = false;
-    if (audio_source_iter == NULL) {
-        return;
-    }
-    mp_obj_t buffer_obj;
-    nlr_buf_t nlr;
-    if (nlr_push(&nlr) == 0) {
-        buffer_obj = mp_iternext_allow_raise(audio_source_iter);
-        nlr_pop();
-    } else {
-        if (!mp_obj_is_subclass_fast(MP_OBJ_FROM_PTR(((mp_obj_base_t*)nlr.ret_val)->type),
-            MP_OBJ_FROM_PTR(&mp_type_StopIteration))) {
-            mp_sched_exception(MP_OBJ_FROM_PTR(nlr.ret_val));
+
+    if (audio_source_frame != NULL) {
+        // An existing AudioFrame is being played, see if there's any data left.
+        if (audio_raw_offset >= audio_source_frame->used_size) {
+            // AudioFrame is exhausted.
+            audio_source_frame = NULL;
         }
-        buffer_obj = MP_OBJ_STOP_ITERATION;
     }
-    if (buffer_obj == MP_OBJ_STOP_ITERATION) {
-        // End of audio iterator
-        microbit_audio_stop();
-    } else if (mp_obj_get_type(buffer_obj) != &microbit_audio_frame_type) {
-        // Audio iterator did not return an AudioFrame
-        microbit_audio_stop();
-        mp_sched_exception(mp_obj_new_exception_msg(&mp_type_TypeError, MP_ERROR_TEXT("not an AudioFrame")));
-    } else {
-        microbit_audio_frame_obj_t *buffer = (microbit_audio_frame_obj_t *)buffer_obj;
-        uint8_t *dest = &audio_output_buffer[0];
-        uint32_t last = dest[BUFFER_EXPANSION * AUDIO_CHUNK_SIZE - 1];
-        for (int i = 0; i < AUDIO_CHUNK_SIZE; ++i) {
-            uint32_t cur = buffer->data[i];
-            for (int j = 0; j < BUFFER_EXPANSION; ++j) {
-                // Get next sample with linear interpolation.
-                uint32_t sample = ((BUFFER_EXPANSION - 1 - j) * last + (j + 1) * cur) / BUFFER_EXPANSION;
-                // Write sample to the buffer.
-                *dest++ = sample;
+
+    if (audio_source_frame == NULL) {
+        // There is no AudioFrame, so try to get one from the audio iterator.
+
+        if (audio_source_iter == MP_OBJ_NULL) {
+            // Audio iterator is already exhausted.
+            microbit_audio_stop();
+            return;
+        }
+
+        // Get the next item from the audio iterator.
+        nlr_buf_t nlr;
+        mp_obj_t frame_obj;
+        if (nlr_push(&nlr) == 0) {
+            frame_obj = mp_iternext_allow_raise(audio_source_iter);
+            nlr_pop();
+        } else {
+            if (!mp_obj_is_subclass_fast(MP_OBJ_FROM_PTR(((mp_obj_base_t*)nlr.ret_val)->type),
+                MP_OBJ_FROM_PTR(&mp_type_StopIteration))) {
+                mp_sched_exception(MP_OBJ_FROM_PTR(nlr.ret_val));
             }
-            last = cur;
+            frame_obj = MP_OBJ_STOP_ITERATION;
         }
-        audio_buffer_ready();
+        if (frame_obj == MP_OBJ_STOP_ITERATION) {
+            // End of audio iterator.
+            microbit_audio_stop();
+            return;
+        }
+        if (!mp_obj_is_type(frame_obj, &microbit_audio_frame_type)) {
+            // Audio iterator did not return an AudioFrame.
+            microbit_audio_stop();
+            mp_sched_exception(mp_obj_new_exception_msg(&mp_type_TypeError, MP_ERROR_TEXT("not an AudioFrame")));
+            return;
+        }
+
+        // We have the next AudioFrame.
+        audio_source_frame = MP_OBJ_TO_PTR(frame_obj);
+        audio_raw_offset = 0;
+        microbit_hal_audio_raw_set_rate(audio_source_frame->rate);
     }
+
+    const uint8_t *src = &audio_source_frame->data[audio_raw_offset];
+    audio_raw_offset += AUDIO_CHUNK_SIZE;
+
+    uint8_t *dest = &audio_output_buffer[0];
+    uint32_t sound_level = 0;
+    for (int i = 0; i < AUDIO_CHUNK_SIZE; ++i) {
+        // Copy sample to the buffer.
+        *dest++ = src[i];
+        // Compute the sound level.
+        sound_level += (src[i] - 128) * (src[i] - 128);
+    }
+    audio_current_sound_level = sound_level / AUDIO_CHUNK_SIZE;
+
+    audio_buffer_ready();
 }
 
 STATIC mp_obj_t audio_data_fetcher_wrapper(mp_obj_t arg) {
@@ -114,10 +145,10 @@ STATIC mp_obj_t audio_data_fetcher_wrapper(mp_obj_t arg) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(audio_data_fetcher_wrapper_obj, audio_data_fetcher_wrapper);
 
-void microbit_hal_audio_ready_callback(void) {
+void microbit_hal_audio_raw_ready_callback(void) {
     if (audio_output_state == AUDIO_OUTPUT_STATE_DATA_READY) {
         // there is data ready to send out to the audio pipeline, so send it
-        microbit_hal_audio_write_data(&audio_output_buffer[0], OUT_CHUNK_SIZE);
+        microbit_hal_audio_raw_write_data(&audio_output_buffer[0], AUDIO_CHUNK_SIZE);
         audio_output_state = AUDIO_OUTPUT_STATE_DATA_WRITTEN;
     } else {
         // no data ready, need to call this function later when data is ready
@@ -132,7 +163,7 @@ void microbit_hal_audio_ready_callback(void) {
 static void audio_init(uint32_t sample_rate) {
     audio_fetcher_scheduled = false;
     audio_output_state = AUDIO_OUTPUT_STATE_IDLE;
-    microbit_hal_audio_init(BUFFER_EXPANSION * sample_rate);
+    microbit_hal_audio_raw_init(sample_rate);
 }
 
 void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, uint32_t sample_rate) {
@@ -148,6 +179,10 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, ui
         sound_expr_data = sound->name;
     } else if (mp_obj_is_type(src, &microbit_soundeffect_type)) {
         sound_expr_data = microbit_soundeffect_get_sound_expr_data(src);
+    } else if (mp_obj_is_type(src, &microbit_audio_frame_type)) {
+        audio_source_frame = MP_OBJ_TO_PTR(src);
+        audio_raw_offset = 0;
+        microbit_hal_audio_raw_set_rate(audio_source_frame->rate);
     } else if (mp_obj_is_type(src, &mp_type_tuple) || mp_obj_is_type(src, &mp_type_list)) {
         // A tuple/list passed in.  Need to check if it contains SoundEffect instances.
         size_t len;
@@ -165,7 +200,13 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, ui
             }
             // Replace last "," with a string null terminator.
             data[-1] = '\0';
+        } else {
+            // A tuple/list of AudioFrame instances.
+            audio_source_iter = mp_getiter(src, NULL);
         }
+    } else {
+        // An iterator of AudioFrame instances.
+        audio_source_iter = mp_getiter(src, NULL);
     }
 
     if (sound_expr_data != NULL) {
@@ -188,9 +229,8 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, ui
         return;
     }
 
-    // Get the iterator and start the audio running.
+    // Start the audio running.
     // The scheduler must be locked because audio_data_fetcher() can also be called from the scheduler.
-    audio_source_iter = mp_getiter(src, NULL);
     mp_sched_lock();
     audio_data_fetcher();
     mp_sched_unlock();
@@ -241,11 +281,19 @@ mp_obj_t is_playing(void) {
 }
 MP_DEFINE_CONST_FUN_OBJ_0(microbit_audio_is_playing_obj, is_playing);
 
+// Returns a number between 0 and 254, being the average intensity of the sound played
+// from the most recent chunk of data.
+STATIC mp_obj_t microbit_audio_sound_level(void) {
+    return MP_OBJ_NEW_SMALL_INT(2 * sqrt(audio_current_sound_level));
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_0(microbit_audio_sound_level_obj, microbit_audio_sound_level);
+
 STATIC const mp_rom_map_elem_t audio_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_audio) },
     { MP_ROM_QSTR(MP_QSTR_stop), MP_ROM_PTR(&microbit_audio_stop_obj) },
     { MP_ROM_QSTR(MP_QSTR_play), MP_ROM_PTR(&microbit_audio_play_obj) },
     { MP_ROM_QSTR(MP_QSTR_is_playing), MP_ROM_PTR(&microbit_audio_is_playing_obj) },
+    { MP_ROM_QSTR(MP_QSTR_sound_level), MP_ROM_PTR(&microbit_audio_sound_level_obj) },
     { MP_ROM_QSTR(MP_QSTR_AudioFrame), MP_ROM_PTR(&microbit_audio_frame_type) },
     { MP_ROM_QSTR(MP_QSTR_SoundEffect), MP_ROM_PTR(&microbit_soundeffect_type) },
 };
@@ -261,17 +309,40 @@ MP_REGISTER_MODULE(MP_QSTR_audio, audio_module);
 /******************************************************************************/
 // AudioFrame class
 
-STATIC mp_obj_t microbit_audio_frame_new(const mp_obj_type_t *type_in, mp_uint_t n_args, mp_uint_t n_kw, const mp_obj_t *args) {
+STATIC mp_obj_t microbit_audio_frame_new(const mp_obj_type_t *type_in, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
     (void)type_in;
-    (void)args;
-    mp_arg_check_num(n_args, n_kw, 0, 0, false);
-    return microbit_audio_frame_make_new();
+
+    enum { ARG_duration, ARG_rate };
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_duration, MP_ARG_INT, {.u_int = -1} },
+        { MP_QSTR_rate, MP_ARG_INT, {.u_int = 7812} },
+    };
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all_kw_array(n_args, n_kw, all_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+
+    mp_int_t rate = args[ARG_rate].u_int;
+    if (rate <= 0) {
+        mp_raise_ValueError(MP_ERROR_TEXT("rate out of bounds"));
+    }
+
+    size_t size;
+    if (args[ARG_duration].u_int < 0) {
+        size = AUDIO_CHUNK_SIZE;
+    } else if (args[ARG_duration].u_int == 0) {
+        mp_raise_ValueError(MP_ERROR_TEXT("size out of bounds"));
+    } else {
+        size = args[ARG_duration].u_int * rate / 1000;
+        // Round up the size to the nearest AUDIO_CHUNK_SIZE.
+        size = (size + AUDIO_CHUNK_SIZE - 1) & ~(AUDIO_CHUNK_SIZE - 1);
+    }
+
+    return microbit_audio_frame_make_new(size, rate);
 }
 
 STATIC mp_obj_t audio_frame_subscr(mp_obj_t self_in, mp_obj_t index_in, mp_obj_t value_in) {
     microbit_audio_frame_obj_t *self = (microbit_audio_frame_obj_t *)self_in;
     mp_int_t index = mp_obj_get_int(index_in);
-    if (index < 0 || index >= AUDIO_CHUNK_SIZE) {
+    if (index < 0 || index >= self->alloc_size) {
          mp_raise_ValueError(MP_ERROR_TEXT("index out of bounds"));
     }
     if (value_in == MP_OBJ_NULL) {
@@ -286,15 +357,16 @@ STATIC mp_obj_t audio_frame_subscr(mp_obj_t self_in, mp_obj_t index_in, mp_obj_t
             mp_raise_ValueError(MP_ERROR_TEXT("value out of range"));
         }
         self->data[index] = value;
+        self->used_size = MAX(self->used_size, index + 1);
         return mp_const_none;
     }
 }
 
 static mp_obj_t audio_frame_unary_op(mp_unary_op_t op, mp_obj_t self_in) {
-    (void)self_in;
+    microbit_audio_frame_obj_t *self = (microbit_audio_frame_obj_t *)self_in;
     switch (op) {
         case MP_UNARY_OP_LEN:
-            return MP_OBJ_NEW_SMALL_INT(32);
+            return MP_OBJ_NEW_SMALL_INT(self->alloc_size);
         default:
             return MP_OBJ_NULL; // op not supported
     }
@@ -304,14 +376,19 @@ static mp_int_t audio_frame_get_buffer(mp_obj_t self_in, mp_buffer_info_t *bufin
     (void)flags;
     microbit_audio_frame_obj_t *self = (microbit_audio_frame_obj_t *)self_in;
     bufinfo->buf = self->data;
-    bufinfo->len = AUDIO_CHUNK_SIZE;
+    bufinfo->len = self->alloc_size;
     bufinfo->typecode = 'b';
+    if (flags == MP_BUFFER_WRITE) {
+        // Assume that writing to the buffer will make all data valid for playback.
+        self->used_size = self->alloc_size;
+    }
     return 0;
 }
 
 static void add_into(microbit_audio_frame_obj_t *self, microbit_audio_frame_obj_t *other, bool add) {
     int mult = add ? 1 : -1;
-    for (int i = 0; i < AUDIO_CHUNK_SIZE; i++) {
+    size_t size = MIN(self->alloc_size, other->alloc_size);
+    for (int i = 0; i < size; i++) {
         unsigned val = (int)self->data[i] + mult*(other->data[i]-128);
         // Clamp to 0-255
         if (val > 255) {
@@ -322,8 +399,9 @@ static void add_into(microbit_audio_frame_obj_t *self, microbit_audio_frame_obj_
 }
 
 static microbit_audio_frame_obj_t *copy(microbit_audio_frame_obj_t *self) {
-    microbit_audio_frame_obj_t *result = microbit_audio_frame_make_new();
-    for (int i = 0; i < AUDIO_CHUNK_SIZE; i++) {
+    microbit_audio_frame_obj_t *result = microbit_audio_frame_make_new(self->alloc_size, self->rate);
+    result->used_size = self->used_size;
+    for (int i = 0; i < self->alloc_size; i++) {
         result->data[i] = self->data[i];
     }
     return result;
@@ -333,7 +411,7 @@ mp_obj_t copyfrom(mp_obj_t self_in, mp_obj_t other) {
     microbit_audio_frame_obj_t *self = (microbit_audio_frame_obj_t *)self_in;
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(other, &bufinfo, MP_BUFFER_READ);
-    uint32_t len = bufinfo.len > AUDIO_CHUNK_SIZE ? AUDIO_CHUNK_SIZE : bufinfo.len;
+    uint32_t len = MIN(bufinfo.len, self->alloc_size);
     for (uint32_t i = 0; i < len; i++) {
         self->data[i] = ((uint8_t *)bufinfo.buf)[i];
     }
@@ -370,7 +448,7 @@ int32_t float_to_fixed(float f, uint32_t scale) {
 
 static void mult(microbit_audio_frame_obj_t *self, float f) {
     int scaled = float_to_fixed(f, 15);
-    for (int i = 0; i < AUDIO_CHUNK_SIZE; i++) {
+    for (int i = 0; i < self->alloc_size; i++) {
         unsigned val = ((((int)self->data[i]-128) * scaled) >> 15)+128;
         if (val > 255) {
             val = (1-(val>>31))*255;
@@ -405,7 +483,28 @@ STATIC mp_obj_t audio_frame_binary_op(mp_binary_op_t op, mp_obj_t lhs_in, mp_obj
     }
 }
 
+STATIC mp_obj_t audio_frame_get_rate(mp_obj_t self_in) {
+    microbit_audio_frame_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    return MP_OBJ_NEW_SMALL_INT(self->rate);
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(audio_frame_get_rate_obj, audio_frame_get_rate);
+
+STATIC mp_obj_t audio_frame_set_rate(mp_obj_t self_in, mp_obj_t rate_in) {
+    microbit_audio_frame_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    mp_int_t rate = mp_obj_get_int(rate_in);
+    if (rate <= 0) {
+        mp_raise_ValueError(MP_ERROR_TEXT("rate out of bounds"));
+    }
+    self->rate = rate;
+    // TODO: only set if this frame is currently being played
+    microbit_hal_audio_raw_set_rate(rate);
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(audio_frame_set_rate_obj, audio_frame_set_rate);
+
 STATIC const mp_map_elem_t microbit_audio_frame_locals_dict_table[] = {
+    { MP_OBJ_NEW_QSTR(MP_QSTR_get_rate), (mp_obj_t)&audio_frame_get_rate_obj },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_set_rate), (mp_obj_t)&audio_frame_set_rate_obj },
     { MP_OBJ_NEW_QSTR(MP_QSTR_copyfrom), (mp_obj_t)&copyfrom_obj },
 };
 STATIC MP_DEFINE_CONST_DICT(microbit_audio_frame_locals_dict, microbit_audio_frame_locals_dict_table);
@@ -422,11 +521,15 @@ MP_DEFINE_CONST_OBJ_TYPE(
     locals_dict, &microbit_audio_frame_locals_dict
     );
 
-microbit_audio_frame_obj_t *microbit_audio_frame_make_new(void) {
-    microbit_audio_frame_obj_t *res = m_new_obj(microbit_audio_frame_obj_t);
+microbit_audio_frame_obj_t *microbit_audio_frame_make_new(size_t size, uint32_t rate) {
+    microbit_audio_frame_obj_t *res = m_new_obj_var(microbit_audio_frame_obj_t, data, uint8_t, size);
     res->base.type = &microbit_audio_frame_type;
-    memset(res->data, 128, AUDIO_CHUNK_SIZE);
+    res->alloc_size = size;
+    res->used_size = 0;
+    res->rate = rate;
+    memset(res->data, 128, size);
     return res;
 }
 
-MP_REGISTER_ROOT_POINTER(void *audio_source);
+MP_REGISTER_ROOT_POINTER(struct _microbit_audio_frame_obj_t *audio_source_frame_state);
+MP_REGISTER_ROOT_POINTER(mp_obj_t audio_source_iter_state);
