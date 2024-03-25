@@ -31,6 +31,8 @@
 
 typedef struct _microbit_i2c_obj_t {
     mp_obj_base_t base;
+    const microbit_pin_obj_t *scl;
+    const microbit_pin_obj_t *sda;
 } microbit_i2c_obj_t;
 
 STATIC mp_obj_t microbit_i2c_init(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
@@ -55,8 +57,12 @@ STATIC mp_obj_t microbit_i2c_init(mp_uint_t n_args, const mp_obj_t *pos_args, mp
         scl = microbit_obj_get_pin(args[ARG_scl].u_obj);
     }
 
+    // Acquire new pins and free the previous ones.
+    microbit_obj_pin_acquire_and_free(&microbit_i2c_obj.scl, scl, microbit_pin_mode_i2c);
+    microbit_obj_pin_acquire_and_free(&microbit_i2c_obj.sda, sda, microbit_pin_mode_i2c);
+
     // Initialise the I2C bus.
-    int ret =microbit_hal_i2c_init(scl->name, sda->name, args[ARG_freq].u_int);
+    int ret = microbit_hal_i2c_init(scl->name, sda->name, args[ARG_freq].u_int);
 
     if (ret != 0) {
         mp_raise_OSError(ret);
@@ -149,6 +155,8 @@ STATIC MP_DEFINE_CONST_OBJ_TYPE(
     locals_dict, &microbit_i2c_locals_dict
     );
 
-const microbit_i2c_obj_t microbit_i2c_obj = {
+microbit_i2c_obj_t microbit_i2c_obj = {
     { &microbit_i2c_type },
+    .scl = &microbit_p19_obj,
+    .sda = &microbit_p20_obj,
 };

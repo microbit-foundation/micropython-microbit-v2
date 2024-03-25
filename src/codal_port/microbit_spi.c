@@ -32,6 +32,9 @@
 
 typedef struct _microbit_spi_obj_t {
     mp_obj_base_t base;
+    const microbit_pin_obj_t *sclk;
+    const microbit_pin_obj_t *mosi;
+    const microbit_pin_obj_t *miso;
 } microbit_spi_obj_t;
 
 STATIC bool microbit_spi_initialised = false;
@@ -71,12 +74,10 @@ STATIC mp_obj_t microbit_spi_init(mp_uint_t n_args, const mp_obj_t *pos_args, mp
         miso = microbit_obj_get_pin(args[ARG_miso].u_obj);
     }
 
-    // Initialise the pins.
-    // Note: the pins are not freed, so init'ing the SPI a second time on
-    // different pins will leave the old pins still in SPI mode.
-    microbit_obj_pin_acquire(sclk, microbit_pin_mode_spi);
-    microbit_obj_pin_acquire(mosi, microbit_pin_mode_spi);
-    microbit_obj_pin_acquire(miso, microbit_pin_mode_spi);
+    // Acquire new pins and free the previous ones.
+    microbit_obj_pin_acquire_and_free(&microbit_spi_obj.sclk, sclk, microbit_pin_mode_spi);
+    microbit_obj_pin_acquire_and_free(&microbit_spi_obj.mosi, mosi, microbit_pin_mode_spi);
+    microbit_obj_pin_acquire_and_free(&microbit_spi_obj.miso, miso, microbit_pin_mode_spi);
 
     // Initialise the SPI bus.
     int ret = microbit_hal_spi_init(sclk->name, mosi->name, miso->name,
@@ -147,6 +148,9 @@ STATIC MP_DEFINE_CONST_OBJ_TYPE(
     locals_dict, &microbit_spi_locals_dict
     );
 
-const microbit_spi_obj_t microbit_spi_obj = {
+microbit_spi_obj_t microbit_spi_obj = {
     { &microbit_spi_type },
+    .sclk = &microbit_p13_obj,
+    .mosi = &microbit_p15_obj,
+    .miso = &microbit_p14_obj,
 };

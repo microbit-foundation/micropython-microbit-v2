@@ -111,9 +111,9 @@ extern const struct _microbit_pin_obj_t microbit_p20_obj;
 extern const struct _microbit_pin_obj_t microbit_pin_logo_obj;
 extern const struct _microbit_pin_obj_t microbit_pin_speaker_obj;
 
-extern const struct _microbit_i2c_obj_t microbit_i2c_obj;
+extern struct _microbit_i2c_obj_t microbit_i2c_obj;
 extern const struct _microbit_uart_obj_t microbit_uart_obj;
-extern const struct _microbit_spi_obj_t microbit_spi_obj;
+extern struct _microbit_spi_obj_t microbit_spi_obj;
 
 extern const struct _monochrome_5by5_t microbit_const_image_heart_obj;
 extern const struct _monochrome_5by5_t microbit_const_image_heart_small_obj;
