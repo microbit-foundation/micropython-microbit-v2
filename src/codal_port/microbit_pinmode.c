@@ -73,6 +73,14 @@ bool microbit_obj_pin_acquire(const microbit_pin_obj_t *pin, const microbit_pinm
     }
 }
 
+void microbit_obj_pin_acquire_and_free(const microbit_pin_obj_t **old_pin, const microbit_pin_obj_t *new_pin, const microbit_pinmode_t *new_mode) {
+    microbit_obj_pin_acquire(new_pin, new_mode);
+    if (*old_pin != new_pin) {
+        microbit_obj_pin_free(*old_pin);
+        *old_pin = new_pin;
+    }
+}
+
 static void noop(const microbit_pin_obj_t *pin) {
     (void)pin;
 }

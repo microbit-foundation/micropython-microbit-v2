@@ -220,6 +220,9 @@ bool microbit_obj_pin_can_be_acquired(const microbit_pin_obj_t *pin);
 // Not safe to call in an interrupt as it may raise if pin can't be acquired.
 bool microbit_obj_pin_acquire(const microbit_pin_obj_t *pin, const microbit_pinmode_t *mode);
 
+// Acquire a new pin and free a previous one, for the given mode.
+void microbit_obj_pin_acquire_and_free(const microbit_pin_obj_t **old_pin, const microbit_pin_obj_t *new_pin, const microbit_pinmode_t *new_mode);
+
 // Change the mode of a pin.  This does not check the existing mode, nor release any
 // resources, and should only be used if pin resources are managed by the caller.
 void microbit_pin_set_mode(const microbit_pin_obj_t *pin, const microbit_pinmode_t *mode);
