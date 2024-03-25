@@ -160,8 +160,13 @@ static mp_obj_t microbit_microphone_get_events(mp_obj_t self_in) {
 static MP_DEFINE_CONST_FUN_OBJ_1(microbit_microphone_get_events_obj, microbit_microphone_get_events);
 
 static void microbit_microphone_record_helper(microbit_audio_frame_obj_t *audio_frame, int rate, bool wait) {
+    // Set the rate of the AudioFrame, if specified.
+    if (rate > 0) {
+        audio_frame->rate = rate;
+    }
+
     // Start the recording.
-    microbit_hal_microphone_start_recording(audio_frame->data, audio_frame->alloc_size, &audio_frame->used_size, rate);
+    microbit_hal_microphone_start_recording(audio_frame->data, audio_frame->alloc_size, &audio_frame->used_size, audio_frame->rate);
 
     if (wait) {
         // Wait for the recording to finish.
@@ -187,6 +192,7 @@ static mp_obj_t microbit_microphone_record(mp_uint_t n_args, const mp_obj_t *pos
     size_t size = args[ARG_duration].u_int * args[ARG_rate].u_int / 1000;
     microbit_audio_frame_obj_t *audio_frame = microbit_audio_frame_make_new(size, args[ARG_rate].u_int);
 
+    // Start recording and wait.
     microbit_microphone_record_helper(audio_frame, args[ARG_rate].u_int, true);
 
     // Return the new AudioFrame.
@@ -212,13 +218,8 @@ static mp_obj_t microbit_microphone_record_into(mp_uint_t n_args, const mp_obj_t
     }
     microbit_audio_frame_obj_t *audio_frame = MP_OBJ_TO_PTR(args[ARG_buffer].u_obj);
 
-    // Set the rate of the AudioFrame, if specified.
-    if (args[ARG_rate].u_int > 0) {
-        audio_frame->rate = args[ARG_rate].u_int;
-    }
-
-    // Start the recording.
-    microbit_hal_microphone_start_recording(audio_frame->data, audio_frame->alloc_size, &audio_frame->used_size, audio_frame->rate);
+    // Start recording and wait if requested.
+    microbit_microphone_record_helper(audio_frame, args[ARG_rate].u_int, args[ARG_wait].u_bool);
 
     return mp_const_none;
 }
