@@ -46,7 +46,7 @@ static inline void enable_irq(uint32_t state) {
 }
 
 static inline mp_uint_t mp_hal_ticks_cpu(void) {
-    if (!(DWT->CTRL & DWT_CTRL_CYCCNTENA_Msk)) {
+    if (!(DWT->CTRL & DWT_CTRL_CYCCNTENA_Msk) || !(CoreDebug->DEMCR & CoreDebug_DEMCR_TRCENA_Msk)) {
         CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
         DWT->CYCCNT = 0;
         DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
