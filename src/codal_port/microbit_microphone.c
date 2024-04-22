@@ -195,6 +195,14 @@ static mp_obj_t microbit_microphone_record(mp_uint_t n_args, const mp_obj_t *pos
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
     mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
 
+    // Validate arguments.
+    if (args[ARG_duration].u_int <= 0) {
+        mp_raise_ValueError(MP_ERROR_TEXT("duration out of bounds"));
+    }
+    if (args[ARG_rate].u_int <= 0) {
+        mp_raise_ValueError(MP_ERROR_TEXT("rate out of bounds"));
+    }
+
     // Create the AudioFrame to record into.
     size_t size = args[ARG_duration].u_int * args[ARG_rate].u_int / 1000;
     microbit_audio_frame_obj_t *audio_frame = microbit_audio_frame_make_new(size, args[ARG_rate].u_int);
