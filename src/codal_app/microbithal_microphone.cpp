@@ -99,6 +99,10 @@ void microbit_hal_microphone_init(void) {
     }
 }
 
+void microbit_hal_microphone_set_sensitivity(float value) {
+    uBit.audio.processor->setGain(value);
+}
+
 void microbit_hal_microphone_set_threshold(int kind, int value) {
     if (kind == MICROBIT_HAL_MICROPHONE_SET_THRESHOLD_LOW) {
         uBit.audio.levelSPL->setLowThreshold(value);
