@@ -85,6 +85,13 @@ static uint8_t sound_event_from_obj(mp_obj_t sound) {
     mp_raise_ValueError(MP_ERROR_TEXT("invalid sound"));
 }
 
+static mp_obj_t microbit_microphone_set_sensitivity(mp_obj_t self_in, mp_obj_t value_in) {
+    (void)self_in;
+    microbit_hal_microphone_set_sensitivity(mp_obj_get_float(value_in));
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_2(microbit_microphone_set_sensitivity_obj, microbit_microphone_set_sensitivity);
+
 static mp_obj_t microbit_microphone_set_threshold(mp_obj_t self_in, mp_obj_t sound_in, mp_obj_t value_in) {
     (void)self_in;
     uint8_t sound = sound_event_from_obj(sound_in);
@@ -238,7 +245,26 @@ static mp_obj_t microbit_microphone_stop_recording(mp_obj_t self_in) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(microbit_microphone_stop_recording_obj, microbit_microphone_stop_recording);
 
+#if MICROPY_OBJ_REPR == MICROPY_OBJ_REPR_A || MICROPY_OBJ_REPR == MICROPY_OBJ_REPR_B
+
+// The way float objects are defined depends on the object representation.  Here we only
+// support representation A and B which use the following struct for float objects.
+// This is defined in py/objfloat.c and not exposed publicly, so must be defined here.
+
+typedef struct _mp_obj_float_t {
+    mp_obj_base_t base;
+    mp_float_t value;
+} mp_obj_float_t;
+
+static const mp_obj_float_t microbit_microphone_sensitivity_low_obj = {{&mp_type_float}, (mp_float_t)0.079};
+static const mp_obj_float_t microbit_microphone_sensitivity_medium_obj = {{&mp_type_float}, (mp_float_t)0.2};
+static const mp_obj_float_t microbit_microphone_sensitivity_high_obj = {{&mp_type_float}, (mp_float_t)1.0};
+
+#endif
+
 static const mp_rom_map_elem_t microbit_microphone_locals_dict_table[] = {
+    // Methods.
+    { MP_ROM_QSTR(MP_QSTR_set_sensitivity), MP_ROM_PTR(&microbit_microphone_set_sensitivity_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_threshold), MP_ROM_PTR(&microbit_microphone_set_threshold_obj) },
     { MP_ROM_QSTR(MP_QSTR_sound_level), MP_ROM_PTR(&microbit_microphone_sound_level_obj) },
     { MP_ROM_QSTR(MP_QSTR_sound_level_db), MP_ROM_PTR(&microbit_microphone_sound_level_db_obj) },
@@ -250,6 +276,11 @@ static const mp_rom_map_elem_t microbit_microphone_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_record_into), MP_ROM_PTR(&microbit_microphone_record_into_obj) },
     { MP_ROM_QSTR(MP_QSTR_is_recording), MP_ROM_PTR(&microbit_microphone_is_recording_obj) },
     { MP_ROM_QSTR(MP_QSTR_stop_recording), MP_ROM_PTR(&microbit_microphone_stop_recording_obj) },
+
+    // Constants.
+    { MP_ROM_QSTR(MP_QSTR_SENSITIVITY_LOW), MP_ROM_PTR(&microbit_microphone_sensitivity_low_obj) },
+    { MP_ROM_QSTR(MP_QSTR_SENSITIVITY_MEDIUM), MP_ROM_PTR(&microbit_microphone_sensitivity_medium_obj) },
+    { MP_ROM_QSTR(MP_QSTR_SENSITIVITY_HIGH), MP_ROM_PTR(&microbit_microphone_sensitivity_high_obj) },
 };
 static MP_DEFINE_CONST_DICT(microbit_microphone_locals_dict, microbit_microphone_locals_dict_table);
 
