@@ -155,6 +155,7 @@ int microbit_hal_compass_get_field_strength(void);
 int microbit_hal_compass_get_heading(void);
 
 void microbit_hal_microphone_init(void);
+void microbit_hal_microphone_set_sensitivity(float value);
 void microbit_hal_microphone_set_threshold(int kind, int value);
 int microbit_hal_microphone_get_level(void);
 void microbit_hal_microphone_start_recording(uint8_t *buf, size_t max_len, size_t *cur_len, int rate);
