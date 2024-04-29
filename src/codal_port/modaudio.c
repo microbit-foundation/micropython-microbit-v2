@@ -317,7 +317,7 @@ static mp_obj_t microbit_audio_frame_new(const mp_obj_type_t *type_in, size_t n_
 
     enum { ARG_duration, ARG_rate };
     static const mp_arg_t allowed_args[] = {
-        { MP_QSTR_duration, MP_ARG_INT, {.u_int = -1} },
+        { MP_QSTR_duration, MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE} },
         { MP_QSTR_rate, MP_ARG_INT, {.u_int = DEFAULT_SAMPLE_RATE} },
     };
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
@@ -329,12 +329,14 @@ static mp_obj_t microbit_audio_frame_new(const mp_obj_type_t *type_in, size_t n_
     }
 
     size_t size;
-    if (args[ARG_duration].u_int < 0) {
+    if (args[ARG_duration].u_obj == mp_const_none) {
         size = AUDIO_CHUNK_SIZE;
-    } else if (args[ARG_duration].u_int == 0) {
-        mp_raise_ValueError(MP_ERROR_TEXT("size out of bounds"));
     } else {
-        size = args[ARG_duration].u_int * rate / 1000;
+        mp_float_t duration = mp_obj_get_float(args[ARG_duration].u_obj);
+        if (duration <= 0) {
+            mp_raise_ValueError(MP_ERROR_TEXT("size out of bounds"));
+        }
+        size = duration * rate / 1000;
     }
 
     return microbit_audio_frame_make_new(size, rate);
