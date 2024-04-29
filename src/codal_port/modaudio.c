@@ -125,16 +125,22 @@ static void audio_data_fetcher(void) {
     }
 
     const uint8_t *src = &audio_source_frame->data[audio_raw_offset];
-    audio_raw_offset += AUDIO_CHUNK_SIZE;
+    size_t src_len = MIN(audio_source_frame->used_size - audio_raw_offset, AUDIO_CHUNK_SIZE);
+    audio_raw_offset += src_len;
 
     uint8_t *dest = &audio_output_buffer[0];
     uint32_t sound_level = 0;
-    for (int i = 0; i < AUDIO_CHUNK_SIZE; ++i) {
+
+    for (int i = 0; i < src_len; ++i) {
         // Copy sample to the buffer.
         *dest++ = src[i];
         // Compute the sound level.
         sound_level += (src[i] - 128) * (src[i] - 128);
     }
+
+    // Fill any remaining audio_output_buffer bytes with silence.
+    memset(dest, 128, AUDIO_CHUNK_SIZE - src_len);
+
     audio_current_sound_level = sound_level / AUDIO_CHUNK_SIZE;
 
     audio_buffer_ready();
@@ -329,8 +335,6 @@ static mp_obj_t microbit_audio_frame_new(const mp_obj_type_t *type_in, size_t n_
         mp_raise_ValueError(MP_ERROR_TEXT("size out of bounds"));
     } else {
         size = args[ARG_duration].u_int * rate / 1000;
-        // Round up the size to the nearest AUDIO_CHUNK_SIZE.
-        size = (size + AUDIO_CHUNK_SIZE - 1) & ~(AUDIO_CHUNK_SIZE - 1);
     }
 
     return microbit_audio_frame_make_new(size, rate);
