@@ -166,12 +166,7 @@ static mp_obj_t microbit_microphone_get_events(mp_obj_t self_in) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(microbit_microphone_get_events_obj, microbit_microphone_get_events);
 
-static void microbit_microphone_record_helper(microbit_audio_frame_obj_t *audio_frame, int rate, bool wait) {
-    // Set the rate of the AudioFrame, if specified.
-    if (rate > 0) {
-        audio_frame->rate = rate;
-    }
-
+static void microbit_microphone_record_helper(microbit_audio_frame_obj_t *audio_frame, bool wait) {
     // Start the recording.
     microbit_hal_microphone_start_recording(audio_frame->data, audio_frame->alloc_size, &audio_frame->used_size, audio_frame->rate);
 
@@ -208,7 +203,7 @@ static mp_obj_t microbit_microphone_record(mp_uint_t n_args, const mp_obj_t *pos
     microbit_audio_frame_obj_t *audio_frame = microbit_audio_frame_make_new(size, args[ARG_rate].u_int);
 
     // Start recording and wait.
-    microbit_microphone_record_helper(audio_frame, args[ARG_rate].u_int, true);
+    microbit_microphone_record_helper(audio_frame, true);
 
     // Return the new AudioFrame.
     return MP_OBJ_FROM_PTR(audio_frame);
@@ -219,7 +214,7 @@ static mp_obj_t microbit_microphone_record_into(mp_uint_t n_args, const mp_obj_t
     enum { ARG_buffer, ARG_rate, ARG_wait, };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_buffer, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
-        { MP_QSTR_rate, MP_ARG_INT, {.u_int = 0} },
+        { MP_QSTR_rate, MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE} },
         { MP_QSTR_wait, MP_ARG_KW_ONLY | MP_ARG_BOOL, {.u_bool = true} },
     };
 
@@ -233,8 +228,18 @@ static mp_obj_t microbit_microphone_record_into(mp_uint_t n_args, const mp_obj_t
     }
     microbit_audio_frame_obj_t *audio_frame = MP_OBJ_TO_PTR(args[ARG_buffer].u_obj);
 
+    // Check if the rate is specified.
+    if (args[ARG_rate].u_obj != mp_const_none) {
+        // Update the AudioFrame to use the specified rate.
+        mp_int_t rate = mp_obj_get_int(args[ARG_rate].u_obj);
+        if (rate <= 0) {
+            mp_raise_ValueError(MP_ERROR_TEXT("rate out of bounds"));
+        }
+        audio_frame->rate = rate;
+    }
+
     // Start recording and wait if requested.
-    microbit_microphone_record_helper(audio_frame, args[ARG_rate].u_int, args[ARG_wait].u_bool);
+    microbit_microphone_record_helper(audio_frame, args[ARG_wait].u_bool);
 
     return mp_const_none;
 }
