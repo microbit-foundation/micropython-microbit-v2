@@ -212,6 +212,7 @@ STATIC mp_obj_t stop(void) {
 MP_DEFINE_CONST_FUN_OBJ_0(microbit_audio_stop_obj, stop);
 
 STATIC mp_obj_t play(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+    // Note: the return_pin argument is for compatibility with micro:bit v1 and is ignored on v2.
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_source, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
         { MP_QSTR_wait,  MP_ARG_BOOL, {.u_bool = true} },
@@ -221,11 +222,6 @@ STATIC mp_obj_t play(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_ar
     // parse args
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
     mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
-
-    // The return_pin argument from micro:bit v1 is no longer supported.
-    if (args[3].u_obj != mp_const_none) {
-        mp_raise_ValueError(MP_ERROR_TEXT("return_pin not supported"));
-    }
 
     mp_obj_t src = args[0].u_obj;
     microbit_audio_play_source(src, args[2].u_obj, args[1].u_bool, DEFAULT_SAMPLE_RATE);
