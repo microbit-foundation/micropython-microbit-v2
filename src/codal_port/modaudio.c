@@ -380,7 +380,7 @@ static mp_int_t audio_frame_get_buffer(mp_obj_t self_in, mp_buffer_info_t *bufin
     microbit_audio_frame_obj_t *self = (microbit_audio_frame_obj_t *)self_in;
     bufinfo->buf = self->data;
     bufinfo->len = self->alloc_size;
-    bufinfo->typecode = 'b';
+    bufinfo->typecode = 'B';
     if (flags == MP_BUFFER_WRITE) {
         // Assume that writing to the buffer will make all data valid for playback.
         self->used_size = self->alloc_size;
