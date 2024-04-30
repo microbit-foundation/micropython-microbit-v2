@@ -54,6 +54,7 @@ static inline bool audio_is_running(void) {
 
 void microbit_audio_stop(void) {
     audio_source_iter = NULL;
+    microbit_hal_audio_stop_expression();
 }
 
 STATIC void audio_buffer_ready(void) {
