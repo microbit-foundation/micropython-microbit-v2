@@ -45,7 +45,8 @@ INC += -I$(BUILD)
 CWARN = -Wall -Werror
 CWARN += -Wpointer-arith -Wuninitialized
 CFLAGS_ARCH += -DNRF52833_XXAA
-CFLAGS = $(INC) $(CWARN) -std=c99 $(CFLAGS_MOD) $(CFLAGS_ARCH) $(COPT) $(CFLAGS_EXTRA)
+CFLAGS += $(INC) $(CWARN) -std=c99 $(CFLAGS_MOD) $(CFLAGS_ARCH) $(COPT) $(CFLAGS_EXTRA)
+CXXFLAGS += $(filter-out -std=c99,$(CFLAGS))
 
 # Debugging/Optimization
 ifdef DEBUG
@@ -56,7 +57,7 @@ endif
 
 CFLAGS += -g
 LDFLAGS_ARCH = -Wl,-map,$@.map
-LDFLAGS = $(LDFLAGS_MOD) $(LDFLAGS_ARCH) -lm $(LDFLAGS_EXTRA)
+LDFLAGS += $(LDFLAGS_MOD) $(LDFLAGS_ARCH) -lm $(LDFLAGS_EXTRA)
 
 SRC_C += \
 	drv_display.c \
