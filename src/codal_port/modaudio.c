@@ -47,9 +47,9 @@ typedef enum {
 
 static uint8_t audio_output_buffer[AUDIO_CHUNK_SIZE];
 static volatile audio_output_state_t audio_output_state;
-static volatile bool audio_fetcher_scheduled;
 static size_t audio_raw_offset;
 static uint32_t audio_current_sound_level;
+static mp_sched_node_t audio_data_fetcher_sched_node;
 
 static inline bool audio_is_running(void) {
     return audio_source_frame != NULL || audio_source_iter != MP_OBJ_NULL;
@@ -73,9 +73,7 @@ static void audio_buffer_ready(void) {
     }
 }
 
-static void audio_data_fetcher(void) {
-    audio_fetcher_scheduled = false;
-
+static void audio_data_fetcher(mp_sched_node_t *node) {
     if (audio_source_frame != NULL) {
         // An existing AudioFrame is being played, see if there's any data left.
         if (audio_raw_offset >= audio_source_frame->used_size) {
@@ -146,12 +144,6 @@ static void audio_data_fetcher(void) {
     audio_buffer_ready();
 }
 
-static mp_obj_t audio_data_fetcher_wrapper(mp_obj_t arg) {
-    audio_data_fetcher();
-    return mp_const_none;
-}
-static MP_DEFINE_CONST_FUN_OBJ_1(audio_data_fetcher_wrapper_obj, audio_data_fetcher_wrapper);
-
 void microbit_hal_audio_raw_ready_callback(void) {
     if (audio_output_state == AUDIO_OUTPUT_STATE_DATA_READY) {
         // there is data ready to send out to the audio pipeline, so send it
@@ -161,14 +153,12 @@ void microbit_hal_audio_raw_ready_callback(void) {
         // no data ready, need to call this function later when data is ready
         audio_output_state = AUDIO_OUTPUT_STATE_IDLE;
     }
-    if (!audio_fetcher_scheduled) {
-        // schedule audio_data_fetcher to be executed to prepare the next buffer
-        audio_fetcher_scheduled = mp_sched_schedule(MP_OBJ_FROM_PTR(&audio_data_fetcher_wrapper_obj), mp_const_none);
-    }
+
+    // schedule audio_data_fetcher to be executed to prepare the next buffer
+    mp_sched_schedule_node(&audio_data_fetcher_sched_node, audio_data_fetcher);
 }
 
 static void audio_init(uint32_t sample_rate) {
-    audio_fetcher_scheduled = false;
     audio_output_state = AUDIO_OUTPUT_STATE_IDLE;
     microbit_hal_audio_raw_init(sample_rate);
 }
@@ -239,7 +229,7 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, ui
     // Start the audio running.
     // The scheduler must be locked because audio_data_fetcher() can also be called from the scheduler.
     mp_sched_lock();
-    audio_data_fetcher();
+    audio_data_fetcher(&audio_data_fetcher_sched_node);
     mp_sched_unlock();
 
     if (wait) {
