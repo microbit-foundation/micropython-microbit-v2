@@ -104,8 +104,12 @@ MP_DEFINE_CONST_FUN_OBJ_2(microbit_spi_write_obj, microbit_spi_write);
 
 STATIC mp_obj_t microbit_spi_read(size_t n_args, const mp_obj_t *args) {
     microbit_spi_check_initialised();
+    mp_int_t nbytes = mp_obj_get_int(args[1]);
+    if (nbytes < 0) {
+        mp_raise_ValueError(MP_ERROR_TEXT("invalid number of bytes"));
+    }
     vstr_t vstr;
-    vstr_init_len(&vstr, mp_obj_get_int(args[1]));
+    vstr_init_len(&vstr, nbytes);
     uint8_t byte_out = 0;
     if (n_args == 3) {
         byte_out = mp_obj_get_int(args[2]);
