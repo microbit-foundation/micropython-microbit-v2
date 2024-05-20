@@ -35,7 +35,10 @@
 #define audio_source_frame MP_STATE_PORT(audio_source_frame_state)
 #define audio_source_iter MP_STATE_PORT(audio_source_iter_state)
 
+#ifndef AUDIO_OUTPUT_BUFFER_SIZE
 #define AUDIO_OUTPUT_BUFFER_SIZE (32)
+#endif
+
 #define DEFAULT_AUDIO_FRAME_SIZE (32)
 #define DEFAULT_SAMPLE_RATE (7812)
 
@@ -46,8 +49,9 @@ typedef enum {
 } audio_output_state_t;
 
 static uint8_t audio_output_buffer[AUDIO_OUTPUT_BUFFER_SIZE];
+static size_t audio_output_buffer_offset;
 static volatile audio_output_state_t audio_output_state;
-static size_t audio_raw_offset;
+static size_t audio_source_frame_offset;
 static uint32_t audio_current_sound_level;
 static mp_sched_node_t audio_data_fetcher_sched_node;
 
@@ -56,27 +60,18 @@ static inline bool audio_is_running(void) {
 }
 
 void microbit_audio_stop(void) {
+    audio_output_buffer_offset = 0;
     audio_source_frame = NULL;
     audio_source_iter = NULL;
-    audio_raw_offset = 0;
+    audio_source_frame_offset = 0;
     audio_current_sound_level = 0;
     microbit_hal_audio_stop_expression();
 }
 
-static void audio_buffer_ready(void) {
-    uint32_t atomic_state = MICROPY_BEGIN_ATOMIC_SECTION();
-    audio_output_state_t old_state = audio_output_state;
-    audio_output_state = AUDIO_OUTPUT_STATE_DATA_READY;
-    MICROPY_END_ATOMIC_SECTION(atomic_state);
-    if (old_state == AUDIO_OUTPUT_STATE_IDLE) {
-        microbit_hal_audio_raw_ready_callback();
-    }
-}
-
-static void audio_data_fetcher(mp_sched_node_t *node) {
+static void audio_data_pull_from_source(void) {
     if (audio_source_frame != NULL) {
         // An existing AudioFrame is being played, see if there's any data left.
-        if (audio_raw_offset >= audio_source_frame->used_size) {
+        if (audio_source_frame_offset >= audio_source_frame->used_size) {
             // AudioFrame is exhausted.
             audio_source_frame = NULL;
         }
@@ -118,30 +113,54 @@ static void audio_data_fetcher(mp_sched_node_t *node) {
 
         // We have the next AudioFrame.
         audio_source_frame = MP_OBJ_TO_PTR(frame_obj);
-        audio_raw_offset = 0;
+        audio_source_frame_offset = 0;
         microbit_hal_audio_raw_set_rate(audio_source_frame->rate);
     }
+}
 
-    const uint8_t *src = &audio_source_frame->data[audio_raw_offset];
-    size_t src_len = MIN(audio_source_frame->used_size - audio_raw_offset, AUDIO_OUTPUT_BUFFER_SIZE);
-    audio_raw_offset += src_len;
+static void audio_data_fetcher(mp_sched_node_t *node) {
+    audio_data_pull_from_source();
+    uint8_t *dest = &audio_output_buffer[audio_output_buffer_offset];
 
-    uint8_t *dest = &audio_output_buffer[0];
-    uint32_t sound_level = 0;
+    if (audio_source_frame == NULL) {
+        // Audio source is exhausted.
+        // Fill any remaining audio_output_buffer bytes with silence.
+        memset(dest, 128, AUDIO_OUTPUT_BUFFER_SIZE - audio_output_buffer_offset);
+        audio_output_buffer_offset = AUDIO_OUTPUT_BUFFER_SIZE;
+    } else {
+        // Copy samples to the buffer.
+        const uint8_t *src = &audio_source_frame->data[audio_source_frame_offset];
+        size_t src_len = MIN(audio_source_frame->used_size - audio_source_frame_offset, AUDIO_OUTPUT_BUFFER_SIZE - audio_output_buffer_offset);
+        memcpy(dest, src, src_len);
 
-    for (int i = 0; i < src_len; ++i) {
-        // Copy sample to the buffer.
-        *dest++ = src[i];
-        // Compute the sound level.
-        sound_level += (src[i] - 128) * (src[i] - 128);
+        // Update output and source offsets.
+        audio_output_buffer_offset += src_len;
+        audio_source_frame_offset += src_len;
     }
 
-    // Fill any remaining audio_output_buffer bytes with silence.
-    memset(dest, 128, AUDIO_OUTPUT_BUFFER_SIZE - src_len);
+    if (audio_output_buffer_offset < AUDIO_OUTPUT_BUFFER_SIZE) {
+        // Output buffer not full yet, so attempt to pull more data from the source.
+        mp_sched_schedule_node(&audio_data_fetcher_sched_node, audio_data_fetcher);
+    } else {
+        // Output buffer is full, process it and prepare for next buffer fill.
+        audio_output_buffer_offset = 0;
 
-    audio_current_sound_level = sound_level / AUDIO_OUTPUT_BUFFER_SIZE;
+        // Compute the sound level.
+        uint32_t sound_level = 0;
+        for (int i = 0; i < AUDIO_OUTPUT_BUFFER_SIZE; ++i) {
+            sound_level += (audio_output_buffer[i] - 128) * (audio_output_buffer[i] - 128);
+        }
+        audio_current_sound_level = sound_level / AUDIO_OUTPUT_BUFFER_SIZE;
 
-    audio_buffer_ready();
+        // Send the data to the lower levels of the audio pipeline.
+        uint32_t atomic_state = MICROPY_BEGIN_ATOMIC_SECTION();
+        audio_output_state_t old_state = audio_output_state;
+        audio_output_state = AUDIO_OUTPUT_STATE_DATA_READY;
+        MICROPY_END_ATOMIC_SECTION(atomic_state);
+        if (old_state == AUDIO_OUTPUT_STATE_IDLE) {
+            microbit_hal_audio_raw_ready_callback();
+        }
+    }
 }
 
 void microbit_hal_audio_raw_ready_callback(void) {
@@ -178,7 +197,7 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, ui
         sound_expr_data = microbit_soundeffect_get_sound_expr_data(src);
     } else if (mp_obj_is_type(src, &microbit_audio_frame_type)) {
         audio_source_frame = MP_OBJ_TO_PTR(src);
-        audio_raw_offset = 0;
+        audio_source_frame_offset = 0;
         microbit_hal_audio_raw_set_rate(audio_source_frame->rate);
     } else if (mp_obj_is_type(src, &mp_type_tuple) || mp_obj_is_type(src, &mp_type_list)) {
         // A tuple/list passed in.  Need to check if it contains SoundEffect instances.
