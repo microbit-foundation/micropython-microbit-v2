@@ -32,6 +32,7 @@
 
 #define SOUND_EVENT_QUIET (0)
 #define SOUND_EVENT_LOUD (1)
+#define SOUND_EVENT_CLAP (2)
 
 typedef struct _microbit_microphone_obj_t {
     mp_obj_base_t base;
@@ -40,6 +41,7 @@ typedef struct _microbit_microphone_obj_t {
 static const mp_const_obj_t sound_event_obj_map[] = {
     [SOUND_EVENT_QUIET] = MP_ROM_PTR(&microbit_soundevent_quiet_obj),
     [SOUND_EVENT_LOUD] = MP_ROM_PTR(&microbit_soundevent_loud_obj),
+    [SOUND_EVENT_CLAP] = MP_ROM_PTR(&microbit_soundevent_clap_obj),
 };
 
 static uint8_t sound_event_current = SOUND_EVENT_QUIET;
@@ -54,6 +56,8 @@ void microbit_hal_level_detector_callback(int value) {
         ev = SOUND_EVENT_QUIET;
     } else if (value == MICROBIT_HAL_MICROPHONE_EVT_THRESHOLD_HIGH) {
         ev = SOUND_EVENT_LOUD;
+    } else if (value == MICROBIT_HAL_MICROPHONE_EVT_CLAP) {
+        ev = SOUND_EVENT_CLAP;
     } else {
         // Ignore unknown events.
         return;

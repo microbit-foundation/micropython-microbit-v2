@@ -184,6 +184,7 @@ extern const struct _monochrome_5by5_t microbit_const_image_scissors_obj;
 
 extern const microbit_soundevent_obj_t microbit_soundevent_loud_obj;
 extern const microbit_soundevent_obj_t microbit_soundevent_quiet_obj;
+extern const microbit_soundevent_obj_t microbit_soundevent_clap_obj;
 
 extern struct _microbit_display_obj_t microbit_display_obj;
 extern const struct _microbit_accelerometer_obj_t microbit_accelerometer_obj;

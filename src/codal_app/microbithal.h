@@ -90,6 +90,7 @@ extern "C" {
 // Microphone events, passed to microbit_hal_level_detector_callback().
 #define MICROBIT_HAL_MICROPHONE_EVT_THRESHOLD_LOW   (1)
 #define MICROBIT_HAL_MICROPHONE_EVT_THRESHOLD_HIGH  (2)
+#define MICROBIT_HAL_MICROPHONE_EVT_CLAP            (8)
 
 // Threshold kind, passed to microbit_hal_microphone_set_threshold().
 #define MICROBIT_HAL_MICROPHONE_SET_THRESHOLD_LOW   (0)
