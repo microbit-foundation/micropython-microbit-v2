@@ -35,8 +35,8 @@
 #define audio_source_frame MP_STATE_PORT(audio_source_frame_state)
 #define audio_source_iter MP_STATE_PORT(audio_source_iter_state)
 
-#define LOG_AUDIO_CHUNK_SIZE (5)
-#define AUDIO_CHUNK_SIZE (1 << LOG_AUDIO_CHUNK_SIZE)
+#define AUDIO_OUTPUT_BUFFER_SIZE (32)
+#define DEFAULT_AUDIO_FRAME_SIZE (32)
 #define DEFAULT_SAMPLE_RATE (7812)
 
 typedef enum {
@@ -45,7 +45,7 @@ typedef enum {
     AUDIO_OUTPUT_STATE_DATA_WRITTEN,
 } audio_output_state_t;
 
-static uint8_t audio_output_buffer[AUDIO_CHUNK_SIZE];
+static uint8_t audio_output_buffer[AUDIO_OUTPUT_BUFFER_SIZE];
 static volatile audio_output_state_t audio_output_state;
 static size_t audio_raw_offset;
 static uint32_t audio_current_sound_level;
@@ -123,7 +123,7 @@ static void audio_data_fetcher(mp_sched_node_t *node) {
     }
 
     const uint8_t *src = &audio_source_frame->data[audio_raw_offset];
-    size_t src_len = MIN(audio_source_frame->used_size - audio_raw_offset, AUDIO_CHUNK_SIZE);
+    size_t src_len = MIN(audio_source_frame->used_size - audio_raw_offset, AUDIO_OUTPUT_BUFFER_SIZE);
     audio_raw_offset += src_len;
 
     uint8_t *dest = &audio_output_buffer[0];
@@ -137,9 +137,9 @@ static void audio_data_fetcher(mp_sched_node_t *node) {
     }
 
     // Fill any remaining audio_output_buffer bytes with silence.
-    memset(dest, 128, AUDIO_CHUNK_SIZE - src_len);
+    memset(dest, 128, AUDIO_OUTPUT_BUFFER_SIZE - src_len);
 
-    audio_current_sound_level = sound_level / AUDIO_CHUNK_SIZE;
+    audio_current_sound_level = sound_level / AUDIO_OUTPUT_BUFFER_SIZE;
 
     audio_buffer_ready();
 }
@@ -147,7 +147,7 @@ static void audio_data_fetcher(mp_sched_node_t *node) {
 void microbit_hal_audio_raw_ready_callback(void) {
     if (audio_output_state == AUDIO_OUTPUT_STATE_DATA_READY) {
         // there is data ready to send out to the audio pipeline, so send it
-        microbit_hal_audio_raw_write_data(&audio_output_buffer[0], AUDIO_CHUNK_SIZE);
+        microbit_hal_audio_raw_write_data(&audio_output_buffer[0], AUDIO_OUTPUT_BUFFER_SIZE);
         audio_output_state = AUDIO_OUTPUT_STATE_DATA_WRITTEN;
     } else {
         // no data ready, need to call this function later when data is ready
@@ -320,7 +320,7 @@ static mp_obj_t microbit_audio_frame_new(const mp_obj_type_t *type_in, size_t n_
 
     size_t size;
     if (args[ARG_duration].u_obj == mp_const_none) {
-        size = AUDIO_CHUNK_SIZE;
+        size = DEFAULT_AUDIO_FRAME_SIZE;
     } else {
         mp_float_t duration = mp_obj_get_float(args[ARG_duration].u_obj);
         if (duration <= 0) {
