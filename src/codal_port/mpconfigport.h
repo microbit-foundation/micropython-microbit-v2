@@ -61,6 +61,7 @@
 #define MICROPY_MODULE_BUILTIN_INIT             (1)
 #define MICROPY_USE_INTERNAL_ERRNO              (1)
 #define MICROPY_ENABLE_SCHEDULER                (1)
+#define MICROPY_SCHEDULER_STATIC_NODES          (1)
 
 // Fine control over Python builtins, classes, modules, etc
 #define MICROPY_PY_BUILTINS_STR_UNICODE         (1)
