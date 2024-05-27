@@ -124,7 +124,13 @@ static void audio_data_fetcher(mp_sched_node_t *node) {
 
     if (audio_source_frame == NULL) {
         // Audio source is exhausted.
-        // Fill any remaining audio_output_buffer bytes with silence.
+
+        if (audio_output_buffer_offset == 0) {
+            // No output data left, finish output streaming.
+            return;
+        }
+
+        // Fill remaining audio_output_buffer bytes with silence, for the final output frame.
         memset(dest, 128, AUDIO_OUTPUT_BUFFER_SIZE - audio_output_buffer_offset);
         audio_output_buffer_offset = AUDIO_OUTPUT_BUFFER_SIZE;
     } else {
