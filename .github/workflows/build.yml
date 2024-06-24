@@ -3,6 +3,7 @@ name: Build MicroPython
 on:
   push:
     branches: '*'
+    tags: '*'
   pull_request:
     branches: '*'
 
@@ -10,35 +11,30 @@ jobs:
   build:
     strategy:
       matrix:
-        # macos-13 is x86_64, and macos-14 is arm64
-        os: [ubuntu-22.04, macos-13, macos-14]
+        os: [ubuntu-20.04]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     name: build.py ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - uses: carlosperate/arm-none-eabi-gcc-action@v1
-        with:
-          release: 10.3-2021.10
-      - name: Install CMake v3.22 via PyPI
-        run: python -m pip install cmake==3.28.3
+      - name: Install toolchain (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install -y gcc-arm-none-eabi libnewlib-arm-none-eabi
+          sudo apt-get install -y cmake
       - name: Check Versions
         run: |
           arm-none-eabi-gcc --version
           cmake --version
-          python --version
-          uname -a
-      - name: Build mpy-cross
-        run: make -C lib/micropython/mpy-cross -j2
-      - name: Build MicroPython
-        run: make -C src -j2
+      - name: Build
+        run: |
+          make -C lib/micropython/mpy-cross -j2
+          cd src
+          make -j2
       - name: Upload hex file
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
-          name: MICROBIT-MICROPYTHON-${{ github.sha }}-${{ matrix.os }}.hex
+          name: MICROBIT-MICROPYTHON-${{ github.sha }}.hex
           path: src/MICROBIT.hex

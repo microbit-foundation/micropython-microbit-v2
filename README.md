@@ -1,7 +1,7 @@
-MicroPython on the micro:bit via CODAL
-======================================
+MicroPython on the Calliope mini via CODAL based on the port of microbit
+=========================================================================
 
-This is a port of MicroPython to the micro:bit which uses the CODAL as the
+This is a port of MicroPython to the Calliope mini which uses the CODAL as the
 underlying target platform.
 
 Setting up
@@ -32,7 +32,7 @@ After setting up, go to the `src/` directory and build
 
 That will build both `libmicropython.a` (from source in `src/codal_port/`) and
 the CODAL app (from source in `src/codal_app/`).  The resulting firmware will be
-`MICROBIT.hex` in the `src/` directory which can be copied to the micro:bit.
+`MINI.hex` in the `src/` directory which can be copied to the Calliope mini.
 
 Once the firmware is on the device there will appear a REPL prompt on the serial
 port.  To test it you can run:
@@ -40,8 +40,8 @@ port.  To test it you can run:
     >>> display.show(Image.HAPPY)
     >>> audio.play(Sound.HAPPY)
     
-Code of Conduct
--------------------
+Code of Conduct (from microbit)
+--------------------------------
 
 Trust, partnership, simplicity and passion are our core values we live and 
 breathe in our daily work life and within our projects. Our open-source 
