@@ -166,9 +166,9 @@ static mp_obj_t microbit_microphone_get_events(mp_obj_t self_in) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(microbit_microphone_get_events_obj, microbit_microphone_get_events);
 
-static void microbit_microphone_record_helper(microbit_audio_frame_obj_t *audio_frame, bool wait) {
+static void microbit_microphone_record_helper(microbit_audio_track_obj_t *audio_track, bool wait) {
     // Start the recording.
-    microbit_hal_microphone_start_recording(audio_frame->data, audio_frame->alloc_size, &audio_frame->used_size, audio_frame->rate);
+    microbit_hal_microphone_start_recording(audio_track->data, audio_track->size, &audio_track->size, audio_track->rate);
 
     if (wait) {
         // Wait for the recording to finish.
@@ -182,8 +182,8 @@ static void microbit_microphone_record_helper(microbit_audio_frame_obj_t *audio_
 static mp_obj_t microbit_microphone_record(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_duration, ARG_rate, };
     static const mp_arg_t allowed_args[] = {
-        { MP_QSTR_duration, MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = 0} },
-        { MP_QSTR_rate, MP_ARG_INT, {.u_int = 7812} },
+        { MP_QSTR_duration, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE} },
+        { MP_QSTR_rate, MP_ARG_INT, {.u_int = AUDIO_TRACK_DEFAULT_SAMPLE_RATE} },
     };
 
     // Parse the args.
@@ -191,30 +191,30 @@ static mp_obj_t microbit_microphone_record(mp_uint_t n_args, const mp_obj_t *pos
     mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
 
     // Validate arguments.
-    if (args[ARG_duration].u_int <= 0) {
+    mp_float_t duration = mp_obj_get_float(args[ARG_duration].u_obj);
+    if (duration <= 0) {
         mp_raise_ValueError(MP_ERROR_TEXT("duration out of bounds"));
     }
     if (args[ARG_rate].u_int <= 0) {
         mp_raise_ValueError(MP_ERROR_TEXT("rate out of bounds"));
     }
 
-    // Create the AudioFrame to record into.
-    size_t size = args[ARG_duration].u_int * args[ARG_rate].u_int / 1000;
-    microbit_audio_frame_obj_t *audio_frame = microbit_audio_frame_make_new(size, args[ARG_rate].u_int);
+    // Create the AudioRecording to record into.
+    size_t size = duration * args[ARG_rate].u_int / 1000;
+    microbit_audio_track_obj_t *audio_track = MP_OBJ_TO_PTR(microbit_audio_recording_new(size, args[ARG_rate].u_int));
 
     // Start recording and wait.
-    microbit_microphone_record_helper(audio_frame, true);
+    microbit_microphone_record_helper(audio_track, true);
 
     // Return the new AudioFrame.
-    return MP_OBJ_FROM_PTR(audio_frame);
+    return MP_OBJ_FROM_PTR(audio_track);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(microbit_microphone_record_obj, 1, microbit_microphone_record);
 
 static mp_obj_t microbit_microphone_record_into(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
-    enum { ARG_buffer, ARG_rate, ARG_wait, };
+    enum { ARG_buffer, ARG_wait };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_buffer, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
-        { MP_QSTR_rate, MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE} },
         { MP_QSTR_wait, MP_ARG_KW_ONLY | MP_ARG_BOOL, {.u_bool = true} },
     };
 
@@ -223,25 +223,21 @@ static mp_obj_t microbit_microphone_record_into(mp_uint_t n_args, const mp_obj_t
     mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
 
     // Check that the buffer is an AudioFrame instance.
-    if (!mp_obj_is_type(args[ARG_buffer].u_obj, &microbit_audio_frame_type)) {
-        mp_raise_TypeError(MP_ERROR_TEXT("expecting an AudioFrame"));
+    // TODO allow both AudioRecording and AudioTrack? yes
+    if (!mp_obj_is_type(args[ARG_buffer].u_obj, &microbit_audio_track_type)
+        && !mp_obj_is_type(args[ARG_buffer].u_obj, &microbit_audio_recording_type)) {
+        mp_raise_TypeError(MP_ERROR_TEXT("expecting an AudioTrack or AudioRecording"));
     }
-    microbit_audio_frame_obj_t *audio_frame = MP_OBJ_TO_PTR(args[ARG_buffer].u_obj);
+    microbit_audio_track_obj_t *audio_track = MP_OBJ_TO_PTR(args[ARG_buffer].u_obj);
 
-    // Check if the rate is specified.
-    if (args[ARG_rate].u_obj != mp_const_none) {
-        // Update the AudioFrame to use the specified rate.
-        mp_int_t rate = mp_obj_get_int(args[ARG_rate].u_obj);
-        if (rate <= 0) {
-            mp_raise_ValueError(MP_ERROR_TEXT("rate out of bounds"));
-        }
-        audio_frame->rate = rate;
-    }
+    // Create the AudioTrack to record into.
+    microbit_audio_track_obj_t *audio_track_new = MP_OBJ_TO_PTR(microbit_audio_track_new(args[ARG_buffer].u_obj, audio_track->size, audio_track->data, audio_track->rate));
 
     // Start recording and wait if requested.
-    microbit_microphone_record_helper(audio_frame, args[ARG_wait].u_bool);
+    microbit_microphone_record_helper(audio_track_new, args[ARG_wait].u_bool);
 
-    return mp_const_none;
+    // Return the new AudioTrack.
+    return MP_OBJ_FROM_PTR(audio_track_new);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(microbit_microphone_record_into_obj, 1, microbit_microphone_record_into);
 

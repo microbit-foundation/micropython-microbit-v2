@@ -33,6 +33,7 @@
 
 // Convenience macros to access the root-pointer state.
 #define audio_source_frame MP_STATE_PORT(audio_source_frame_state)
+#define audio_source_track MP_STATE_PORT(audio_source_track_state)
 #define audio_source_iter MP_STATE_PORT(audio_source_iter_state)
 
 #ifndef AUDIO_OUTPUT_BUFFER_SIZE
@@ -56,12 +57,13 @@ static uint32_t audio_current_sound_level;
 static mp_sched_node_t audio_data_fetcher_sched_node;
 
 static inline bool audio_is_running(void) {
-    return audio_source_frame != NULL || audio_source_iter != MP_OBJ_NULL;
+    return audio_source_frame != NULL || audio_source_track != NULL || audio_source_iter != MP_OBJ_NULL;
 }
 
 void microbit_audio_stop(void) {
     audio_output_buffer_offset = 0;
     audio_source_frame = NULL;
+    audio_source_track = NULL;
     audio_source_iter = NULL;
     audio_source_frame_offset = 0;
     audio_current_sound_level = 0;
@@ -75,10 +77,16 @@ static void audio_data_pull_from_source(void) {
             // AudioFrame is exhausted.
             audio_source_frame = NULL;
         }
+    } else if (audio_source_track != NULL) {
+        // An existing AudioTrack is being played, see if there's any data left.
+        if (audio_source_frame_offset >= audio_source_track->size) {
+            // AudioTrack is exhausted.
+            audio_source_track = NULL;
+        }
     }
 
-    if (audio_source_frame == NULL) {
-        // There is no AudioFrame, so try to get one from the audio iterator.
+    if (audio_source_frame == NULL && audio_source_track == NULL) {
+        // There is no AudioFrame/AudioTrack, so try to get one from the audio iterator.
 
         if (audio_source_iter == MP_OBJ_NULL) {
             // Audio iterator is already exhausted.
@@ -104,17 +112,24 @@ static void audio_data_pull_from_source(void) {
             microbit_audio_stop();
             return;
         }
-        if (!mp_obj_is_type(frame_obj, &microbit_audio_frame_type)) {
-            // Audio iterator did not return an AudioFrame.
+
+        if (mp_obj_is_type(frame_obj, &microbit_audio_frame_type)) {
+            // We have the next AudioFrame.
+            audio_source_frame = MP_OBJ_TO_PTR(frame_obj);
+            audio_source_frame_offset = 0;
+            microbit_hal_audio_raw_set_rate(audio_source_frame->rate);
+        } else if (mp_obj_is_type(frame_obj, &microbit_audio_track_type)
+            || mp_obj_is_type(frame_obj, &microbit_audio_recording_type)) {
+            // We have the next AudioTrack/AudioRecording.
+            audio_source_track = MP_OBJ_TO_PTR(frame_obj);
+            audio_source_frame_offset = 0;
+            microbit_hal_audio_raw_set_rate(audio_source_track->rate);
+        } else {
+            // Audio iterator did not return an AudioFrame/AudioTrack/AudioRecording.
             microbit_audio_stop();
             mp_sched_exception(mp_obj_new_exception_msg(&mp_type_TypeError, MP_ERROR_TEXT("not an AudioFrame")));
             return;
         }
-
-        // We have the next AudioFrame.
-        audio_source_frame = MP_OBJ_TO_PTR(frame_obj);
-        audio_source_frame_offset = 0;
-        microbit_hal_audio_raw_set_rate(audio_source_frame->rate);
     }
 }
 
@@ -122,7 +137,7 @@ static void audio_data_fetcher(mp_sched_node_t *node) {
     audio_data_pull_from_source();
     uint8_t *dest = &audio_output_buffer[audio_output_buffer_offset];
 
-    if (audio_source_frame == NULL) {
+    if (audio_source_frame == NULL && audio_source_track == NULL) {
         // Audio source is exhausted.
 
         if (audio_output_buffer_offset == 0) {
@@ -135,8 +150,16 @@ static void audio_data_fetcher(mp_sched_node_t *node) {
         audio_output_buffer_offset = AUDIO_OUTPUT_BUFFER_SIZE;
     } else {
         // Copy samples to the buffer.
-        const uint8_t *src = &audio_source_frame->data[audio_source_frame_offset];
-        size_t src_len = MIN(audio_source_frame->used_size - audio_source_frame_offset, AUDIO_OUTPUT_BUFFER_SIZE - audio_output_buffer_offset);
+        const uint8_t *src;
+        size_t size;
+        if (audio_source_frame != NULL) {
+            src = &audio_source_frame->data[audio_source_frame_offset];
+            size = audio_source_frame->used_size;
+        } else {
+            src = &audio_source_track->data[audio_source_frame_offset];
+            size = audio_source_track->size;
+        }
+        size_t src_len = MIN(size - audio_source_frame_offset, AUDIO_OUTPUT_BUFFER_SIZE - audio_output_buffer_offset);
         memcpy(dest, src, src_len);
 
         // Update output and source offsets.
@@ -205,6 +228,11 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, ui
         audio_source_frame = MP_OBJ_TO_PTR(src);
         audio_source_frame_offset = 0;
         microbit_hal_audio_raw_set_rate(audio_source_frame->rate);
+    } else if (mp_obj_is_type(src, &microbit_audio_track_type)
+        || mp_obj_is_type(src, &microbit_audio_recording_type)) {
+        audio_source_track = MP_OBJ_TO_PTR(src);
+        audio_source_frame_offset = 0;
+        microbit_hal_audio_raw_set_rate(audio_source_track->rate);
     } else if (mp_obj_is_type(src, &mp_type_tuple) || mp_obj_is_type(src, &mp_type_list)) {
         // A tuple/list passed in.  Need to check if it contains SoundEffect instances.
         size_t len;
@@ -313,6 +341,8 @@ static const mp_rom_map_elem_t audio_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_is_playing), MP_ROM_PTR(&microbit_audio_is_playing_obj) },
     { MP_ROM_QSTR(MP_QSTR_sound_level), MP_ROM_PTR(&microbit_audio_sound_level_obj) },
     { MP_ROM_QSTR(MP_QSTR_AudioFrame), MP_ROM_PTR(&microbit_audio_frame_type) },
+    { MP_ROM_QSTR(MP_QSTR_AudioRecording), MP_ROM_PTR(&microbit_audio_recording_type) },
+    { MP_ROM_QSTR(MP_QSTR_AudioTrack), MP_ROM_PTR(&microbit_audio_track_type) },
     { MP_ROM_QSTR(MP_QSTR_SoundEffect), MP_ROM_PTR(&microbit_soundeffect_type) },
 };
 static MP_DEFINE_CONST_DICT(audio_module_globals, audio_globals_table);
@@ -555,4 +585,5 @@ microbit_audio_frame_obj_t *microbit_audio_frame_make_new(size_t size, uint32_t 
 }
 
 MP_REGISTER_ROOT_POINTER(struct _microbit_audio_frame_obj_t *audio_source_frame_state);
+MP_REGISTER_ROOT_POINTER(struct _microbit_audio_track_obj_t *audio_source_track_state);
 MP_REGISTER_ROOT_POINTER(mp_obj_t audio_source_iter_state);
