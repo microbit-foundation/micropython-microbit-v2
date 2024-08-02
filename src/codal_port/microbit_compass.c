@@ -32,63 +32,63 @@ typedef struct _microbit_compass_obj_t {
     mp_obj_base_t base;
 } microbit_compass_obj_t;
 
-STATIC mp_obj_t microbit_compass_is_calibrated(mp_obj_t self_in) {
+static mp_obj_t microbit_compass_is_calibrated(mp_obj_t self_in) {
     (void)self_in;
     return mp_obj_new_bool(microbit_hal_compass_is_calibrated());
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_compass_is_calibrated_obj, microbit_compass_is_calibrated);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_compass_is_calibrated_obj, microbit_compass_is_calibrated);
 
-STATIC mp_obj_t microbit_compass_calibrate(mp_obj_t self_in) {
+static mp_obj_t microbit_compass_calibrate(mp_obj_t self_in) {
     (void)self_in;
     microbit_hal_compass_calibrate();
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_compass_calibrate_obj, microbit_compass_calibrate);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_compass_calibrate_obj, microbit_compass_calibrate);
 
-STATIC mp_obj_t microbit_compass_clear_calibration(mp_obj_t self_in) {
+static mp_obj_t microbit_compass_clear_calibration(mp_obj_t self_in) {
     (void)self_in;
     microbit_hal_compass_clear_calibration();
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_compass_clear_calibration_obj, microbit_compass_clear_calibration);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_compass_clear_calibration_obj, microbit_compass_clear_calibration);
 
-STATIC mp_obj_t microbit_compass_heading(mp_obj_t self_in) {
+static mp_obj_t microbit_compass_heading(mp_obj_t self_in) {
     (void)self_in;
     return mp_obj_new_int(microbit_hal_compass_get_heading());
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_compass_heading_obj, microbit_compass_heading);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_compass_heading_obj, microbit_compass_heading);
 
-STATIC mp_obj_t microbit_compass_get_x(mp_obj_t self_in) {
+static mp_obj_t microbit_compass_get_x(mp_obj_t self_in) {
     (void)self_in;
     int axis[3];
     microbit_hal_compass_get_sample(axis);
     return mp_obj_new_int(axis[0]);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_compass_get_x_obj, microbit_compass_get_x);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_compass_get_x_obj, microbit_compass_get_x);
 
-STATIC mp_obj_t microbit_compass_get_y(mp_obj_t self_in) {
+static mp_obj_t microbit_compass_get_y(mp_obj_t self_in) {
     (void)self_in;
     int axis[3];
     microbit_hal_compass_get_sample(axis);
     return mp_obj_new_int(axis[1]);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_compass_get_y_obj, microbit_compass_get_y);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_compass_get_y_obj, microbit_compass_get_y);
 
-STATIC mp_obj_t microbit_compass_get_z(mp_obj_t self_in) {
+static mp_obj_t microbit_compass_get_z(mp_obj_t self_in) {
     (void)self_in;
     int axis[3];
     microbit_hal_compass_get_sample(axis);
     return mp_obj_new_int(axis[2]);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_compass_get_z_obj, microbit_compass_get_z);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_compass_get_z_obj, microbit_compass_get_z);
 
-STATIC mp_obj_t microbit_compass_get_field_strength(mp_obj_t self_in) {
+static mp_obj_t microbit_compass_get_field_strength(mp_obj_t self_in) {
     (void)self_in;
     return mp_obj_new_int(microbit_hal_compass_get_field_strength());
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_compass_get_field_strength_obj, microbit_compass_get_field_strength);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_compass_get_field_strength_obj, microbit_compass_get_field_strength);
 
-STATIC const mp_rom_map_elem_t microbit_compass_locals_dict_table[] = {
+static const mp_rom_map_elem_t microbit_compass_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_heading), MP_ROM_PTR(&microbit_compass_heading_obj) },
     { MP_ROM_QSTR(MP_QSTR_is_calibrated), MP_ROM_PTR(&microbit_compass_is_calibrated_obj) },
     { MP_ROM_QSTR(MP_QSTR_calibrate), MP_ROM_PTR(&microbit_compass_calibrate_obj) },
@@ -98,9 +98,9 @@ STATIC const mp_rom_map_elem_t microbit_compass_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_get_z), MP_ROM_PTR(&microbit_compass_get_z_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_field_strength), MP_ROM_PTR(&microbit_compass_get_field_strength_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(microbit_compass_locals_dict, microbit_compass_locals_dict_table);
+static MP_DEFINE_CONST_DICT(microbit_compass_locals_dict, microbit_compass_locals_dict_table);
 
-STATIC MP_DEFINE_CONST_OBJ_TYPE(
+static MP_DEFINE_CONST_OBJ_TYPE(
     microbit_compass_type,
     MP_QSTR_MicroBitCompass,
     MP_TYPE_FLAG_NONE,

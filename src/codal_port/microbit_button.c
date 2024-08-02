@@ -56,13 +56,13 @@ mp_obj_t microbit_button_was_pressed(mp_obj_t self_in) {
 }
 MP_DEFINE_CONST_FUN_OBJ_1(microbit_button_was_pressed_obj, microbit_button_was_pressed);
 
-STATIC const mp_map_elem_t microbit_button_locals_dict_table[] = {
+static const mp_map_elem_t microbit_button_locals_dict_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR_is_pressed), (mp_obj_t)&microbit_button_is_pressed_obj },
     { MP_OBJ_NEW_QSTR(MP_QSTR_was_pressed), (mp_obj_t)&microbit_button_was_pressed_obj },
     { MP_OBJ_NEW_QSTR(MP_QSTR_get_presses), (mp_obj_t)&microbit_button_get_presses_obj },
 };
 
-STATIC MP_DEFINE_CONST_DICT(microbit_button_locals_dict, microbit_button_locals_dict_table);
+static MP_DEFINE_CONST_DICT(microbit_button_locals_dict, microbit_button_locals_dict_table);
 
 MP_DEFINE_CONST_OBJ_TYPE(
     microbit_button_type,

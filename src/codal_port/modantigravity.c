@@ -31,12 +31,12 @@
 #define GET_PIXEL(x, y) microbit_hal_display_get_pixel(x, y)
 #define SET_PIXEL(x, y, v) microbit_hal_display_set_pixel(x, y, v)
 
-STATIC void antigravity_output_char(char c) {
+static void antigravity_output_char(char c) {
     MP_PLAT_PRINT_STRN((char *)&c, 1);
 }
 
 // NOTE: string has to be plain ASCII
-STATIC void antigravity_print_rle(const char *s) {
+static void antigravity_print_rle(const char *s) {
     /* RLE encoding format (2 characters, [0] (first) and [1] (second)):
      * [0] the amount of times to output the specified character (max 127),
      *     bitwise or'ed with 0x80 (to set the last bit, ie: bit 7)
@@ -67,7 +67,7 @@ STATIC void antigravity_print_rle(const char *s) {
  */
 //#define ANTIGRAVITY_COMIC_LARGE
 
-STATIC void antigravity(uint8_t interval_ms) {
+static void antigravity(uint8_t interval_ms) {
     /* move all of the LEDs upwards (we can move them in other directions in the
      * future).
      * first, output the traditional XKCD comic (either in full or micro:size :)
@@ -194,17 +194,17 @@ STATIC void antigravity(uint8_t interval_ms) {
     }
 }
 
-STATIC mp_obj_t antigravity__init__(void) {
+static mp_obj_t antigravity__init__(void) {
     antigravity(200);
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(antigravity___init___obj, antigravity__init__);
+static MP_DEFINE_CONST_FUN_OBJ_0(antigravity___init___obj, antigravity__init__);
 
-STATIC const mp_rom_map_elem_t antigravity_module_globals_table[] = {
+static const mp_rom_map_elem_t antigravity_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_antigravity) },
     { MP_ROM_QSTR(MP_QSTR___init__), MP_ROM_PTR(&antigravity___init___obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(antigravity_module_globals, antigravity_module_globals_table);
+static MP_DEFINE_CONST_DICT(antigravity_module_globals, antigravity_module_globals_table);
 
 const mp_obj_module_t antigravity_module = {
     .base = { &mp_type_module },

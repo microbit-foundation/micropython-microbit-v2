@@ -26,7 +26,7 @@
 
 #include "py/runtime.h"
 
-STATIC const char *this_text =
+static const char *this_text =
 "The Zen of MicroPython, by Nicholas H. Tollervey\n"
 "\n"
 "Code,\n"
@@ -41,31 +41,31 @@ STATIC const char *this_text =
 "Happy hacking! :-)\n";
 
 // If you contribute code to this project, add your name here.
-STATIC const char *authors_text =
+static const char *authors_text =
 "MicroPython on the micro:bit is brought to you by:\n"
 "Damien P. George, Mark Shannon, Radomir Dopieralski, Matthew Else,\n"
 "Carol Willing, Tom Viner, Alan Jackson, Nick Coghlan, Joseph Haig,\n"
 "Alex Chan, Andrea Grandi, Paul Egan, Piotr Kasprzyk, Andrew Mulholland,\n"
 "Matt Wheeler, Joe Glancy, Abbie Brooks and Nicholas H. Tollervey.\n";
 
-STATIC mp_obj_t this__init__(void) {
+static mp_obj_t this__init__(void) {
     mp_printf(&mp_plat_print, "%s", this_text);
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_0(this___init___obj, this__init__);
 
-STATIC mp_obj_t this_authors(void) {
+static mp_obj_t this_authors(void) {
     mp_printf(&mp_plat_print, "%s", authors_text);
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_0(this_authors_obj, this_authors);
 
-STATIC const mp_rom_map_elem_t this_module_globals_table[] = {
+static const mp_rom_map_elem_t this_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_this) },
     { MP_ROM_QSTR(MP_QSTR___init__), MP_ROM_PTR(&this___init___obj) },
     { MP_ROM_QSTR(MP_QSTR_authors), MP_ROM_PTR(&this_authors_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(this_module_globals, this_module_globals_table);
+static MP_DEFINE_CONST_DICT(this_module_globals, this_module_globals_table);
 
 const mp_obj_module_t this_module = {
     .base = { &mp_type_module },

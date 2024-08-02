@@ -29,7 +29,7 @@
 #include "py/mphal.h"
 #include "modmicrobit.h"
 
-STATIC void microbit_image_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
+static void microbit_image_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
     microbit_image_obj_t *self = (microbit_image_obj_t*)self_in;
     mp_printf(print, "Image(");
     if (kind == PRINT_STR) {
@@ -51,7 +51,7 @@ STATIC void microbit_image_print(const mp_print_t *print, mp_obj_t self_in, mp_p
     mp_printf(print, ")");
 }
 
-STATIC microbit_image_obj_t *image_from_parsed_str(const char *s, mp_int_t len) {
+static microbit_image_obj_t *image_from_parsed_str(const char *s, mp_int_t len) {
     mp_int_t w = 0;
     mp_int_t h = 0;
     mp_int_t line_len = 0;
@@ -108,7 +108,7 @@ STATIC microbit_image_obj_t *image_from_parsed_str(const char *s, mp_int_t len) 
 }
 
 
-STATIC mp_obj_t microbit_image_make_new(const mp_obj_type_t *type_in, mp_uint_t n_args, mp_uint_t n_kw, const mp_obj_t *args) {
+static mp_obj_t microbit_image_make_new(const mp_obj_type_t *type_in, mp_uint_t n_args, mp_uint_t n_kw, const mp_obj_t *args) {
     (void)type_in;
     mp_arg_check_num(n_args, n_kw, 0, 3, false);
 
@@ -177,7 +177,7 @@ greyscale_t *image_shift(microbit_image_obj_t *self, mp_int_t x, mp_int_t y) {
     return result;
 }
 
-STATIC microbit_image_obj_t *image_crop(microbit_image_obj_t *img, mp_int_t x, mp_int_t y, mp_int_t w, mp_int_t h) {
+static microbit_image_obj_t *image_crop(microbit_image_obj_t *img, mp_int_t x, mp_int_t y, mp_int_t w, mp_int_t h) {
     if (w < 0) {
         w = 0;
     }
@@ -338,7 +338,7 @@ mp_obj_t microbit_image_invert(mp_obj_t self_in) {
 }
 MP_DEFINE_CONST_FUN_OBJ_1(microbit_image_invert_obj, microbit_image_invert);
 
-STATIC const mp_rom_map_elem_t microbit_image_locals_dict_table[] = {
+static const mp_rom_map_elem_t microbit_image_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_width), MP_ROM_PTR(&microbit_image_width_obj) },
     { MP_ROM_QSTR(MP_QSTR_height), MP_ROM_PTR(&microbit_image_height_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_pixel), MP_ROM_PTR(&microbit_image_get_pixel_obj) },
@@ -420,9 +420,9 @@ STATIC const mp_rom_map_elem_t microbit_image_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_SNAKE), MP_ROM_PTR(&microbit_const_image_snake_obj) },
     { MP_ROM_QSTR(MP_QSTR_SCISSORS), MP_ROM_PTR(&microbit_const_image_scissors_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(microbit_image_locals_dict, microbit_image_locals_dict_table);
+static MP_DEFINE_CONST_DICT(microbit_image_locals_dict, microbit_image_locals_dict_table);
 
-STATIC const unsigned char *get_font_data_from_char(char c) {
+static const unsigned char *get_font_data_from_char(char c) {
     const uint8_t *data = microbit_hal_get_font_data(c);
     if (data == NULL) {
         data = microbit_hal_get_font_data('?');
@@ -430,12 +430,12 @@ STATIC const unsigned char *get_font_data_from_char(char c) {
     return data;
 }
 
-STATIC mp_int_t get_pixel_from_font_data(const unsigned char *data, int x, int y) {
+static mp_int_t get_pixel_from_font_data(const unsigned char *data, int x, int y) {
     // The following logic belongs in MicroBitFont
     return ((data[y] >> (4 - x)) & 1);
 }
 
-STATIC void microbit_image_set_from_char(greyscale_t *img, char c) {
+static void microbit_image_set_from_char(greyscale_t *img, char c) {
     const unsigned char *data = get_font_data_from_char(c);
     for (int x = 0; x < MICROBIT_DISPLAY_WIDTH; ++x) {
         for (int y = 0; y < MICROBIT_DISPLAY_HEIGHT; ++y) {
@@ -464,7 +464,7 @@ microbit_image_obj_t *microbit_image_dim(microbit_image_obj_t *lhs, mp_float_t f
     return (microbit_image_obj_t *)result;
 }
 
-STATIC microbit_image_obj_t *microbit_image_sum(microbit_image_obj_t *lhs, microbit_image_obj_t *rhs, bool add) {
+static microbit_image_obj_t *microbit_image_sum(microbit_image_obj_t *lhs, microbit_image_obj_t *rhs, bool add) {
     mp_int_t h = image_height(lhs);
     mp_int_t w = image_width(lhs);
     if (image_height(rhs) != h || image_width(rhs) != w) {
@@ -487,7 +487,7 @@ STATIC microbit_image_obj_t *microbit_image_sum(microbit_image_obj_t *lhs, micro
     return (microbit_image_obj_t *)result;
 }
 
-STATIC mp_obj_t image_binary_op(mp_binary_op_t op, mp_obj_t lhs_in, mp_obj_t rhs_in) {
+static mp_obj_t image_binary_op(mp_binary_op_t op, mp_obj_t lhs_in, mp_obj_t rhs_in) {
     if (mp_obj_get_type(lhs_in) != &microbit_image_type) {
         return MP_OBJ_NULL; // op not supported
     }
@@ -558,7 +558,7 @@ mp_obj_t scrolling_string_image_iterable(const char* str, mp_uint_t len, mp_obj_
     return result;
 }
 
-STATIC int font_column_non_blank(const unsigned char *font_data, unsigned int col) {
+static int font_column_non_blank(const unsigned char *font_data, unsigned int col) {
     for (int y = 0; y < MICROBIT_DISPLAY_HEIGHT; ++y) {
         if (get_pixel_from_font_data(font_data, col, y)) {
             return 1;
@@ -568,7 +568,7 @@ STATIC int font_column_non_blank(const unsigned char *font_data, unsigned int co
 }
 
 /* Not strictly the rightmost non-blank column, but the rightmost in columns 2,3 or 4. */
-STATIC unsigned int rightmost_non_blank_column(const unsigned char *font_data) {
+static unsigned int rightmost_non_blank_column(const unsigned char *font_data) {
     if (font_column_non_blank(font_data, 4)) {
         return 4;
     }
@@ -594,7 +594,7 @@ static void restart(scrolling_string_iterator_t *iter) {
     }
 }
 
-STATIC mp_obj_t get_microbit_scrolling_string_iter(mp_obj_t o_in, mp_obj_iter_buf_t *iter_buf) {
+static mp_obj_t get_microbit_scrolling_string_iter(mp_obj_t o_in, mp_obj_iter_buf_t *iter_buf) {
     (void)iter_buf; // not big enough to hold scrolling_string_iterator_t
     scrolling_string_t *str = (scrolling_string_t *)o_in;
     scrolling_string_iterator_t *result = m_new_obj(scrolling_string_iterator_t);
@@ -609,7 +609,7 @@ STATIC mp_obj_t get_microbit_scrolling_string_iter(mp_obj_t o_in, mp_obj_iter_bu
     return result;
 }
 
-STATIC mp_obj_t microbit_scrolling_string_iter_next(mp_obj_t o_in) {
+static mp_obj_t microbit_scrolling_string_iter_next(mp_obj_t o_in) {
     scrolling_string_iterator_t *iter = (scrolling_string_iterator_t *)o_in;
     if (iter->next_char == iter->end && iter->offset == 5) {
         if (iter->repeat) {
@@ -709,7 +709,7 @@ static mp_obj_t facade_unary_op(mp_unary_op_t op, mp_obj_t self_in) {
 
 static mp_obj_t microbit_facade_iterator(mp_obj_t iterable_in, mp_obj_iter_buf_t *iter_buf);
 
-STATIC MP_DEFINE_CONST_OBJ_TYPE(
+static MP_DEFINE_CONST_OBJ_TYPE(
     string_image_facade_type,
     MP_QSTR_Facade,
     MP_TYPE_FLAG_ITER_IS_GETITER,

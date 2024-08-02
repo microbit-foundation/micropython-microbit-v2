@@ -33,34 +33,34 @@
 #undef MICROPY_PY_MACHINE
 
 // Returns a string of 8 bytes (64 bits), which is the unique ID for the MCU
-STATIC mp_obj_t machine_unique_id(void) {
+static mp_obj_t machine_unique_id(void) {
     uint32_t dev_id[2];
     mp_hal_unique_id(dev_id);
     return mp_obj_new_bytes((const void*)&dev_id, 8);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(microbit_unique_id_obj, machine_unique_id);
+static MP_DEFINE_CONST_FUN_OBJ_0(microbit_unique_id_obj, machine_unique_id);
 
 // Get the MCU frequency
-STATIC mp_obj_t machine_freq(void) {
+static mp_obj_t machine_freq(void) {
     return MP_OBJ_NEW_SMALL_INT(64000000);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(microbit_freq_obj, machine_freq);
+static MP_DEFINE_CONST_FUN_OBJ_0(microbit_freq_obj, machine_freq);
 
 // Disable interrupt requests
-STATIC mp_obj_t machine_disable_irq(void) {
+static mp_obj_t machine_disable_irq(void) {
     return mp_obj_new_int(mp_hal_disable_irq());
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(machine_disable_irq_obj, machine_disable_irq);
+static MP_DEFINE_CONST_FUN_OBJ_0(machine_disable_irq_obj, machine_disable_irq);
 
 // Enable interrupt requests
-STATIC mp_obj_t machine_enable_irq(mp_obj_t state_in) {
+static mp_obj_t machine_enable_irq(mp_obj_t state_in) {
     uint32_t state = mp_obj_get_int(state_in);
     mp_hal_enable_irq(state);
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(machine_enable_irq_obj, machine_enable_irq);
+static MP_DEFINE_CONST_FUN_OBJ_1(machine_enable_irq_obj, machine_enable_irq);
 
-STATIC const mp_rom_map_elem_t machine_module_globals_table[] = {
+static const mp_rom_map_elem_t machine_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_machine) },
     { MP_ROM_QSTR(MP_QSTR_unique_id), MP_ROM_PTR(&microbit_unique_id_obj) },
     { MP_ROM_QSTR(MP_QSTR_reset), MP_ROM_PTR(&microbit_reset_obj) },
@@ -75,7 +75,7 @@ STATIC const mp_rom_map_elem_t machine_module_globals_table[] = {
 
     { MP_ROM_QSTR(MP_QSTR_time_pulse_us), MP_ROM_PTR(&machine_time_pulse_us_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(machine_module_globals, machine_module_globals_table);
+static MP_DEFINE_CONST_DICT(machine_module_globals, machine_module_globals_table);
 
 const mp_obj_module_t machine_module = {
     .base = { &mp_type_module },

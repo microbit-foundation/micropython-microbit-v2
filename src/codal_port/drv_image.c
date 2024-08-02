@@ -35,7 +35,7 @@ const monochrome_5by5_t microbit_blank_image = {
     { 0, 0, 0 }
 };
 
-STATIC uint8_t monochrome_get_pixel(monochrome_5by5_t *self, mp_int_t x, mp_int_t y) {
+static uint8_t monochrome_get_pixel(monochrome_5by5_t *self, mp_int_t x, mp_int_t y) {
     unsigned int index = y*5+x;
     if (index == 24)
         return self->pixel44;

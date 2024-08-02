@@ -98,7 +98,7 @@ typedef struct _soundeffect_attr_t {
     uint8_t length;
 } soundeffect_attr_t;
 
-STATIC const uint16_t waveform_to_qstr_table[5] = {
+static const uint16_t waveform_to_qstr_table[5] = {
     [SOUND_EFFECT_WAVEFORM_SINE] = MP_QSTR_WAVEFORM_SINE,
     [SOUND_EFFECT_WAVEFORM_SAWTOOTH] = MP_QSTR_WAVEFORM_SAWTOOTH,
     [SOUND_EFFECT_WAVEFORM_TRIANGLE] = MP_QSTR_WAVEFORM_TRIANGLE,
@@ -106,14 +106,14 @@ STATIC const uint16_t waveform_to_qstr_table[5] = {
     [SOUND_EFFECT_WAVEFORM_NOISE] = MP_QSTR_WAVEFORM_NOISE,
 };
 
-STATIC const uint16_t fx_to_qstr_table[4] = {
+static const uint16_t fx_to_qstr_table[4] = {
     [SOUND_EFFECT_FX_NONE] = MP_QSTR_FX_NONE,
     [SOUND_EFFECT_FX_TREMOLO] = MP_QSTR_FX_TREMOLO,
     [SOUND_EFFECT_FX_VIBRATO] = MP_QSTR_FX_VIBRATO,
     [SOUND_EFFECT_FX_WARBLE] = MP_QSTR_FX_WARBLE,
 };
 
-STATIC const soundeffect_attr_t soundeffect_attr_table[] = {
+static const soundeffect_attr_t soundeffect_attr_table[] = {
     { MP_QSTR_freq_start, SOUND_EXPR_FREQUENCY_START_OFFSET, SOUND_EXPR_FREQUENCY_START_LENGTH },
     { MP_QSTR_freq_end, SOUND_EXPR_FREQUENCY_END_OFFSET, SOUND_EXPR_FREQUENCY_END_LENGTH },
     { MP_QSTR_duration, SOUND_EXPR_DURATION_OFFSET, SOUND_EXPR_DURATION_LENGTH },
@@ -141,7 +141,7 @@ const char *microbit_soundeffect_get_sound_expr_data(mp_obj_t self_in) {
     return &self->sound_expr[0];
 }
 
-STATIC void sound_expr_encode(microbit_soundeffect_obj_t *self, size_t offset, size_t length, unsigned int value) {
+static void sound_expr_encode(microbit_soundeffect_obj_t *self, size_t offset, size_t length, unsigned int value) {
     if (offset == SOUND_EXPR_VOLUME_START_OFFSET || offset == SOUND_EXPR_VOLUME_END_OFFSET) {
         if (value > 255) {
             mp_raise_ValueError(MP_ERROR_TEXT("maximum value is 255"));
@@ -163,7 +163,7 @@ STATIC void sound_expr_encode(microbit_soundeffect_obj_t *self, size_t offset, s
     }
 }
 
-STATIC unsigned int sound_expr_decode(const microbit_soundeffect_obj_t *self, size_t offset, size_t length) {
+static unsigned int sound_expr_decode(const microbit_soundeffect_obj_t *self, size_t offset, size_t length) {
     unsigned int value = 0;
     for (size_t i = 0; i < length; ++i) {
         value = value * 10 + self->sound_expr[offset + i] - '0';
@@ -174,7 +174,7 @@ STATIC unsigned int sound_expr_decode(const microbit_soundeffect_obj_t *self, si
     return value;
 }
 
-STATIC void microbit_soundeffect_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
+static void microbit_soundeffect_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
     const microbit_soundeffect_obj_t *self = MP_OBJ_TO_PTR(self_in);
 
     unsigned int freq_start = sound_expr_decode(self, SOUND_EXPR_FREQUENCY_START_OFFSET, SOUND_EXPR_FREQUENCY_START_LENGTH);
@@ -228,7 +228,7 @@ STATIC void microbit_soundeffect_print(const mp_print_t *print, mp_obj_t self_in
 
 // Constructor:
 // SoundEffect(freq_start, freq_end, duration, vol_start, vol_end, waveform, fx, shape)
-STATIC mp_obj_t microbit_soundeffect_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args_in) {
+static mp_obj_t microbit_soundeffect_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args_in) {
     enum { ARG_freq_start, ARG_freq_end, ARG_duration, ARG_vol_start, ARG_vol_end, ARG_waveform, ARG_fx, ARG_shape };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_freq_start,       MP_ARG_INT, {.u_int = SOUND_EFFECT_DEFAULT_FREQ_START} },
@@ -270,7 +270,7 @@ STATIC mp_obj_t microbit_soundeffect_make_new(const mp_obj_type_t *type, size_t 
     return MP_OBJ_FROM_PTR(self);
 }
 
-STATIC void microbit_soundeffect_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
+static void microbit_soundeffect_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
     microbit_soundeffect_obj_t *self = MP_OBJ_TO_PTR(self_in);
     const soundeffect_attr_t *soundeffect_attr = NULL;
     for (size_t i = 0; i < MP_ARRAY_SIZE(soundeffect_attr_table); ++i) {
@@ -303,7 +303,7 @@ STATIC void microbit_soundeffect_attr(mp_obj_t self_in, qstr attr, mp_obj_t *des
     }
 }
 
-STATIC mp_obj_t microbit_soundeffect_from_string(mp_obj_t str_in) {
+static mp_obj_t microbit_soundeffect_from_string(mp_obj_t str_in) {
     microbit_soundeffect_obj_t *self = m_new_obj(microbit_soundeffect_obj_t);
     self->base.type = &microbit_soundeffect_type;
     self->is_mutable = true;
@@ -319,10 +319,10 @@ STATIC mp_obj_t microbit_soundeffect_from_string(mp_obj_t str_in) {
 
     return MP_OBJ_FROM_PTR(self);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_soundeffect_from_string_obj, microbit_soundeffect_from_string);
-STATIC MP_DEFINE_CONST_STATICMETHOD_OBJ(microbit_soundeffect_from_string_staticmethod_obj, MP_ROM_PTR(&microbit_soundeffect_from_string_obj));
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_soundeffect_from_string_obj, microbit_soundeffect_from_string);
+static MP_DEFINE_CONST_STATICMETHOD_OBJ(microbit_soundeffect_from_string_staticmethod_obj, MP_ROM_PTR(&microbit_soundeffect_from_string_obj));
 
-STATIC mp_obj_t microbit_soundeffect_copy(mp_obj_t self_in) {
+static mp_obj_t microbit_soundeffect_copy(mp_obj_t self_in) {
     microbit_soundeffect_obj_t *self = MP_OBJ_TO_PTR(self_in);
     microbit_soundeffect_obj_t *copy = m_new_obj(microbit_soundeffect_obj_t);
     copy->base.type = self->base.type;
@@ -331,9 +331,9 @@ STATIC mp_obj_t microbit_soundeffect_copy(mp_obj_t self_in) {
 
     return MP_OBJ_FROM_PTR(copy);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_soundeffect_copy_obj, microbit_soundeffect_copy);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_soundeffect_copy_obj, microbit_soundeffect_copy);
 
-STATIC const mp_rom_map_elem_t microbit_soundeffect_locals_dict_table[] = {
+static const mp_rom_map_elem_t microbit_soundeffect_locals_dict_table[] = {
     // Static methods.
     { MP_ROM_QSTR(MP_QSTR__from_string), MP_ROM_PTR(&microbit_soundeffect_from_string_staticmethod_obj) },
 
@@ -360,7 +360,7 @@ STATIC const mp_rom_map_elem_t microbit_soundeffect_locals_dict_table[] = {
 
     #undef C
 };
-STATIC MP_DEFINE_CONST_DICT(microbit_soundeffect_locals_dict, microbit_soundeffect_locals_dict_table);
+static MP_DEFINE_CONST_DICT(microbit_soundeffect_locals_dict, microbit_soundeffect_locals_dict_table);
 
 MP_DEFINE_CONST_OBJ_TYPE(
     microbit_soundeffect_type,

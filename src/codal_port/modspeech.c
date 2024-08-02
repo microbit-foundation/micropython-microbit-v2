@@ -104,7 +104,7 @@ void microbit_hal_audio_speech_ready_callback(void) {
     #endif
 }
 
-STATIC void sam_output_reset(microbit_audio_frame_obj_t *src_frame) {
+static void sam_output_reset(microbit_audio_frame_obj_t *src_frame) {
     sam_output_frame = src_frame;
     buf_start_pos = 0;
     last_pos = 0;
@@ -123,7 +123,7 @@ STATIC void sam_output_reset(microbit_audio_frame_obj_t *src_frame) {
     #endif
 }
 
-STATIC void speech_wait_output_drained(void) {
+static void speech_wait_output_drained(void) {
     #if USE_DEDICATED_AUDIO_CHANNEL
     while (speech_output_read >= 0) {
         mp_handle_pending(true);
@@ -147,7 +147,7 @@ STATIC void speech_wait_output_drained(void) {
 }
 
 #if USE_DEDICATED_AUDIO_CHANNEL
-STATIC void speech_output_sample(uint8_t b) {
+static void speech_output_sample(uint8_t b) {
     speech_output_buffer[OUT_CHUNK_SIZE * speech_output_write + speech_output_buffer_idx++] = b;
     if (speech_output_buffer_idx >= OUT_CHUNK_SIZE) {
         speech_wait_output_drained();
@@ -327,7 +327,7 @@ void SamOutputByte(unsigned int pos, unsigned char b) {
 
 // This iterator assumes that the speech renderer can generate samples
 // at least as fast as we can consume them.
-STATIC mp_obj_t next(mp_obj_t iter) {
+static mp_obj_t next(mp_obj_t iter) {
     if (exhausted) {
         return MP_OBJ_STOP_ITERATION;
     }
@@ -344,14 +344,14 @@ STATIC mp_obj_t next(mp_obj_t iter) {
     }
 }
 
-STATIC const mp_obj_type_t speech_iterator_type = {
+static const mp_obj_type_t speech_iterator_type = {
     { &mp_type_type },
     .name = MP_QSTR_iterator,
     .getiter = mp_identity_getiter,
     .iternext = next,
 };
 
-STATIC mp_obj_t make_speech_iter(void) {
+static mp_obj_t make_speech_iter(void) {
     speech_iterator_t *result = m_new_obj(speech_iterator_t);
     result->base.type = &speech_iterator_type;
     result->empty = microbit_audio_frame_make_new();
@@ -361,7 +361,7 @@ STATIC mp_obj_t make_speech_iter(void) {
 
 #endif
 
-STATIC mp_obj_t translate(mp_obj_t words) {
+static mp_obj_t translate(mp_obj_t words) {
     mp_uint_t len, outlen;
     const char *txt = mp_obj_str_get_data(words, &len);
     // Reciter truncates *output* at about 120 characters.
@@ -391,7 +391,7 @@ STATIC mp_obj_t translate(mp_obj_t words) {
 }
 MP_DEFINE_CONST_FUN_OBJ_1(translate_obj, translate);
 
-STATIC mp_obj_t articulate(mp_obj_t phonemes, mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args, bool sing) {
+static mp_obj_t articulate(mp_obj_t phonemes, mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args, bool sing) {
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_pitch,    MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = DEFAULT_PITCH} },
         { MP_QSTR_speed,    MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = DEFAULT_SPEED} },
@@ -470,30 +470,30 @@ STATIC mp_obj_t articulate(mp_obj_t phonemes, mp_uint_t n_args, const mp_obj_t *
     return mp_const_none;
 }
 
-STATIC mp_obj_t say(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t say(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     mp_obj_t phonemes = translate(pos_args[0]);
     return articulate(phonemes, n_args-1, pos_args+1, kw_args, false);
 }
 MP_DEFINE_CONST_FUN_OBJ_KW(say_obj, 1, say);
 
-STATIC mp_obj_t pronounce(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t pronounce(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     return articulate(pos_args[0], n_args-1, pos_args+1, kw_args, false);
 }
 MP_DEFINE_CONST_FUN_OBJ_KW(pronounce_obj, 1, pronounce);
 
-STATIC mp_obj_t sing(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t sing(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     return articulate(pos_args[0], n_args-1, pos_args+1, kw_args, true);
 }
 MP_DEFINE_CONST_FUN_OBJ_KW(sing_obj, 1, sing);
 
-STATIC const mp_map_elem_t _globals_table[] = {
+static const mp_map_elem_t _globals_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_OBJ_NEW_QSTR(MP_QSTR_speech) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_say), (mp_obj_t)&say_obj },
     { MP_OBJ_NEW_QSTR(MP_QSTR_sing), (mp_obj_t)&sing_obj },
     { MP_OBJ_NEW_QSTR(MP_QSTR_pronounce), (mp_obj_t)&pronounce_obj },
     { MP_OBJ_NEW_QSTR(MP_QSTR_translate), (mp_obj_t)&translate_obj },
 };
-STATIC MP_DEFINE_CONST_DICT(_globals, _globals_table);
+static MP_DEFINE_CONST_DICT(_globals, _globals_table);
 
 const mp_obj_module_t speech_module = {
     .base = { &mp_type_module },

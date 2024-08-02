@@ -32,27 +32,27 @@ typedef struct _microbit_speaker_obj_t {
     mp_obj_base_t base;
 } microbit_speaker_obj_t;
 
-STATIC mp_obj_t microbit_speaker_off(mp_obj_t self_in) {
+static mp_obj_t microbit_speaker_off(mp_obj_t self_in) {
     (void)self_in;
     microbit_hal_audio_select_speaker(false);
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_speaker_off_obj, microbit_speaker_off);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_speaker_off_obj, microbit_speaker_off);
 
-STATIC mp_obj_t microbit_speaker_on(mp_obj_t self_in) {
+static mp_obj_t microbit_speaker_on(mp_obj_t self_in) {
     (void)self_in;
     microbit_hal_audio_select_speaker(true);
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_speaker_on_obj, microbit_speaker_on);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_speaker_on_obj, microbit_speaker_on);
 
-STATIC const mp_rom_map_elem_t microbit_speaker_locals_dict_table[] = {
+static const mp_rom_map_elem_t microbit_speaker_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_off), MP_ROM_PTR(&microbit_speaker_off_obj) },
     { MP_ROM_QSTR(MP_QSTR_on), MP_ROM_PTR(&microbit_speaker_on_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(microbit_speaker_locals_dict, microbit_speaker_locals_dict_table);
+static MP_DEFINE_CONST_DICT(microbit_speaker_locals_dict, microbit_speaker_locals_dict_table);
 
-STATIC MP_DEFINE_CONST_OBJ_TYPE(
+static MP_DEFINE_CONST_OBJ_TYPE(
     microbit_speaker_type,
     MP_QSTR_MicroBitSpeaker,
     MP_TYPE_FLAG_NONE,

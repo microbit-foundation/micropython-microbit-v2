@@ -32,7 +32,7 @@
 
 static bool microbit_soft_timer_paused = false;
 
-STATIC int microbit_soft_timer_lt(mp_pairheap_t *n1, mp_pairheap_t *n2) {
+static int microbit_soft_timer_lt(mp_pairheap_t *n1, mp_pairheap_t *n2) {
     microbit_soft_timer_entry_t *e1 = (microbit_soft_timer_entry_t *)n1;
     microbit_soft_timer_entry_t *e2 = (microbit_soft_timer_entry_t *)n2;
     return TICKS_DIFF(e1->expiry_ms, e2->expiry_ms) < 0;

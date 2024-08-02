@@ -28,7 +28,7 @@
 #include "py/mphal.h"
 #include "drv_softtimer.h"
 
-STATIC size_t get_array(mp_obj_t *src, mp_obj_t **items) {
+static size_t get_array(mp_obj_t *src, mp_obj_t **items) {
     if (*src == mp_const_none) {
         // None, so an array of length 0.
         *items = NULL;
@@ -45,13 +45,13 @@ STATIC size_t get_array(mp_obj_t *src, mp_obj_t **items) {
     }
 }
 
-STATIC mp_obj_t power_off(void) {
+static mp_obj_t power_off(void) {
     microbit_hal_power_off();
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(power_off_obj, power_off);
+static MP_DEFINE_CONST_FUN_OBJ_0(power_off_obj, power_off);
 
-STATIC mp_obj_t power_deep_sleep(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t power_deep_sleep(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_ms, ARG_wake_on, ARG_run_every };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_ms, MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE} },
@@ -136,15 +136,15 @@ STATIC mp_obj_t power_deep_sleep(size_t n_args, const mp_obj_t *pos_args, mp_map
 
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_KW(power_deep_sleep_obj, 0, power_deep_sleep);
+static MP_DEFINE_CONST_FUN_OBJ_KW(power_deep_sleep_obj, 0, power_deep_sleep);
 
-STATIC const mp_rom_map_elem_t power_module_globals_table[] = {
+static const mp_rom_map_elem_t power_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_power) },
 
     { MP_ROM_QSTR(MP_QSTR_off), MP_ROM_PTR(&power_off_obj) },
     { MP_ROM_QSTR(MP_QSTR_deep_sleep), MP_ROM_PTR(&power_deep_sleep_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(power_module_globals, power_module_globals_table);
+static MP_DEFINE_CONST_DICT(power_module_globals, power_module_globals_table);
 
 const mp_obj_module_t power_module = {
     .base = { &mp_type_module },

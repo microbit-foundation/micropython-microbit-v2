@@ -47,17 +47,17 @@ const microbit_soundevent_obj_t microbit_soundevent_clap_obj = {
     MP_QSTR_clap,
 };
 
-STATIC void microbit_soundevent_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
+static void microbit_soundevent_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
     microbit_soundevent_obj_t *self = (microbit_soundevent_obj_t *)self_in;
     mp_printf(print, "SoundEvent('%q')", self->name);
 }
 
-STATIC const mp_rom_map_elem_t microbit_soundevent_locals_dict_table[] = {
+static const mp_rom_map_elem_t microbit_soundevent_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_LOUD), MP_ROM_PTR(&microbit_soundevent_loud_obj) },
     { MP_ROM_QSTR(MP_QSTR_QUIET), MP_ROM_PTR(&microbit_soundevent_quiet_obj) },
     { MP_ROM_QSTR(MP_QSTR_CLAP), MP_ROM_PTR(&microbit_soundevent_clap_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(microbit_soundevent_locals_dict, microbit_soundevent_locals_dict_table);
+static MP_DEFINE_CONST_DICT(microbit_soundevent_locals_dict, microbit_soundevent_locals_dict_table);
 
 MP_DEFINE_CONST_OBJ_TYPE(
     microbit_soundevent_type,

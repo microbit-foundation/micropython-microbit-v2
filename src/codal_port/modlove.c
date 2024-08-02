@@ -28,11 +28,11 @@
 #include "py/mphal.h"
 #include "modmicrobit.h"
 
-STATIC const mp_float_t bright_levels[7] = {
+static const mp_float_t bright_levels[7] = {
     0.0, 1.0 / 9, 2.0 / 9, 4.0 / 9, 6.0 / 9, 7.0 / 9, 1.0,
 };
 
-STATIC void love(int interval_ms) {
+static void love(int interval_ms) {
     microbit_image_obj_t *hearts[MP_ARRAY_SIZE(bright_levels)];
     for (uint i = 0; i < MP_ARRAY_SIZE(bright_levels); i++) {
          hearts[i] = microbit_image_dim(HEART_IMAGE, bright_levels[i]);
@@ -57,20 +57,20 @@ STATIC void love(int interval_ms) {
     microbit_display_clear();
 }
 
-STATIC mp_obj_t love_badaboom(void) {
+static mp_obj_t love_badaboom(void) {
     // make
     love(25);
     // ! war
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(love_badaboom_obj, love_badaboom);
+static MP_DEFINE_CONST_FUN_OBJ_0(love_badaboom_obj, love_badaboom);
 
-STATIC const mp_map_elem_t love_module_globals_table[] = {
+static const mp_map_elem_t love_module_globals_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_OBJ_NEW_QSTR(MP_QSTR_love) },
     { MP_OBJ_NEW_QSTR(MP_QSTR___init__), (mp_obj_t)&love_badaboom_obj },
     { MP_OBJ_NEW_QSTR(MP_QSTR_badaboom), (mp_obj_t)&love_badaboom_obj },
 };
-STATIC MP_DEFINE_CONST_DICT(love_module_globals, love_module_globals_table);
+static MP_DEFINE_CONST_DICT(love_module_globals, love_module_globals_table);
 
 const mp_obj_module_t love_module = {
     .base = { &mp_type_module },

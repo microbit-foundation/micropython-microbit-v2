@@ -32,15 +32,15 @@
 #include "modaudio.h"
 #include "modmicrobit.h"
 
-STATIC mp_obj_t microbit_run_every_new(uint32_t period_ms);
+static mp_obj_t microbit_run_every_new(uint32_t period_ms);
 
-STATIC mp_obj_t microbit_reset_(void) {
+static mp_obj_t microbit_reset_(void) {
     microbit_hal_reset();
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_0(microbit_reset_obj, microbit_reset_);
 
-STATIC mp_obj_t microbit_sleep(mp_obj_t ms_in) {
+static mp_obj_t microbit_sleep(mp_obj_t ms_in) {
     mp_int_t ms;
     if (mp_obj_is_integer(ms_in)) {
         ms = mp_obj_get_int(ms_in);
@@ -54,12 +54,12 @@ STATIC mp_obj_t microbit_sleep(mp_obj_t ms_in) {
 }
 MP_DEFINE_CONST_FUN_OBJ_1(microbit_sleep_obj, microbit_sleep);
 
-STATIC mp_obj_t microbit_running_time(void) {
+static mp_obj_t microbit_running_time(void) {
     return MP_OBJ_NEW_SMALL_INT(mp_hal_ticks_ms());
 }
 MP_DEFINE_CONST_FUN_OBJ_0(microbit_running_time_obj, microbit_running_time);
 
-STATIC mp_obj_t microbit_panic(mp_uint_t n_args, const mp_obj_t *args) {
+static mp_obj_t microbit_panic(mp_uint_t n_args, const mp_obj_t *args) {
     if (n_args == 0) {
         // TODO the docs don't mention this, so maybe remove it?
         microbit_hal_panic(999);
@@ -70,12 +70,12 @@ STATIC mp_obj_t microbit_panic(mp_uint_t n_args, const mp_obj_t *args) {
 }
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(microbit_panic_obj, 0, 1, microbit_panic);
 
-STATIC mp_obj_t microbit_temperature(void) {
+static mp_obj_t microbit_temperature(void) {
     return mp_obj_new_int(microbit_hal_temperature());
 }
 MP_DEFINE_CONST_FUN_OBJ_0(microbit_temperature_obj, microbit_temperature);
 
-STATIC mp_obj_t microbit_set_volume(mp_obj_t volume_in) {
+static mp_obj_t microbit_set_volume(mp_obj_t volume_in) {
     mp_int_t volume = mp_obj_get_int(volume_in);
     if (volume < 0) {
         volume = 0;
@@ -85,18 +85,18 @@ STATIC mp_obj_t microbit_set_volume(mp_obj_t volume_in) {
     microbit_hal_audio_set_volume(volume);
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_set_volume_obj, microbit_set_volume);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_set_volume_obj, microbit_set_volume);
 
-STATIC mp_obj_t microbit_ws2812_write(mp_obj_t pin_in, mp_obj_t buf_in) {
+static mp_obj_t microbit_ws2812_write(mp_obj_t pin_in, mp_obj_t buf_in) {
     uint8_t pin = microbit_obj_get_pin(pin_in)->name;
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(buf_in, &bufinfo, MP_BUFFER_READ);
     microbit_hal_pin_write_ws2812(pin, bufinfo.buf, bufinfo.len);
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_2(microbit_ws2812_write_obj, microbit_ws2812_write);
+static MP_DEFINE_CONST_FUN_OBJ_2(microbit_ws2812_write_obj, microbit_ws2812_write);
 
-STATIC mp_obj_t microbit_run_every(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t microbit_run_every(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_callback, ARG_days, ARG_h, ARG_min, ARG_s, ARG_ms };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_callback, MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE} },
@@ -126,9 +126,9 @@ STATIC mp_obj_t microbit_run_every(size_t n_args, const mp_obj_t *pos_args, mp_m
         return MP_OBJ_TYPE_GET_SLOT(mp_obj_get_type(run_every), call)(run_every, 1, 0, &args[ARG_callback].u_obj);
     }
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_KW(microbit_run_every_obj, 0, microbit_run_every);
+static MP_DEFINE_CONST_FUN_OBJ_KW(microbit_run_every_obj, 0, microbit_run_every);
 
-STATIC mp_obj_t microbit_scale(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t microbit_scale(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_value, ARG_from_, ARG_to };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_value, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE} },
@@ -161,9 +161,9 @@ STATIC mp_obj_t microbit_scale(size_t n_args, const mp_obj_t *pos_args, mp_map_t
         return mp_obj_new_int(MICROPY_FLOAT_C_FUN(nearbyint)(to_value));
     }
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_KW(microbit_scale_obj, 0, microbit_scale);
+static MP_DEFINE_CONST_FUN_OBJ_KW(microbit_scale_obj, 0, microbit_scale);
 
-STATIC const mp_rom_map_elem_t microbit_module_globals_table[] = {
+static const mp_rom_map_elem_t microbit_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_microbit) },
 
     { MP_ROM_QSTR(MP_QSTR_Image), (mp_obj_t)&microbit_image_type },
@@ -217,7 +217,7 @@ STATIC const mp_rom_map_elem_t microbit_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_pin_speaker), MP_ROM_PTR(&microbit_pin_speaker_obj) },
 };
 
-STATIC MP_DEFINE_CONST_DICT(microbit_module_globals, microbit_module_globals_table);
+static MP_DEFINE_CONST_DICT(microbit_module_globals, microbit_module_globals_table);
 
 const mp_obj_module_t microbit_module = {
     .base = { &mp_type_module },
@@ -234,7 +234,7 @@ typedef struct _microbit_run_every_obj_t {
     mp_obj_t user_callback;
 } microbit_run_every_obj_t;
 
-STATIC mp_obj_t microbit_run_every_callback(mp_obj_t self_in) {
+static mp_obj_t microbit_run_every_callback(mp_obj_t self_in) {
     microbit_run_every_obj_t *self = MP_OBJ_TO_PTR(self_in);
 
     if (self->user_callback == MP_OBJ_NULL) {
@@ -264,9 +264,9 @@ STATIC mp_obj_t microbit_run_every_callback(mp_obj_t self_in) {
 
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_run_every_callback_obj, microbit_run_every_callback);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_run_every_callback_obj, microbit_run_every_callback);
 
-STATIC mp_obj_t microbit_run_every_obj_call(mp_obj_t self_in, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+static mp_obj_t microbit_run_every_obj_call(mp_obj_t self_in, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     microbit_run_every_obj_t *self = MP_OBJ_TO_PTR(self_in);
     mp_arg_check_num(n_args, n_kw, 1, 1, false);
     self->timer.py_callback = MP_OBJ_FROM_PTR(&microbit_run_every_callback_obj);
@@ -275,14 +275,14 @@ STATIC mp_obj_t microbit_run_every_obj_call(mp_obj_t self_in, size_t n_args, siz
     return self_in;
 }
 
-STATIC MP_DEFINE_CONST_OBJ_TYPE(
+static MP_DEFINE_CONST_OBJ_TYPE(
     microbit_run_every_obj_type,
     MP_QSTR_run_every,
     MP_TYPE_FLAG_NONE,
     call, microbit_run_every_obj_call
     );
 
-STATIC mp_obj_t microbit_run_every_new(uint32_t period_ms) {
+static mp_obj_t microbit_run_every_new(uint32_t period_ms) {
     microbit_run_every_obj_t *self = m_new_obj(microbit_run_every_obj_t);
     self->timer.pairheap.base.type = &microbit_run_every_obj_type;
     self->timer.flags = MICROBIT_SOFT_TIMER_FLAG_PY_CALLBACK | MICROBIT_SOFT_TIMER_FLAG_GC_ALLOCATED;

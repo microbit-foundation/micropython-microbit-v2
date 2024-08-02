@@ -35,7 +35,7 @@ typedef struct _microbit_i2c_obj_t {
     const microbit_pin_obj_t *sda;
 } microbit_i2c_obj_t;
 
-STATIC mp_obj_t microbit_i2c_init(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t microbit_i2c_init(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_freq, ARG_sda, ARG_scl };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_freq, MP_ARG_INT, {.u_int = 100000} },
@@ -72,7 +72,7 @@ STATIC mp_obj_t microbit_i2c_init(mp_uint_t n_args, const mp_obj_t *pos_args, mp
 }
 MP_DEFINE_CONST_FUN_OBJ_KW(microbit_i2c_init_obj, 1, microbit_i2c_init);
 
-STATIC mp_obj_t microbit_i2c_scan(mp_obj_t self_in) {
+static mp_obj_t microbit_i2c_scan(mp_obj_t self_in) {
     mp_obj_t list = mp_obj_new_list(0, NULL);
     // 7-bit addresses 0b0000xxx and 0b1111xxx are reserved
     for (int addr = 0x08; addr < 0x78; ++addr) {
@@ -85,7 +85,7 @@ STATIC mp_obj_t microbit_i2c_scan(mp_obj_t self_in) {
 }
 MP_DEFINE_CONST_FUN_OBJ_1(microbit_i2c_scan_obj, microbit_i2c_scan);
 
-STATIC mp_obj_t microbit_i2c_read(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t microbit_i2c_read(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_addr, ARG_n, ARG_repeat };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_addr,     MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = 0} },
@@ -113,7 +113,7 @@ STATIC mp_obj_t microbit_i2c_read(mp_uint_t n_args, const mp_obj_t *pos_args, mp
 }
 MP_DEFINE_CONST_FUN_OBJ_KW(microbit_i2c_read_obj, 1, microbit_i2c_read);
 
-STATIC mp_obj_t microbit_i2c_write(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t microbit_i2c_write(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_addr, ARG_buf, ARG_repeat };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_addr,     MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = 0} },
@@ -140,15 +140,15 @@ STATIC mp_obj_t microbit_i2c_write(mp_uint_t n_args, const mp_obj_t *pos_args, m
 }
 MP_DEFINE_CONST_FUN_OBJ_KW(microbit_i2c_write_obj, 1, microbit_i2c_write);
 
-STATIC const mp_rom_map_elem_t microbit_i2c_locals_dict_table[] = {
+static const mp_rom_map_elem_t microbit_i2c_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_init), MP_ROM_PTR(&microbit_i2c_init_obj) },
     { MP_ROM_QSTR(MP_QSTR_scan), MP_ROM_PTR(&microbit_i2c_scan_obj) },
     { MP_ROM_QSTR(MP_QSTR_read), MP_ROM_PTR(&microbit_i2c_read_obj) },
     { MP_ROM_QSTR(MP_QSTR_write), MP_ROM_PTR(&microbit_i2c_write_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(microbit_i2c_locals_dict, microbit_i2c_locals_dict_table);
+static MP_DEFINE_CONST_DICT(microbit_i2c_locals_dict, microbit_i2c_locals_dict_table);
 
-STATIC MP_DEFINE_CONST_OBJ_TYPE(
+static MP_DEFINE_CONST_OBJ_TYPE(
     microbit_i2c_type,
     MP_QSTR_MicroBitI2C,
     MP_TYPE_FLAG_NONE,

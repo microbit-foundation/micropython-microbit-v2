@@ -44,7 +44,7 @@ static mp_uint_t async_delay = 1000;
 static mp_uint_t async_tick = 0;
 static bool async_clear = false;
 
-STATIC void async_stop(void) {
+static void async_stop(void) {
     async_iterator = NULL;
     async_mode = ASYNC_MODE_STOPPED;
     async_tick = 0;
@@ -62,7 +62,7 @@ void microbit_display_stop(void) {
     MP_STATE_PORT(display_data) = NULL;
 }
 
-STATIC void wait_for_event() {
+static void wait_for_event() {
     while (!wakeup_event) {
         // allow CTRL-C to stop the animation
         if (MP_STATE_THREAD(mp_pending_exception) != MP_OBJ_NULL) {

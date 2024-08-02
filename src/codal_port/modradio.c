@@ -32,24 +32,24 @@
 #include "py/smallint.h"
 #include "drv_radio.h"
 
-STATIC microbit_radio_config_t radio_config;
+static microbit_radio_config_t radio_config;
 
-STATIC mp_obj_t mod_radio_reset(void);
+static mp_obj_t mod_radio_reset(void);
 
-STATIC void ensure_enabled(void) {
+static void ensure_enabled(void) {
     if (MP_STATE_PORT(radio_buf) == NULL) {
         mp_raise_ValueError(MP_ERROR_TEXT("radio is not enabled"));
     }
 }
 
-STATIC mp_obj_t mod_radio___init__(void) {
+static mp_obj_t mod_radio___init__(void) {
     mod_radio_reset();
     microbit_radio_enable(&radio_config);
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_0(mod_radio___init___obj, mod_radio___init__);
 
-STATIC mp_obj_t mod_radio_reset(void) {
+static mp_obj_t mod_radio_reset(void) {
     radio_config.max_payload = MICROBIT_RADIO_DEFAULT_MAX_PAYLOAD;
     radio_config.queue_len = MICROBIT_RADIO_DEFAULT_QUEUE_LEN;
     radio_config.channel = MICROBIT_RADIO_DEFAULT_CHANNEL;
@@ -61,7 +61,7 @@ STATIC mp_obj_t mod_radio_reset(void) {
 }
 MP_DEFINE_CONST_FUN_OBJ_0(mod_radio_reset_obj, mod_radio_reset);
 
-STATIC mp_obj_t mod_radio_config(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t mod_radio_config(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     (void)pos_args; // unused
 
     if (n_args != 0) {
@@ -160,19 +160,19 @@ value_error:
 }
 MP_DEFINE_CONST_FUN_OBJ_KW(mod_radio_config_obj, 0, mod_radio_config);
 
-STATIC mp_obj_t mod_radio_on(void) {
+static mp_obj_t mod_radio_on(void) {
     microbit_radio_enable(&radio_config);
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_0(mod_radio_on_obj, mod_radio_on);
 
-STATIC mp_obj_t mod_radio_off(void) {
+static mp_obj_t mod_radio_off(void) {
     microbit_radio_disable();
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_0(mod_radio_off_obj, mod_radio_off);
 
-STATIC mp_obj_t mod_radio_send_bytes(mp_obj_t buf_in) {
+static mp_obj_t mod_radio_send_bytes(mp_obj_t buf_in) {
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(buf_in, &bufinfo, MP_BUFFER_READ);
     ensure_enabled();
@@ -181,7 +181,7 @@ STATIC mp_obj_t mod_radio_send_bytes(mp_obj_t buf_in) {
 }
 MP_DEFINE_CONST_FUN_OBJ_1(mod_radio_send_bytes_obj, mod_radio_send_bytes);
 
-STATIC mp_obj_t mod_radio_receive_bytes(void) {
+static mp_obj_t mod_radio_receive_bytes(void) {
     ensure_enabled();
     const uint8_t *buf = microbit_radio_peek();
     if (buf == NULL) {
@@ -194,7 +194,7 @@ STATIC mp_obj_t mod_radio_receive_bytes(void) {
 }
 MP_DEFINE_CONST_FUN_OBJ_0(mod_radio_receive_bytes_obj, mod_radio_receive_bytes);
 
-STATIC mp_obj_t mod_radio_send(mp_obj_t buf_in) {
+static mp_obj_t mod_radio_send(mp_obj_t buf_in) {
     mp_uint_t len;
     const char *data = mp_obj_str_get_data(buf_in, &len);
     ensure_enabled();
@@ -203,7 +203,7 @@ STATIC mp_obj_t mod_radio_send(mp_obj_t buf_in) {
 }
 MP_DEFINE_CONST_FUN_OBJ_1(mod_radio_send_obj, mod_radio_send);
 
-STATIC mp_obj_t mod_radio_receive(void) {
+static mp_obj_t mod_radio_receive(void) {
     ensure_enabled();
     const uint8_t *buf = microbit_radio_peek();
     if (buf == NULL) {
@@ -221,7 +221,7 @@ STATIC mp_obj_t mod_radio_receive(void) {
 }
 MP_DEFINE_CONST_FUN_OBJ_0(mod_radio_receive_obj, mod_radio_receive);
 
-STATIC mp_obj_t mod_radio_receive_bytes_into(mp_obj_t buf_in) {
+static mp_obj_t mod_radio_receive_bytes_into(mp_obj_t buf_in) {
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(buf_in, &bufinfo, MP_BUFFER_WRITE);
     ensure_enabled();
@@ -237,7 +237,7 @@ STATIC mp_obj_t mod_radio_receive_bytes_into(mp_obj_t buf_in) {
 }
 MP_DEFINE_CONST_FUN_OBJ_1(mod_radio_receive_bytes_into_obj, mod_radio_receive_bytes_into);
 
-STATIC mp_obj_t mod_radio_receive_full(void) {
+static mp_obj_t mod_radio_receive_full(void) {
     ensure_enabled();
     const uint8_t *buf = microbit_radio_peek();
     if (buf == NULL) {
@@ -260,7 +260,7 @@ STATIC mp_obj_t mod_radio_receive_full(void) {
 }
 MP_DEFINE_CONST_FUN_OBJ_0(mod_radio_receive_full_obj, mod_radio_receive_full);
 
-STATIC const mp_map_elem_t radio_module_globals_table[] = {
+static const mp_map_elem_t radio_module_globals_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_OBJ_NEW_QSTR(MP_QSTR_radio) },
     { MP_OBJ_NEW_QSTR(MP_QSTR___init__), (mp_obj_t)&mod_radio___init___obj },
 
@@ -284,7 +284,7 @@ STATIC const mp_map_elem_t radio_module_globals_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR_RATE_2MBIT), MP_OBJ_NEW_SMALL_INT(RADIO_MODE_MODE_Nrf_2Mbit) },
 };
 
-STATIC MP_DEFINE_CONST_DICT(radio_module_globals, radio_module_globals_table);
+static MP_DEFINE_CONST_DICT(radio_module_globals, radio_module_globals_table);
 
 const mp_obj_module_t radio_module = {
     .base = { &mp_type_module },

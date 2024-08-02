@@ -28,7 +28,7 @@
 #include "modmicrobit.h"
 
 // The currently selected pin output for the audio.
-STATIC const microbit_pin_obj_t *audio_routed_pin = NULL;
+static const microbit_pin_obj_t *audio_routed_pin = NULL;
 
 void microbit_pin_audio_select(mp_const_obj_t select, const microbit_pinmode_t *pinmode) {
     // Work out which pins are requested for the audio output.

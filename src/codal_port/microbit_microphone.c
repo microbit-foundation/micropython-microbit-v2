@@ -71,11 +71,11 @@ void microbit_hal_level_detector_callback(int value) {
     }
 }
 
-STATIC void microphone_init(void) {
+static void microphone_init(void) {
     microbit_hal_microphone_init();
 }
 
-STATIC uint8_t sound_event_from_obj(mp_obj_t sound) {
+static uint8_t sound_event_from_obj(mp_obj_t sound) {
     for (uint8_t i = 0; i < MP_ARRAY_SIZE(sound_event_obj_map); ++i) {
         if (sound == sound_event_obj_map[i]) {
             return i;
@@ -84,7 +84,7 @@ STATIC uint8_t sound_event_from_obj(mp_obj_t sound) {
     mp_raise_ValueError(MP_ERROR_TEXT("invalid sound"));
 }
 
-STATIC mp_obj_t microbit_microphone_set_threshold(mp_obj_t self_in, mp_obj_t sound_in, mp_obj_t value_in) {
+static mp_obj_t microbit_microphone_set_threshold(mp_obj_t self_in, mp_obj_t sound_in, mp_obj_t value_in) {
     (void)self_in;
     uint8_t sound = sound_event_from_obj(sound_in);
     int kind;
@@ -100,31 +100,31 @@ STATIC mp_obj_t microbit_microphone_set_threshold(mp_obj_t self_in, mp_obj_t sou
     microbit_hal_microphone_set_threshold(kind, value);
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_3(microbit_microphone_set_threshold_obj, microbit_microphone_set_threshold);
+static MP_DEFINE_CONST_FUN_OBJ_3(microbit_microphone_set_threshold_obj, microbit_microphone_set_threshold);
 
-STATIC mp_obj_t microbit_microphone_sound_level(mp_obj_t self_in) {
+static mp_obj_t microbit_microphone_sound_level(mp_obj_t self_in) {
     (void)self_in;
     microphone_init();
     return MP_OBJ_NEW_SMALL_INT(microbit_hal_microphone_get_level());
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_microphone_sound_level_obj, microbit_microphone_sound_level);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_microphone_sound_level_obj, microbit_microphone_sound_level);
 
-STATIC mp_obj_t microbit_microphone_current_event(mp_obj_t self_in) {
+static mp_obj_t microbit_microphone_current_event(mp_obj_t self_in) {
     (void)self_in;
     microphone_init();
     return (mp_obj_t)sound_event_obj_map[sound_event_current];
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_microphone_current_event_obj, microbit_microphone_current_event);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_microphone_current_event_obj, microbit_microphone_current_event);
 
-STATIC mp_obj_t microbit_microphone_is_event(mp_obj_t self_in, mp_obj_t sound_in) {
+static mp_obj_t microbit_microphone_is_event(mp_obj_t self_in, mp_obj_t sound_in) {
     (void)self_in;
     microphone_init();
     uint8_t sound = sound_event_from_obj(sound_in);
     return mp_obj_new_bool(sound == sound_event_current);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_2(microbit_microphone_is_event_obj, microbit_microphone_is_event);
+static MP_DEFINE_CONST_FUN_OBJ_2(microbit_microphone_is_event_obj, microbit_microphone_is_event);
 
-STATIC mp_obj_t microbit_microphone_was_event(mp_obj_t self_in, mp_obj_t sound_in) {
+static mp_obj_t microbit_microphone_was_event(mp_obj_t self_in, mp_obj_t sound_in) {
     (void)self_in;
     microphone_init();
     uint8_t sound = sound_event_from_obj(sound_in);
@@ -133,9 +133,9 @@ STATIC mp_obj_t microbit_microphone_was_event(mp_obj_t self_in, mp_obj_t sound_i
     sound_event_history_index = 0;
     return result;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_2(microbit_microphone_was_event_obj, microbit_microphone_was_event);
+static MP_DEFINE_CONST_FUN_OBJ_2(microbit_microphone_was_event_obj, microbit_microphone_was_event);
 
-STATIC mp_obj_t microbit_microphone_get_events(mp_obj_t self_in) {
+static mp_obj_t microbit_microphone_get_events(mp_obj_t self_in) {
     (void)self_in;
     microphone_init();
     if (sound_event_history_index == 0) {
@@ -149,9 +149,9 @@ STATIC mp_obj_t microbit_microphone_get_events(mp_obj_t self_in) {
     sound_event_history_index = 0;
     return o;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_microphone_get_events_obj, microbit_microphone_get_events);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_microphone_get_events_obj, microbit_microphone_get_events);
 
-STATIC const mp_rom_map_elem_t microbit_microphone_locals_dict_table[] = {
+static const mp_rom_map_elem_t microbit_microphone_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_set_threshold), MP_ROM_PTR(&microbit_microphone_set_threshold_obj) },
     { MP_ROM_QSTR(MP_QSTR_sound_level), MP_ROM_PTR(&microbit_microphone_sound_level_obj) },
     { MP_ROM_QSTR(MP_QSTR_current_event), MP_ROM_PTR(&microbit_microphone_current_event_obj) },
@@ -159,7 +159,7 @@ STATIC const mp_rom_map_elem_t microbit_microphone_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_was_event), MP_ROM_PTR(&microbit_microphone_was_event_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_events), MP_ROM_PTR(&microbit_microphone_get_events_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(microbit_microphone_locals_dict, microbit_microphone_locals_dict_table);
+static MP_DEFINE_CONST_DICT(microbit_microphone_locals_dict, microbit_microphone_locals_dict_table);
 
 MP_DEFINE_CONST_OBJ_TYPE(
     microbit_microphone_type,

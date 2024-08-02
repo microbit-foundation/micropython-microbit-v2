@@ -40,17 +40,17 @@
 const char microbit_release_string[] = MICROBIT_RELEASE;
 const char microbit_version_string[] = MICROBIT_VERSION;
 
-STATIC const qstr os_uname_info_fields[] = {
+static const qstr os_uname_info_fields[] = {
     MP_QSTR_sysname, MP_QSTR_nodename,
     MP_QSTR_release, MP_QSTR_version, MP_QSTR_machine
 };
-STATIC const MP_DEFINE_STR_OBJ(os_uname_info_sysname_obj, MICROPY_PY_SYS_PLATFORM);
-STATIC const MP_DEFINE_STR_OBJ(os_uname_info_nodename_obj, MICROPY_PY_SYS_PLATFORM);
-STATIC const MP_DEFINE_STR_OBJ(os_uname_info_release_obj, microbit_release_string);
-STATIC const MP_DEFINE_STR_OBJ(os_uname_info_version_obj, microbit_version_string);
-STATIC const MP_DEFINE_STR_OBJ(os_uname_info_machine_obj, MICROBIT_BOARD_NAME " with " MICROPY_HW_MCU_NAME);
+static const MP_DEFINE_STR_OBJ(os_uname_info_sysname_obj, MICROPY_PY_SYS_PLATFORM);
+static const MP_DEFINE_STR_OBJ(os_uname_info_nodename_obj, MICROPY_PY_SYS_PLATFORM);
+static const MP_DEFINE_STR_OBJ(os_uname_info_release_obj, microbit_release_string);
+static const MP_DEFINE_STR_OBJ(os_uname_info_version_obj, microbit_version_string);
+static const MP_DEFINE_STR_OBJ(os_uname_info_machine_obj, MICROBIT_BOARD_NAME " with " MICROPY_HW_MCU_NAME);
 
-STATIC MP_DEFINE_ATTRTUPLE(
+static MP_DEFINE_ATTRTUPLE(
     os_uname_info_obj,
     os_uname_info_fields,
     5,
@@ -61,20 +61,20 @@ STATIC MP_DEFINE_ATTRTUPLE(
     MP_ROM_PTR(&os_uname_info_machine_obj)
 );
 
-STATIC mp_obj_t os_uname(void) {
+static mp_obj_t os_uname(void) {
     return MP_OBJ_FROM_PTR(&os_uname_info_obj);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(os_uname_obj, os_uname);
+static MP_DEFINE_CONST_FUN_OBJ_0(os_uname_obj, os_uname);
 
 #if MICROPY_MBFS
-STATIC mp_obj_t os_size(mp_obj_t filename) {
+static mp_obj_t os_size(mp_obj_t filename) {
     mp_obj_tuple_t *tuple = MP_OBJ_TO_PTR(os_mbfs_stat_obj.fun._1(filename));
     return tuple->items[6];
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(os_size_obj, os_size);
+static MP_DEFINE_CONST_FUN_OBJ_1(os_size_obj, os_size);
 #endif
 
-STATIC const mp_rom_map_elem_t os_module_globals_table[] = {
+static const mp_rom_map_elem_t os_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_os) },
 
     { MP_ROM_QSTR(MP_QSTR_uname), MP_ROM_PTR(&os_uname_obj) },
@@ -89,7 +89,7 @@ STATIC const mp_rom_map_elem_t os_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_size), MP_ROM_PTR(&os_size_obj) },
     #endif
 };
-STATIC MP_DEFINE_CONST_DICT(os_module_globals, os_module_globals_table);
+static MP_DEFINE_CONST_DICT(os_module_globals, os_module_globals_table);
 
 const mp_obj_module_t os_module = {
     .base = { &mp_type_module },

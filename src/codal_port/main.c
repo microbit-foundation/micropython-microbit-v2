@@ -96,7 +96,7 @@ void mp_main(void) {
     }
 }
 
-STATIC void microbit_display_exception(mp_obj_t exc_in) {
+static void microbit_display_exception(mp_obj_t exc_in) {
     // Construct the message string ready for display.
     mp_uint_t n, *values;
     mp_obj_exception_get_traceback(exc_in, &n, &values);

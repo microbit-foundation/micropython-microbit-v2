@@ -37,15 +37,15 @@ typedef struct _microbit_spi_obj_t {
     const microbit_pin_obj_t *miso;
 } microbit_spi_obj_t;
 
-STATIC bool microbit_spi_initialised = false;
+static bool microbit_spi_initialised = false;
 
-STATIC void microbit_spi_check_initialised(void) {
+static void microbit_spi_check_initialised(void) {
     if (!microbit_spi_initialised) {
         mp_raise_ValueError(MP_ERROR_TEXT("SPI not initialised"));
     }
 }
 
-STATIC mp_obj_t microbit_spi_init(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t microbit_spi_init(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_baudrate, ARG_bits, ARG_mode, ARG_sclk, ARG_mosi, ARG_miso };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_baudrate, MP_ARG_INT, {.u_int = 1000000} },
@@ -93,7 +93,7 @@ STATIC mp_obj_t microbit_spi_init(mp_uint_t n_args, const mp_obj_t *pos_args, mp
 }
 MP_DEFINE_CONST_FUN_OBJ_KW(microbit_spi_init_obj, 1, microbit_spi_init);
 
-STATIC mp_obj_t microbit_spi_write(mp_obj_t self_in, mp_obj_t buf_in) {
+static mp_obj_t microbit_spi_write(mp_obj_t self_in, mp_obj_t buf_in) {
     microbit_spi_check_initialised();
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(buf_in, &bufinfo, MP_BUFFER_READ);
@@ -102,7 +102,7 @@ STATIC mp_obj_t microbit_spi_write(mp_obj_t self_in, mp_obj_t buf_in) {
 }
 MP_DEFINE_CONST_FUN_OBJ_2(microbit_spi_write_obj, microbit_spi_write);
 
-STATIC mp_obj_t microbit_spi_read(size_t n_args, const mp_obj_t *args) {
+static mp_obj_t microbit_spi_read(size_t n_args, const mp_obj_t *args) {
     microbit_spi_check_initialised();
     mp_int_t nbytes = mp_obj_get_int(args[1]);
     if (nbytes < 0) {
@@ -123,7 +123,7 @@ STATIC mp_obj_t microbit_spi_read(size_t n_args, const mp_obj_t *args) {
 }
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(microbit_spi_read_obj, 2, 3, microbit_spi_read);
 
-STATIC mp_obj_t microbit_spi_write_readinto(mp_obj_t self_in, mp_obj_t write_buf, mp_obj_t read_buf) {
+static mp_obj_t microbit_spi_write_readinto(mp_obj_t self_in, mp_obj_t write_buf, mp_obj_t read_buf) {
     microbit_spi_check_initialised();
     mp_buffer_info_t write_bufinfo;
     mp_get_buffer_raise(write_buf, &write_bufinfo, MP_BUFFER_READ);
@@ -137,15 +137,15 @@ STATIC mp_obj_t microbit_spi_write_readinto(mp_obj_t self_in, mp_obj_t write_buf
 }
 MP_DEFINE_CONST_FUN_OBJ_3(microbit_spi_write_readinto_obj, microbit_spi_write_readinto);
 
-STATIC const mp_rom_map_elem_t microbit_spi_locals_dict_table[] = {
+static const mp_rom_map_elem_t microbit_spi_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_init), MP_ROM_PTR(&microbit_spi_init_obj) },
     { MP_ROM_QSTR(MP_QSTR_write), MP_ROM_PTR(&microbit_spi_write_obj) },
     { MP_ROM_QSTR(MP_QSTR_read), MP_ROM_PTR(&microbit_spi_read_obj) },
     { MP_ROM_QSTR(MP_QSTR_write_readinto), MP_ROM_PTR(&microbit_spi_write_readinto_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(microbit_spi_locals_dict, microbit_spi_locals_dict_table);
+static MP_DEFINE_CONST_DICT(microbit_spi_locals_dict, microbit_spi_locals_dict_table);
 
-STATIC MP_DEFINE_CONST_OBJ_TYPE(
+static MP_DEFINE_CONST_OBJ_TYPE(
     microbit_spi_type,
     MP_QSTR_MicroBitSPI,
     MP_TYPE_FLAG_NONE,

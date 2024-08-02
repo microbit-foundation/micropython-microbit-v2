@@ -31,7 +31,7 @@
 
 #define TIMESTAMP_DEFAULT_FORMAT (MICROBIT_HAL_LOG_TIMESTAMP_SECONDS)
 
-STATIC void log_check_error(int result) {
+static void log_check_error(int result) {
     if (result == MICROBIT_HAL_DEVICE_NO_RESOURCES) {
         mp_raise_OSError(MP_ENOSPC);
     } else if (result != MICROBIT_HAL_DEVICE_OK) {
@@ -39,13 +39,13 @@ STATIC void log_check_error(int result) {
     }
 }
 
-STATIC mp_obj_t log___init__(void) {
+static mp_obj_t log___init__(void) {
     microbit_hal_log_set_timestamp(TIMESTAMP_DEFAULT_FORMAT);
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_0(log___init___obj, log___init__);
 
-STATIC mp_obj_t log_set_labels(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t log_set_labels(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_timestamp };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_timestamp, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_INT(TIMESTAMP_DEFAULT_FORMAT)} },
@@ -73,15 +73,15 @@ STATIC mp_obj_t log_set_labels(size_t n_args, const mp_obj_t *pos_args, mp_map_t
 
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_KW(log_set_labels_obj, 0, log_set_labels);
+static MP_DEFINE_CONST_FUN_OBJ_KW(log_set_labels_obj, 0, log_set_labels);
 
-STATIC mp_obj_t log_set_mirroring(mp_obj_t serial) {
+static mp_obj_t log_set_mirroring(mp_obj_t serial) {
     microbit_hal_log_set_mirroring(mp_obj_is_true(serial));
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(log_set_mirroring_obj, log_set_mirroring);
+static MP_DEFINE_CONST_FUN_OBJ_1(log_set_mirroring_obj, log_set_mirroring);
 
-STATIC mp_obj_t log_delete(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t log_delete(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_full };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_full, MP_ARG_BOOL, {.u_bool = false} },
@@ -94,9 +94,9 @@ STATIC mp_obj_t log_delete(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw
 
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_KW(log_delete_obj, 0, log_delete);
+static MP_DEFINE_CONST_FUN_OBJ_KW(log_delete_obj, 0, log_delete);
 
-STATIC mp_obj_t log_add(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t log_add(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     // Get the dict to add as a row.
     mp_map_t *map;
     if (n_args == 0) {
@@ -132,9 +132,9 @@ STATIC mp_obj_t log_add(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_ar
 
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_KW(log_add_obj, 0, log_add);
+static MP_DEFINE_CONST_FUN_OBJ_KW(log_add_obj, 0, log_add);
 
-STATIC const mp_rom_map_elem_t log_module_globals_table[] = {
+static const mp_rom_map_elem_t log_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_log) },
     { MP_ROM_QSTR(MP_QSTR___init__), MP_ROM_PTR(&log___init___obj) },
 
@@ -149,7 +149,7 @@ STATIC const mp_rom_map_elem_t log_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_HOURS), MP_ROM_INT(MICROBIT_HAL_LOG_TIMESTAMP_HOURS) },
     { MP_ROM_QSTR(MP_QSTR_DAYS), MP_ROM_INT(MICROBIT_HAL_LOG_TIMESTAMP_DAYS) },
 };
-STATIC MP_DEFINE_CONST_DICT(log_module_globals, log_module_globals_table);
+static MP_DEFINE_CONST_DICT(log_module_globals, log_module_globals_table);
 
 const mp_obj_module_t log_module = {
     .base = { &mp_type_module },

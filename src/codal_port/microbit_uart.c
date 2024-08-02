@@ -39,9 +39,9 @@ typedef struct _microbit_uart_obj_t {
 } microbit_uart_obj_t;
 
 // timeout (in ms) to wait between characters when reading
-STATIC uint16_t microbit_uart_timeout_char = 0;
+static uint16_t microbit_uart_timeout_char = 0;
 
-STATIC mp_obj_t microbit_uart_init(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t microbit_uart_init(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_baudrate, ARG_bits, ARG_parity, ARG_stop, ARG_pins, ARG_tx, ARG_rx };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_baudrate, MP_ARG_INT, {.u_int = 9600} },
@@ -93,7 +93,7 @@ STATIC mp_obj_t microbit_uart_init(mp_uint_t n_args, const mp_obj_t *pos_args, m
 }
 MP_DEFINE_CONST_FUN_OBJ_KW(microbit_uart_init_obj, 1, microbit_uart_init);
 
-STATIC mp_obj_t microbit_uart_any(mp_obj_t self_in) {
+static mp_obj_t microbit_uart_any(mp_obj_t self_in) {
     (void)self_in;
     if (mp_hal_stdio_poll(MP_STREAM_POLL_RD)) {
         return mp_const_true;
@@ -103,7 +103,7 @@ STATIC mp_obj_t microbit_uart_any(mp_obj_t self_in) {
 }
 MP_DEFINE_CONST_FUN_OBJ_1(microbit_uart_any_obj, microbit_uart_any);
 
-STATIC const mp_rom_map_elem_t microbit_uart_locals_dict_table[] = {
+static const mp_rom_map_elem_t microbit_uart_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_init), MP_ROM_PTR(&microbit_uart_init_obj) },
     { MP_ROM_QSTR(MP_QSTR_any), MP_ROM_PTR(&microbit_uart_any_obj) },
 
@@ -115,11 +115,11 @@ STATIC const mp_rom_map_elem_t microbit_uart_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_ODD), MP_ROM_INT(1) },
     { MP_ROM_QSTR(MP_QSTR_EVEN), MP_ROM_INT(0) },
 };
-STATIC MP_DEFINE_CONST_DICT(microbit_uart_locals_dict, microbit_uart_locals_dict_table);
+static MP_DEFINE_CONST_DICT(microbit_uart_locals_dict, microbit_uart_locals_dict_table);
 
 // Waits at most timeout_ms for at least 1 char to become ready for reading.
 // Returns true if something available, false if not.
-STATIC bool microbit_uart_rx_wait(uint32_t timeout_ms) {
+static bool microbit_uart_rx_wait(uint32_t timeout_ms) {
     uint32_t start = mp_hal_ticks_ms();
     for (;;) {
         if (mp_hal_stdio_poll(MP_STREAM_POLL_RD)) {
@@ -132,7 +132,7 @@ STATIC bool microbit_uart_rx_wait(uint32_t timeout_ms) {
     }
 }
 
-STATIC mp_uint_t microbit_uart_read(mp_obj_t self_in, void *buf_in, mp_uint_t size, int *errcode) {
+static mp_uint_t microbit_uart_read(mp_obj_t self_in, void *buf_in, mp_uint_t size, int *errcode) {
     (void)self_in;
     byte *buf = (byte*)buf_in;
     (void)errcode;
@@ -159,7 +159,7 @@ STATIC mp_uint_t microbit_uart_read(mp_obj_t self_in, void *buf_in, mp_uint_t si
     }
 }
 
-STATIC mp_uint_t microbit_uart_write(mp_obj_t self_in, const void *buf_in, mp_uint_t size, int *errcode) {
+static mp_uint_t microbit_uart_write(mp_obj_t self_in, const void *buf_in, mp_uint_t size, int *errcode) {
     (void)self_in;
     const char *buf = (const char*)buf_in;
     (void)errcode;
@@ -167,13 +167,13 @@ STATIC mp_uint_t microbit_uart_write(mp_obj_t self_in, const void *buf_in, mp_ui
     return size;
 }
 
-STATIC const mp_stream_p_t microbit_uart_stream_p = {
+static const mp_stream_p_t microbit_uart_stream_p = {
     .read = microbit_uart_read,
     .write = microbit_uart_write,
     .is_text = false,
 };
 
-STATIC MP_DEFINE_CONST_OBJ_TYPE(
+static MP_DEFINE_CONST_OBJ_TYPE(
     microbit_uart_type,
     MP_QSTR_MicroBitUART,
     MP_TYPE_FLAG_NONE,

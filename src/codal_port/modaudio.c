@@ -57,7 +57,7 @@ void microbit_audio_stop(void) {
     microbit_hal_audio_stop_expression();
 }
 
-STATIC void audio_buffer_ready(void) {
+static void audio_buffer_ready(void) {
     uint32_t atomic_state = MICROPY_BEGIN_ATOMIC_SECTION();
     audio_output_state_t old_state = audio_output_state;
     audio_output_state = AUDIO_OUTPUT_STATE_DATA_READY;
@@ -67,7 +67,7 @@ STATIC void audio_buffer_ready(void) {
     }
 }
 
-STATIC void audio_data_fetcher(void) {
+static void audio_data_fetcher(void) {
     audio_fetcher_scheduled = false;
     if (audio_source_iter == NULL) {
         return;
@@ -109,11 +109,11 @@ STATIC void audio_data_fetcher(void) {
     }
 }
 
-STATIC mp_obj_t audio_data_fetcher_wrapper(mp_obj_t arg) {
+static mp_obj_t audio_data_fetcher_wrapper(mp_obj_t arg) {
     audio_data_fetcher();
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(audio_data_fetcher_wrapper_obj, audio_data_fetcher_wrapper);
+static MP_DEFINE_CONST_FUN_OBJ_1(audio_data_fetcher_wrapper_obj, audio_data_fetcher_wrapper);
 
 void microbit_hal_audio_ready_callback(void) {
     if (audio_output_state == AUDIO_OUTPUT_STATE_DATA_READY) {
@@ -205,13 +205,13 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, ui
     }
 }
 
-STATIC mp_obj_t stop(void) {
+static mp_obj_t stop(void) {
     microbit_audio_stop();
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_0(microbit_audio_stop_obj, stop);
 
-STATIC mp_obj_t play(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+static mp_obj_t play(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     // Note: the return_pin argument is for compatibility with micro:bit v1 and is ignored on v2.
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_source, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
@@ -238,7 +238,7 @@ mp_obj_t is_playing(void) {
 }
 MP_DEFINE_CONST_FUN_OBJ_0(microbit_audio_is_playing_obj, is_playing);
 
-STATIC const mp_rom_map_elem_t audio_globals_table[] = {
+static const mp_rom_map_elem_t audio_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_audio) },
     { MP_ROM_QSTR(MP_QSTR_stop), MP_ROM_PTR(&microbit_audio_stop_obj) },
     { MP_ROM_QSTR(MP_QSTR_play), MP_ROM_PTR(&microbit_audio_play_obj) },
@@ -246,7 +246,7 @@ STATIC const mp_rom_map_elem_t audio_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_AudioFrame), MP_ROM_PTR(&microbit_audio_frame_type) },
     { MP_ROM_QSTR(MP_QSTR_SoundEffect), MP_ROM_PTR(&microbit_soundeffect_type) },
 };
-STATIC MP_DEFINE_CONST_DICT(audio_module_globals, audio_globals_table);
+static MP_DEFINE_CONST_DICT(audio_module_globals, audio_globals_table);
 
 const mp_obj_module_t audio_module = {
     .base = { &mp_type_module },
@@ -258,14 +258,14 @@ MP_REGISTER_MODULE(MP_QSTR_audio, audio_module);
 /******************************************************************************/
 // AudioFrame class
 
-STATIC mp_obj_t microbit_audio_frame_new(const mp_obj_type_t *type_in, mp_uint_t n_args, mp_uint_t n_kw, const mp_obj_t *args) {
+static mp_obj_t microbit_audio_frame_new(const mp_obj_type_t *type_in, mp_uint_t n_args, mp_uint_t n_kw, const mp_obj_t *args) {
     (void)type_in;
     (void)args;
     mp_arg_check_num(n_args, n_kw, 0, 0, false);
     return microbit_audio_frame_make_new();
 }
 
-STATIC mp_obj_t audio_frame_subscr(mp_obj_t self_in, mp_obj_t index_in, mp_obj_t value_in) {
+static mp_obj_t audio_frame_subscr(mp_obj_t self_in, mp_obj_t index_in, mp_obj_t value_in) {
     microbit_audio_frame_obj_t *self = (microbit_audio_frame_obj_t *)self_in;
     mp_int_t index = mp_obj_get_int(index_in);
     if (index < 0 || index >= AUDIO_CHUNK_SIZE) {
@@ -376,7 +376,7 @@ static void mult(microbit_audio_frame_obj_t *self, float f) {
     }
 }
 
-STATIC mp_obj_t audio_frame_binary_op(mp_binary_op_t op, mp_obj_t lhs_in, mp_obj_t rhs_in) {
+static mp_obj_t audio_frame_binary_op(mp_binary_op_t op, mp_obj_t lhs_in, mp_obj_t rhs_in) {
     if (mp_obj_get_type(lhs_in) != &microbit_audio_frame_type) {
         return MP_OBJ_NULL; // op not supported
     }
@@ -402,10 +402,10 @@ STATIC mp_obj_t audio_frame_binary_op(mp_binary_op_t op, mp_obj_t lhs_in, mp_obj
     }
 }
 
-STATIC const mp_map_elem_t microbit_audio_frame_locals_dict_table[] = {
+static const mp_map_elem_t microbit_audio_frame_locals_dict_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR_copyfrom), (mp_obj_t)&copyfrom_obj },
 };
-STATIC MP_DEFINE_CONST_DICT(microbit_audio_frame_locals_dict, microbit_audio_frame_locals_dict_table);
+static MP_DEFINE_CONST_DICT(microbit_audio_frame_locals_dict, microbit_audio_frame_locals_dict_table);
 
 MP_DEFINE_CONST_OBJ_TYPE(
     microbit_audio_frame_type,

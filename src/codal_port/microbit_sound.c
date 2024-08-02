@@ -28,7 +28,7 @@
 #include "modmicrobit.h"
 
 #define SOUND(name, ...) \
-    STATIC const microbit_sound_obj_t microbit_sound_ ## name ## _obj = { \
+    static const microbit_sound_obj_t microbit_sound_ ## name ## _obj = { \
         { &microbit_sound_type }, \
         MP_STRINGIFY(name) \
     }
@@ -46,12 +46,12 @@ SOUND(yawn);
 
 #undef SOUND
 
-STATIC void microbit_sound_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
+static void microbit_sound_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
     const microbit_sound_obj_t *self = (const microbit_sound_obj_t *)self_in;
     mp_printf(print, "Sound('%s')", self->name);
 }
 
-STATIC const mp_rom_map_elem_t microbit_sound_locals_dict_table[] = {
+static const mp_rom_map_elem_t microbit_sound_locals_dict_table[] = {
     #define SOUND(NAME, name) { MP_ROM_QSTR(MP_QSTR_ ## NAME), MP_ROM_PTR(&microbit_sound_ ## name ## _obj) }
 
     SOUND(GIGGLE, giggle),
@@ -67,7 +67,7 @@ STATIC const mp_rom_map_elem_t microbit_sound_locals_dict_table[] = {
 
     #undef SOUND
 };
-STATIC MP_DEFINE_CONST_DICT(microbit_sound_locals_dict, microbit_sound_locals_dict_table);
+static MP_DEFINE_CONST_DICT(microbit_sound_locals_dict, microbit_sound_locals_dict_table);
 
 MP_DEFINE_CONST_OBJ_TYPE(
     microbit_sound_type,

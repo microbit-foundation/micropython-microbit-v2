@@ -36,11 +36,11 @@ typedef struct _microbit_accelerometer_obj_t {
 } microbit_accelerometer_obj_t;
 
 volatile bool accelerometer_up_to_date = false;
-STATIC volatile uint16_t gesture_state = 0;                    // 1 bit per gesture
-STATIC volatile uint8_t gesture_list_cur = 0;                  // index into gesture_list
-STATIC volatile uint8_t gesture_list[GESTURE_LIST_SIZE] = {0}; // list of pending gestures, 4-bits per element
+static volatile uint16_t gesture_state = 0;                    // 1 bit per gesture
+static volatile uint8_t gesture_list_cur = 0;                  // index into gesture_list
+static volatile uint8_t gesture_list[GESTURE_LIST_SIZE] = {0}; // list of pending gestures, 4-bits per element
 
-STATIC const qstr gesture_name_map[] = {
+static const qstr gesture_name_map[] = {
     [MICROBIT_HAL_ACCELEROMETER_EVT_NONE] = MP_QSTR_,
     [MICROBIT_HAL_ACCELEROMETER_EVT_TILT_UP] = MP_QSTR_up,
     [MICROBIT_HAL_ACCELEROMETER_EVT_TILT_DOWN] = MP_QSTR_down,
@@ -56,7 +56,7 @@ STATIC const qstr gesture_name_map[] = {
     [MICROBIT_HAL_ACCELEROMETER_EVT_SHAKE] = MP_QSTR_shake,
 };
 
-STATIC uint32_t gesture_from_obj(mp_obj_t gesture_in) {
+static uint32_t gesture_from_obj(mp_obj_t gesture_in) {
     qstr gesture = mp_obj_str_get_qstr(gesture_in);
     for (uint i = 0; i < MP_ARRAY_SIZE(gesture_name_map); ++i) {
         if (gesture == gesture_name_map[i]) {
@@ -66,7 +66,7 @@ STATIC uint32_t gesture_from_obj(mp_obj_t gesture_in) {
     mp_raise_ValueError(MP_ERROR_TEXT("invalid gesture"));
 }
 
-STATIC void update_for_gesture(void) {
+static void update_for_gesture(void) {
     if (!accelerometer_up_to_date) {
         accelerometer_up_to_date = true;
         int axis[3];
@@ -90,31 +90,31 @@ void microbit_hal_gesture_callback(int value) {
     }
 }
 
-STATIC mp_obj_t microbit_accelerometer_get_x(mp_obj_t self_in) {
+static mp_obj_t microbit_accelerometer_get_x(mp_obj_t self_in) {
     (void)self_in;
     int axis[3];
     microbit_hal_accelerometer_get_sample(axis);
     return mp_obj_new_int(axis[0]);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_accelerometer_get_x_obj, microbit_accelerometer_get_x);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_accelerometer_get_x_obj, microbit_accelerometer_get_x);
 
-STATIC mp_obj_t microbit_accelerometer_get_y(mp_obj_t self_in) {
+static mp_obj_t microbit_accelerometer_get_y(mp_obj_t self_in) {
     (void)self_in;
     int axis[3];
     microbit_hal_accelerometer_get_sample(axis);
     return mp_obj_new_int(axis[1]);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_accelerometer_get_y_obj, microbit_accelerometer_get_y);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_accelerometer_get_y_obj, microbit_accelerometer_get_y);
 
-STATIC mp_obj_t microbit_accelerometer_get_z(mp_obj_t self_in) {
+static mp_obj_t microbit_accelerometer_get_z(mp_obj_t self_in) {
     (void)self_in;
     int axis[3];
     microbit_hal_accelerometer_get_sample(axis);
     return mp_obj_new_int(axis[2]);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_accelerometer_get_z_obj, microbit_accelerometer_get_z);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_accelerometer_get_z_obj, microbit_accelerometer_get_z);
 
-STATIC mp_obj_t microbit_accelerometer_get_values(mp_obj_t self_in) {
+static mp_obj_t microbit_accelerometer_get_values(mp_obj_t self_in) {
     (void)self_in;
     int axis[3];
     microbit_hal_accelerometer_get_sample(axis);
@@ -125,33 +125,33 @@ STATIC mp_obj_t microbit_accelerometer_get_values(mp_obj_t self_in) {
     };
     return mp_obj_new_tuple(3, tuple);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_accelerometer_get_values_obj, microbit_accelerometer_get_values);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_accelerometer_get_values_obj, microbit_accelerometer_get_values);
 
-STATIC mp_obj_t microbit_accelerometer_get_strength(mp_obj_t self_in) {
+static mp_obj_t microbit_accelerometer_get_strength(mp_obj_t self_in) {
     (void)self_in;
     int axis[3];
     microbit_hal_accelerometer_get_sample(axis);
     int strength = sqrtf(axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]);
     return mp_obj_new_int(strength);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_accelerometer_get_strength_obj, microbit_accelerometer_get_strength);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_accelerometer_get_strength_obj, microbit_accelerometer_get_strength);
 
-STATIC mp_obj_t microbit_accelerometer_current_gesture(mp_obj_t self_in) {
+static mp_obj_t microbit_accelerometer_current_gesture(mp_obj_t self_in) {
     (void)self_in;
     update_for_gesture();
     return MP_OBJ_NEW_QSTR(gesture_name_map[microbit_hal_accelerometer_get_gesture()]);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_accelerometer_current_gesture_obj, microbit_accelerometer_current_gesture);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_accelerometer_current_gesture_obj, microbit_accelerometer_current_gesture);
 
-STATIC mp_obj_t microbit_accelerometer_is_gesture(mp_obj_t self_in, mp_obj_t gesture_in) {
+static mp_obj_t microbit_accelerometer_is_gesture(mp_obj_t self_in, mp_obj_t gesture_in) {
     (void)self_in;
     uint32_t gesture = gesture_from_obj(gesture_in);
     update_for_gesture();
     return mp_obj_new_bool(microbit_hal_accelerometer_get_gesture() == gesture);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_2(microbit_accelerometer_is_gesture_obj, microbit_accelerometer_is_gesture);
+static MP_DEFINE_CONST_FUN_OBJ_2(microbit_accelerometer_is_gesture_obj, microbit_accelerometer_is_gesture);
 
-STATIC mp_obj_t microbit_accelerometer_was_gesture(mp_obj_t self_in, mp_obj_t gesture_in) {
+static mp_obj_t microbit_accelerometer_was_gesture(mp_obj_t self_in, mp_obj_t gesture_in) {
     (void)self_in;
     uint32_t gesture = gesture_from_obj(gesture_in);
     update_for_gesture();
@@ -160,9 +160,9 @@ STATIC mp_obj_t microbit_accelerometer_was_gesture(mp_obj_t self_in, mp_obj_t ge
     gesture_list_cur = 0;
     return result;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_2(microbit_accelerometer_was_gesture_obj, microbit_accelerometer_was_gesture);
+static MP_DEFINE_CONST_FUN_OBJ_2(microbit_accelerometer_was_gesture_obj, microbit_accelerometer_was_gesture);
 
-STATIC mp_obj_t microbit_accelerometer_get_gestures(mp_obj_t self_in) {
+static mp_obj_t microbit_accelerometer_get_gestures(mp_obj_t self_in) {
     (void)self_in;
     update_for_gesture();
     if (gesture_list_cur == 0) {
@@ -176,16 +176,16 @@ STATIC mp_obj_t microbit_accelerometer_get_gestures(mp_obj_t self_in) {
     gesture_list_cur = 0;
     return o;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(microbit_accelerometer_get_gestures_obj, microbit_accelerometer_get_gestures);
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_accelerometer_get_gestures_obj, microbit_accelerometer_get_gestures);
 
-STATIC mp_obj_t microbit_accelerometer_set_range(mp_obj_t self_in, mp_obj_t g) {
+static mp_obj_t microbit_accelerometer_set_range(mp_obj_t self_in, mp_obj_t g) {
     (void)self_in;
     microbit_hal_accelerometer_set_range(mp_obj_get_int(g));
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_2(microbit_accelerometer_set_range_obj, microbit_accelerometer_set_range);
+static MP_DEFINE_CONST_FUN_OBJ_2(microbit_accelerometer_set_range_obj, microbit_accelerometer_set_range);
 
-STATIC const mp_rom_map_elem_t microbit_accelerometer_locals_dict_table[] = {
+static const mp_rom_map_elem_t microbit_accelerometer_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_get_x), MP_ROM_PTR(&microbit_accelerometer_get_x_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_y), MP_ROM_PTR(&microbit_accelerometer_get_y_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_z), MP_ROM_PTR(&microbit_accelerometer_get_z_obj) },
@@ -197,9 +197,9 @@ STATIC const mp_rom_map_elem_t microbit_accelerometer_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_get_gestures), MP_ROM_PTR(&microbit_accelerometer_get_gestures_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_range), MP_ROM_PTR(&microbit_accelerometer_set_range_obj) },
 };
-STATIC MP_DEFINE_CONST_DICT(microbit_accelerometer_locals_dict, microbit_accelerometer_locals_dict_table);
+static MP_DEFINE_CONST_DICT(microbit_accelerometer_locals_dict, microbit_accelerometer_locals_dict_table);
 
-STATIC MP_DEFINE_CONST_OBJ_TYPE(
+static MP_DEFINE_CONST_OBJ_TYPE(
     microbit_accelerometer_type,
     MP_QSTR_MicroBitAccelerometer,
     MP_TYPE_FLAG_NONE,
