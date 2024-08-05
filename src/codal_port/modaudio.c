@@ -73,7 +73,7 @@ void microbit_audio_stop(void) {
 static void audio_data_pull_from_source(void) {
     if (audio_source_frame != NULL) {
         // An existing AudioFrame is being played, see if there's any data left.
-        if (audio_source_frame_offset >= audio_source_frame->used_size) {
+        if (audio_source_frame_offset >= audio_source_frame->alloc_size) {
             // AudioFrame is exhausted.
             audio_source_frame = NULL;
         }
@@ -154,7 +154,7 @@ static void audio_data_fetcher(mp_sched_node_t *node) {
         size_t size;
         if (audio_source_frame != NULL) {
             src = &audio_source_frame->data[audio_source_frame_offset];
-            size = audio_source_frame->used_size;
+            size = audio_source_frame->alloc_size;
         } else {
             src = &audio_source_track->data[audio_source_frame_offset];
             size = audio_source_track->size;
@@ -405,7 +405,6 @@ static mp_obj_t audio_frame_subscr(mp_obj_t self_in, mp_obj_t index_in, mp_obj_t
             mp_raise_ValueError(MP_ERROR_TEXT("value out of range"));
         }
         self->data[index] = value;
-        self->used_size = MAX(self->used_size, index + 1);
         return mp_const_none;
     }
 }
@@ -426,10 +425,6 @@ static mp_int_t audio_frame_get_buffer(mp_obj_t self_in, mp_buffer_info_t *bufin
     bufinfo->buf = self->data;
     bufinfo->len = self->alloc_size;
     bufinfo->typecode = 'B';
-    if (flags == MP_BUFFER_WRITE) {
-        // Assume that writing to the buffer will make all data valid for playback.
-        self->used_size = self->alloc_size;
-    }
     return 0;
 }
 
@@ -448,7 +443,6 @@ static void add_into(microbit_audio_frame_obj_t *self, microbit_audio_frame_obj_
 
 static microbit_audio_frame_obj_t *copy(microbit_audio_frame_obj_t *self) {
     microbit_audio_frame_obj_t *result = microbit_audio_frame_make_new(self->alloc_size, self->rate);
-    result->used_size = self->used_size;
     for (int i = 0; i < self->alloc_size; i++) {
         result->data[i] = self->data[i];
     }
@@ -578,7 +572,6 @@ microbit_audio_frame_obj_t *microbit_audio_frame_make_new(size_t size, uint32_t 
     microbit_audio_frame_obj_t *res = m_new_obj_var(microbit_audio_frame_obj_t, data, uint8_t, size);
     res->base.type = &microbit_audio_frame_type;
     res->alloc_size = size;
-    res->used_size = 0;
     res->rate = rate;
     memset(res->data, 128, size);
     return res;
