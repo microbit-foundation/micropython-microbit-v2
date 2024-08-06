@@ -75,9 +75,6 @@ int main() {
     uBit.audio.setSpeakerEnabled(true);
     uBit.audio.setPinEnabled(false);
 
-    // Initialise the logo pin in capacitive touch mode.
-    uBit.io.logo.isTouched(TouchMode::Capacitative);
-
     mp_main();
     return 0;
 }
