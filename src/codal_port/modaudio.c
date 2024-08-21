@@ -428,16 +428,15 @@ static mp_int_t audio_frame_get_buffer(mp_obj_t self_in, mp_buffer_info_t *bufin
     return 0;
 }
 
-static void add_into(microbit_audio_frame_obj_t *self, microbit_audio_frame_obj_t *other, bool add) {
+void microbit_audio_data_add_inplace(uint8_t *lhs_data, const uint8_t *rhs_data, size_t size, bool add) {
     int mult = add ? 1 : -1;
-    size_t size = MIN(self->alloc_size, other->alloc_size);
     for (int i = 0; i < size; i++) {
-        unsigned val = (int)self->data[i] + mult*(other->data[i]-128);
+        unsigned val = (int)lhs_data[i] + mult*(rhs_data[i]-128);
         // Clamp to 0-255
         if (val > 255) {
             val = (1-(val>>31))*255;
         }
-        self->data[i] = val;
+        lhs_data[i] = val;
     }
 }
 
@@ -488,14 +487,14 @@ int32_t float_to_fixed(float f, uint32_t scale) {
     return result;
 }
 
-static void mult(microbit_audio_frame_obj_t *self, float f) {
+void microbit_audio_data_mult_inplace(uint8_t *data, size_t size, float f) {
     int scaled = float_to_fixed(f, 15);
-    for (int i = 0; i < self->alloc_size; i++) {
-        unsigned val = ((((int)self->data[i]-128) * scaled) >> 15)+128;
+    for (int i = 0; i < size; i++) {
+        unsigned val = ((((int)data[i]-128) * scaled) >> 15)+128;
         if (val > 255) {
             val = (1-(val>>31))*255;
         }
-        self->data[i] = val;
+        data[i] = val;
     }
 }
 
@@ -513,12 +512,14 @@ static mp_obj_t audio_frame_binary_op(mp_binary_op_t op, mp_obj_t lhs_in, mp_obj
             if (mp_obj_get_type(rhs_in) != &microbit_audio_frame_type) {
                 return MP_OBJ_NULL; // op not supported
             }
-            add_into(lhs, (microbit_audio_frame_obj_t *)rhs_in, op==MP_BINARY_OP_ADD||op==MP_BINARY_OP_INPLACE_ADD);
+            microbit_audio_frame_obj_t *rhs = MP_OBJ_TO_PTR(rhs_in);
+            size_t size = MIN(lhs->alloc_size, rhs->alloc_size);
+            microbit_audio_data_add_inplace(lhs->data, rhs->data, size, op == MP_BINARY_OP_ADD || op == MP_BINARY_OP_INPLACE_ADD);
             return lhs;
         case MP_BINARY_OP_MULTIPLY:
             lhs = copy(lhs);
         case MP_BINARY_OP_INPLACE_MULTIPLY:
-            mult(lhs, mp_obj_get_float(rhs_in));
+            microbit_audio_data_mult_inplace(lhs->data, lhs->alloc_size, mp_obj_get_float(rhs_in));
             return lhs;
         default:
             return MP_OBJ_NULL; // op not supported

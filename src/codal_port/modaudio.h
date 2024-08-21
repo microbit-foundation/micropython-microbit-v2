@@ -52,6 +52,9 @@ extern const mp_obj_type_t microbit_audio_recording_type;
 extern const mp_obj_type_t microbit_audio_track_type;
 extern const mp_obj_module_t audio_module;
 
+void microbit_audio_data_add_inplace(uint8_t *lhs_data, const uint8_t *rhs_data, size_t size, bool add);
+void microbit_audio_data_mult_inplace(uint8_t *data, size_t size, float f);
+
 void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, uint32_t sample_rate);
 void microbit_audio_stop(void);
 bool microbit_audio_is_playing(void);
