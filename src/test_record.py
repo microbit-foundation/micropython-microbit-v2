@@ -35,11 +35,7 @@ while True:
         while button_a.is_pressed():
             sleep(50)
         display.clear()
-        # amplify volume
-        GAIN = 2
-        #my_recording *= GAIN
-        for i in range(len(my_track)):
-            my_track[i] = max(0, min(128 + GAIN * (my_track[i] - 128), 255))
+        my_track *= 2  # amplify volume
     if button_b.is_pressed():
         audio.play(my_track, wait=False)
         level = 0
