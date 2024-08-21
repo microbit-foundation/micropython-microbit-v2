@@ -81,6 +81,37 @@ static mp_obj_t microbit_audio_track_unary_op(mp_unary_op_t op, mp_obj_t self_in
     }
 }
 
+static mp_obj_t microbit_audio_track_binary_op(mp_binary_op_t op, mp_obj_t lhs_in, mp_obj_t rhs_in) {
+    microbit_audio_track_obj_t *lhs = MP_OBJ_TO_PTR(lhs_in);
+
+    // Make a copy of LHS if the operation is not inplace.
+    if (op == MP_BINARY_OP_ADD || op == MP_BINARY_OP_SUBTRACT || op == MP_BINARY_OP_MULTIPLY) {
+        microbit_audio_track_obj_t *lhs_copy = microbit_audio_track_new(lhs->buffer_obj, lhs->size, lhs->data, lhs->rate);
+        memcpy(lhs_copy->data, lhs->data, lhs->size);
+        lhs = lhs_copy;
+    }
+
+    switch(op) {
+        case MP_BINARY_OP_ADD:
+        case MP_BINARY_OP_SUBTRACT:
+        case MP_BINARY_OP_INPLACE_ADD:
+        case MP_BINARY_OP_INPLACE_SUBTRACT:
+            if (mp_obj_get_type(rhs_in) != &microbit_audio_track_type) {
+                return MP_OBJ_NULL; // op not supported
+            }
+            microbit_audio_track_obj_t *rhs = MP_OBJ_TO_PTR(rhs_in);
+            size_t size = MIN(lhs->size, rhs->size);
+            microbit_audio_data_add_inplace(lhs->data, rhs->data, size, op == MP_BINARY_OP_ADD || op == MP_BINARY_OP_INPLACE_ADD);
+            return lhs;
+        case MP_BINARY_OP_MULTIPLY:
+        case MP_BINARY_OP_INPLACE_MULTIPLY:
+            microbit_audio_data_mult_inplace(lhs->data, lhs->size, mp_obj_get_float(rhs_in));
+            return lhs;
+        default:
+            return MP_OBJ_NULL; // op not supported
+    }
+}
+
 static mp_obj_t microbit_audio_track_subscr(mp_obj_t self_in, mp_obj_t index, mp_obj_t value_in) {
     microbit_audio_track_obj_t *self = MP_OBJ_TO_PTR(self_in);
     if (value_in == MP_OBJ_NULL) {
@@ -161,6 +192,7 @@ MP_DEFINE_CONST_OBJ_TYPE(
     MP_TYPE_FLAG_NONE,
     make_new, microbit_audio_track_make_new,
     unary_op, microbit_audio_track_unary_op,
+    binary_op, microbit_audio_track_binary_op,
     subscr, microbit_audio_track_subscr,
     buffer, microbit_audio_track_get_buffer,
     locals_dict, &microbit_audio_track_locals_dict
