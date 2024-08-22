@@ -25,10 +25,22 @@
  */
 
 #include "main.h"
+#include "microbithal.h"
 #include "MicroBitDevice.h"
 #include "neopixel.h"
 
 #define HAL_ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
+
+// It's not possible to include the CODAL header file that defines the SFX_DEFAULT_xxx
+// constants in C code, because that CODAL header file is C++.  Instead we define our
+// own MICROBIT_HAL_SFX_DEFAULT_xxx versions of the constants in a C-compatible header
+// file, and assert here that they have the same value as the CODAL constants.
+static_assert(MICROBIT_HAL_SFX_DEFAULT_VIBRATO_PARAM == SFX_DEFAULT_VIBRATO_PARAM, "");
+static_assert(MICROBIT_HAL_SFX_DEFAULT_VIBRATO_STEPS == SFX_DEFAULT_VIBRATO_STEPS, "");
+static_assert(MICROBIT_HAL_SFX_DEFAULT_TREMOLO_PARAM == SFX_DEFAULT_TREMOLO_PARAM, "");
+static_assert(MICROBIT_HAL_SFX_DEFAULT_TREMOLO_STEPS == SFX_DEFAULT_TREMOLO_STEPS, "");
+static_assert(MICROBIT_HAL_SFX_DEFAULT_WARBLE_PARAM == SFX_DEFAULT_WARBLE_PARAM, "");
+static_assert(MICROBIT_HAL_SFX_DEFAULT_WARBLE_STEPS == SFX_DEFAULT_WARBLE_STEPS, "");
 
 NRF52Pin *const pin_obj[] = {
     &uBit.io.P0,
@@ -82,8 +94,6 @@ static uint16_t touch_state[4];
 static uint16_t button_state[2];
 
 extern "C" {
-
-#include "microbithal.h"
 
 void microbit_hal_background_processing(void) {
     // This call takes about 200us.

@@ -103,6 +103,14 @@ extern "C" {
 #define MICROBIT_HAL_LOG_TIMESTAMP_HOURS            (36000)
 #define MICROBIT_HAL_LOG_TIMESTAMP_DAYS             (864000)
 
+// These default fx values are the same as defined by CODAL, but here in a C-compatible header.
+#define MICROBIT_HAL_SFX_DEFAULT_VIBRATO_PARAM      (2)
+#define MICROBIT_HAL_SFX_DEFAULT_VIBRATO_STEPS      (512)
+#define MICROBIT_HAL_SFX_DEFAULT_TREMOLO_PARAM      (3)
+#define MICROBIT_HAL_SFX_DEFAULT_TREMOLO_STEPS      (900)
+#define MICROBIT_HAL_SFX_DEFAULT_WARBLE_PARAM       (2)
+#define MICROBIT_HAL_SFX_DEFAULT_WARBLE_STEPS       (700)
+
 void microbit_hal_idle(void);
 
 __attribute__((noreturn)) void microbit_hal_reset(void);
