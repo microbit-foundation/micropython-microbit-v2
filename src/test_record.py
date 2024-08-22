@@ -23,6 +23,7 @@ play = Image(
 )
 
 my_recording = audio.AudioRecording(duration=5000)
+my_track = None
 
 while True:
     if button_a.is_pressed():
@@ -36,7 +37,7 @@ while True:
             sleep(50)
         display.clear()
         my_track *= 2  # amplify volume
-    if button_b.is_pressed():
+    if button_b.is_pressed() and my_track:
         audio.play(my_track, wait=False)
         level = 0
         while audio.is_playing():
