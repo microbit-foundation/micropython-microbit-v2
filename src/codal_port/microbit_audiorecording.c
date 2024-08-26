@@ -78,8 +78,8 @@ static MP_DEFINE_CONST_FUN_OBJ_1(microbit_audio_recording_copy_obj, microbit_aud
 static mp_obj_t microbit_audio_recording_track(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_start_ms, ARG_end_ms };
     static const mp_arg_t allowed_args[] = {
-        { MP_QSTR_start_ms, MP_ARG_KW_ONLY, {.u_rom_obj = MP_ROM_INT(0)} },
-        { MP_QSTR_end_ms, MP_ARG_KW_ONLY, {.u_rom_obj = MP_ROM_INT(-1)} },
+        { MP_QSTR_start_ms, MP_ARG_OBJ, {.u_rom_obj = MP_ROM_INT(0)} },
+        { MP_QSTR_end_ms, MP_ARG_OBJ, {.u_rom_obj = MP_ROM_INT(-1)} },
     };
     // parse args
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
