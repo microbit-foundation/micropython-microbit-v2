@@ -86,6 +86,10 @@ void microbit_hal_sound_synth_callback(int event) {
     }
 }
 
+bool microbit_hal_audio_is_playing(void) {
+    return uBit.audio.isPlaying();
+}
+
 bool microbit_hal_audio_is_expression_active(void) {
     return sound_synth_active_count > 0;
 }
