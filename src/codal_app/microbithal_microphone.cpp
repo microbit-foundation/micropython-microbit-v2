@@ -59,4 +59,11 @@ int microbit_hal_microphone_get_level(void) {
     return value;
 }
 
+float microbit_hal_microphone_get_level_db(void) {
+    uBit.audio.levelSPL->setUnit(LEVEL_DETECTOR_SPL_DB);
+    float value = uBit.audio.levelSPL->getValue();
+    uBit.audio.levelSPL->setUnit(LEVEL_DETECTOR_SPL_8BIT);
+    return value;
+}
+
 }
