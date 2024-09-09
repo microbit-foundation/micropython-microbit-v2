@@ -132,6 +132,7 @@ int microbit_hal_pin_read(int pin);
 void microbit_hal_pin_write(int pin, int value);
 int microbit_hal_pin_read_analog_u10(int pin);
 void microbit_hal_pin_write_analog_u10(int pin, int value);
+void microbit_hal_pin_touch_calibrate(int pin);
 int microbit_hal_pin_touch_state(int pin, int *was_touched, int *num_touches);
 void microbit_hal_pin_write_ws2812(int pin, const uint8_t *buf, size_t len);
 

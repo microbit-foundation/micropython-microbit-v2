@@ -213,6 +213,10 @@ void microbit_hal_pin_write_analog_u10(int pin, int value) {
     pin_obj[pin]->setAnalogValue(value);
 }
 
+void microbit_hal_pin_touch_calibrate(int pin) {
+    pin_obj[pin]->touchCalibrate();
+}
+
 int microbit_hal_pin_touch_state(int pin, int *was_touched, int *num_touches) {
     if (was_touched != NULL || num_touches != NULL) {
         int pin_state_index;
