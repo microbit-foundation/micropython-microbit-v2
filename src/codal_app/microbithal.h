@@ -150,6 +150,7 @@ void microbit_hal_display_enable(int value);
 int microbit_hal_display_get_pixel(int x, int y);
 void microbit_hal_display_set_pixel(int x, int y, int bright);
 int microbit_hal_display_read_light_level(void);
+void microbit_hal_display_rotate(unsigned int rotation);
 
 void microbit_hal_accelerometer_get_sample(int axis[3]);
 int microbit_hal_accelerometer_get_gesture(void);

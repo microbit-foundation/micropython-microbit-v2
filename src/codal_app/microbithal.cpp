@@ -375,6 +375,16 @@ int microbit_hal_display_read_light_level(void) {
     return uBit.display.readLightLevel();
 }
 
+void microbit_hal_display_rotate(unsigned int rotation) {
+    static DisplayRotation angle_map[4] = {
+        MATRIX_DISPLAY_ROTATION_0,
+        MATRIX_DISPLAY_ROTATION_90,
+        MATRIX_DISPLAY_ROTATION_180,
+        MATRIX_DISPLAY_ROTATION_270,
+    };
+    uBit.display.rotateTo(angle_map[rotation & 3]);
+}
+
 void microbit_hal_accelerometer_get_sample(int axis[3]) {
     Sample3D sample = uBit.accelerometer.getSample();
     axis[0] = sample.x;
