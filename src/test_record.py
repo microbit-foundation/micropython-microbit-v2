@@ -26,7 +26,7 @@ my_recording = audio.AudioRecording(duration=5000)
 my_track = None
 
 while True:
-    if button_a.is_pressed():
+    if button_a.was_pressed():
         my_track = microphone.record_into(my_recording, wait=False)
         display.show([mouth_open, mouth_closed], loop=True, wait=False, delay=150)
         while button_a.is_pressed() and microphone.is_recording():
@@ -37,7 +37,7 @@ while True:
             sleep(50)
         display.clear()
         my_track *= 2  # amplify volume
-    if button_b.is_pressed() and my_track:
+    if button_b.was_pressed() and my_track:
         audio.play(my_track, wait=False)
         level = 0
         while audio.is_playing():
