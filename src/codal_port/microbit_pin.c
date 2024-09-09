@@ -51,6 +51,13 @@ const microbit_pin_obj_t microbit_p20_obj = {{&microbit_dig_pin_type},  20, MICR
 const microbit_pin_obj_t microbit_pin_logo_obj = {{&microbit_touch_only_pin_type}, 30, MICROBIT_HAL_PIN_LOGO, MODE_UNUSED};
 const microbit_pin_obj_t microbit_pin_speaker_obj = {{&microbit_dig_pin_type}, 31, MICROBIT_HAL_PIN_SPEAKER, MODE_UNUSED};
 
+static mp_obj_t microbit_pin_touch_calibrate(mp_obj_t self_in) {
+    microbit_pin_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    microbit_hal_pin_touch_calibrate(self->name);
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_pin_touch_calibrate_obj, microbit_pin_touch_calibrate);
+
 static mp_obj_t microbit_pin_get_mode_func(mp_obj_t self_in) {
     microbit_pin_obj_t *self = (microbit_pin_obj_t*)self_in;
     return MP_OBJ_NEW_QSTR(microbit_pin_get_mode(self)->name);
@@ -248,6 +255,7 @@ MP_DEFINE_CONST_OBJ_TYPE(
     );
 
 static const mp_rom_map_elem_t microbit_touch_pin_locals_dict_table[] = {
+    { MP_ROM_QSTR(MP_QSTR_touch_calibrate), MP_ROM_PTR(&microbit_pin_touch_calibrate_obj) },
     { MP_ROM_QSTR(MP_QSTR_write_digital), MP_ROM_PTR(&microbit_pin_write_digital_obj) },
     { MP_ROM_QSTR(MP_QSTR_read_digital), MP_ROM_PTR(&microbit_pin_read_digital_obj) },
     { MP_ROM_QSTR(MP_QSTR_write_analog), MP_ROM_PTR(&microbit_pin_write_analog_obj) },
@@ -275,6 +283,7 @@ MP_DEFINE_CONST_OBJ_TYPE(
     );
 
 static const mp_rom_map_elem_t microbit_touch_only_pin_locals_dict_table[] = {
+    { MP_ROM_QSTR(MP_QSTR_touch_calibrate), MP_ROM_PTR(&microbit_pin_touch_calibrate_obj) },
     { MP_ROM_QSTR(MP_QSTR_is_touched), MP_ROM_PTR(&microbit_pin_is_touched_obj) },
     { MP_ROM_QSTR(MP_QSTR_was_touched), MP_ROM_PTR(&microbit_pin_was_touched_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_touches), MP_ROM_PTR(&microbit_pin_get_touches_obj) },
