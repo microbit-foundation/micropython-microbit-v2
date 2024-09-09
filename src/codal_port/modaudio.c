@@ -301,7 +301,7 @@ void microbit_audio_play_source(mp_obj_t src, mp_obj_t pin_select, bool wait, ui
 
     if (wait) {
         // Wait the audio to exhaust the iterator.
-        while (audio_is_running()) {
+        while (microbit_audio_is_playing()) {
             mp_handle_pending(true);
             microbit_hal_idle();
         }
@@ -333,7 +333,9 @@ static mp_obj_t play(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_ar
 MP_DEFINE_CONST_FUN_OBJ_KW(microbit_audio_play_obj, 0, play);
 
 bool microbit_audio_is_playing(void) {
-    return audio_is_running() || microbit_hal_audio_is_expression_active();
+    return audio_is_running()
+        || microbit_hal_audio_is_playing()
+        || microbit_hal_audio_is_expression_active();
 }
 
 mp_obj_t is_playing(void) {
