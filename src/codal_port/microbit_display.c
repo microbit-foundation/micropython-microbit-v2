@@ -24,6 +24,7 @@
  * THE SOFTWARE.
  */
 
+#include <math.h>
 #include "py/runtime.h"
 #include "py/objstr.h"
 #include "py/mphal.h"
@@ -199,6 +200,24 @@ static mp_obj_t microbit_display_get_pixel_func(mp_obj_t self_in, mp_obj_t x_in,
 }
 MP_DEFINE_CONST_FUN_OBJ_3(microbit_display_get_pixel_obj, microbit_display_get_pixel_func);
 
+static mp_obj_t microbit_display_rotate(mp_obj_t self_in, mp_obj_t angle_in) {
+    (void)self_in;
+    mp_float_t angle_degrees = mp_obj_get_float(angle_in);
+
+    // Round angle towards nearest multiple of 90 degrees, within 0..359.
+    angle_degrees = MICROPY_FLOAT_C_FUN(fmod)(angle_degrees, 360);
+    if (angle_degrees < 0) {
+        angle_degrees += 360;
+    }
+    unsigned int rotation = (unsigned int)((angle_degrees + 45) / 90);
+
+    // Set the display rotation.
+    microbit_hal_display_rotate(rotation);
+
+    return mp_const_none;
+}
+MP_DEFINE_CONST_FUN_OBJ_2(microbit_display_rotate_obj, microbit_display_rotate);
+
 static const mp_rom_map_elem_t microbit_display_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_get_pixel), MP_ROM_PTR(&microbit_display_get_pixel_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_pixel), MP_ROM_PTR(&microbit_display_set_pixel_obj) },
@@ -209,6 +228,7 @@ static const mp_rom_map_elem_t microbit_display_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_off), MP_ROM_PTR(&microbit_display_off_obj) },
     { MP_ROM_QSTR(MP_QSTR_is_on), MP_ROM_PTR(&microbit_display_is_on_obj) },
     { MP_ROM_QSTR(MP_QSTR_read_light_level),MP_ROM_PTR(&microbit_display_read_light_level_obj) },
+    { MP_ROM_QSTR(MP_QSTR_rotate),MP_ROM_PTR(&microbit_display_rotate_obj) },
 };
 static MP_DEFINE_CONST_DICT(microbit_display_locals_dict, microbit_display_locals_dict_table);
 
