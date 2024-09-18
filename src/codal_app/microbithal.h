@@ -165,9 +165,13 @@ int microbit_hal_compass_get_field_strength(void);
 int microbit_hal_compass_get_heading(void);
 
 void microbit_hal_microphone_init(void);
+void microbit_hal_microphone_set_sensitivity(float value);
 void microbit_hal_microphone_set_threshold(int kind, int value);
 int microbit_hal_microphone_get_level(void);
 float microbit_hal_microphone_get_level_db(void);
+void microbit_hal_microphone_start_recording(uint8_t *buf, size_t max_len, size_t *cur_len, int rate);
+bool microbit_hal_microphone_is_recording(void);
+void microbit_hal_microphone_stop_recording(void);
 
 const uint8_t *microbit_hal_get_font_data(char c);
 
@@ -181,13 +185,15 @@ int microbit_hal_log_data(const char *key, const char *value);
 void microbit_hal_audio_select_pin(int pin);
 void microbit_hal_audio_select_speaker(bool enable);
 void microbit_hal_audio_set_volume(int value);
+bool microbit_hal_audio_is_playing(void);
 bool microbit_hal_audio_is_expression_active(void);
 void microbit_hal_audio_play_expression(const char *expr);
 void microbit_hal_audio_stop_expression(void);
 
-void microbit_hal_audio_init(uint32_t sample_rate);
-void microbit_hal_audio_write_data(const uint8_t *buf, size_t num_samples);
-void microbit_hal_audio_ready_callback(void);
+void microbit_hal_audio_raw_init(uint32_t sample_rate);
+void microbit_hal_audio_raw_set_rate(uint32_t sample_rate);
+void microbit_hal_audio_raw_write_data(const uint8_t *buf, size_t num_samples);
+void microbit_hal_audio_raw_ready_callback(void);
 
 void microbit_hal_audio_speech_init(uint32_t sample_rate);
 void microbit_hal_audio_speech_write_data(const uint8_t *buf, size_t num_samples);

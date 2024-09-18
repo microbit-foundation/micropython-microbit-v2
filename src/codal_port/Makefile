@@ -69,6 +69,8 @@ SRC_C += \
 	iters.c \
 	main.c \
 	microbit_accelerometer.c \
+	microbit_audiorecording.c \
+	microbit_audiotrack.c \
 	microbit_button.c \
 	microbit_compass.c \
 	microbit_display.c \
@@ -100,6 +102,7 @@ SRC_C += \
 	modspeech.c \
 	modthis.c \
 	mphalport.c \
+	utils.c \
 
 SRC_C += \
 	shared/readline/readline.c \

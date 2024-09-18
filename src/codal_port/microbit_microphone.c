@@ -26,6 +26,7 @@
 
 #include "py/runtime.h"
 #include "py/mphal.h"
+#include "modaudio.h"
 #include "modmicrobit.h"
 
 #define EVENT_HISTORY_SIZE (8)
@@ -83,6 +84,13 @@ static uint8_t sound_event_from_obj(mp_obj_t sound) {
     }
     mp_raise_ValueError(MP_ERROR_TEXT("invalid sound"));
 }
+
+static mp_obj_t microbit_microphone_set_sensitivity(mp_obj_t self_in, mp_obj_t value_in) {
+    (void)self_in;
+    microbit_hal_microphone_set_sensitivity(mp_obj_get_float(value_in));
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_2(microbit_microphone_set_sensitivity_obj, microbit_microphone_set_sensitivity);
 
 static mp_obj_t microbit_microphone_set_threshold(mp_obj_t self_in, mp_obj_t sound_in, mp_obj_t value_in) {
     (void)self_in;
@@ -158,7 +166,114 @@ static mp_obj_t microbit_microphone_get_events(mp_obj_t self_in) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(microbit_microphone_get_events_obj, microbit_microphone_get_events);
 
+static void microbit_microphone_record_helper(microbit_audio_track_obj_t *audio_track, bool wait) {
+    // Start the recording.
+    microbit_hal_microphone_start_recording(audio_track->data, audio_track->size, &audio_track->size, audio_track->rate);
+
+    if (wait) {
+        // Wait for the recording to finish.
+        while (microbit_hal_microphone_is_recording()) {
+            mp_handle_pending(true);
+            microbit_hal_idle();
+        }
+    }
+}
+
+static mp_obj_t microbit_microphone_record(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+    enum { ARG_duration, ARG_rate, };
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_duration, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE} },
+        { MP_QSTR_rate, MP_ARG_INT, {.u_int = AUDIO_TRACK_DEFAULT_SAMPLE_RATE} },
+    };
+
+    // Parse the args.
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+
+    // Validate arguments.
+    mp_float_t duration = mp_obj_get_float(args[ARG_duration].u_obj);
+    if (duration <= 0) {
+        mp_raise_ValueError(MP_ERROR_TEXT("duration out of bounds"));
+    }
+    if (args[ARG_rate].u_int <= 0) {
+        mp_raise_ValueError(MP_ERROR_TEXT("rate out of bounds"));
+    }
+
+    // Create the AudioRecording to record into.
+    size_t size = duration * args[ARG_rate].u_int / 1000;
+    microbit_audio_track_obj_t *audio_track = MP_OBJ_TO_PTR(microbit_audio_recording_new(size, args[ARG_rate].u_int));
+
+    // Start recording and wait.
+    microbit_microphone_record_helper(audio_track, true);
+
+    // Return the new AudioFrame.
+    return MP_OBJ_FROM_PTR(audio_track);
+}
+static MP_DEFINE_CONST_FUN_OBJ_KW(microbit_microphone_record_obj, 1, microbit_microphone_record);
+
+static mp_obj_t microbit_microphone_record_into(mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+    enum { ARG_buffer, ARG_wait };
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_buffer, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
+        { MP_QSTR_wait, MP_ARG_KW_ONLY | MP_ARG_BOOL, {.u_bool = true} },
+    };
+
+    // Parse the args.
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+
+    // Check that the buffer is an AudioFrame instance.
+    // TODO allow both AudioRecording and AudioTrack? yes
+    if (!mp_obj_is_type(args[ARG_buffer].u_obj, &microbit_audio_track_type)
+        && !mp_obj_is_type(args[ARG_buffer].u_obj, &microbit_audio_recording_type)) {
+        mp_raise_TypeError(MP_ERROR_TEXT("expecting an AudioTrack or AudioRecording"));
+    }
+    microbit_audio_track_obj_t *audio_track = MP_OBJ_TO_PTR(args[ARG_buffer].u_obj);
+
+    // Create the AudioTrack to record into.
+    microbit_audio_track_obj_t *audio_track_new = MP_OBJ_TO_PTR(microbit_audio_track_new(args[ARG_buffer].u_obj, audio_track->size, audio_track->data, audio_track->rate));
+
+    // Start recording and wait if requested.
+    microbit_microphone_record_helper(audio_track_new, args[ARG_wait].u_bool);
+
+    // Return the new AudioTrack.
+    return MP_OBJ_FROM_PTR(audio_track_new);
+}
+static MP_DEFINE_CONST_FUN_OBJ_KW(microbit_microphone_record_into_obj, 1, microbit_microphone_record_into);
+
+static mp_obj_t microbit_microphone_is_recording(mp_obj_t self_in) {
+    (void)self_in;
+    return mp_obj_new_bool(microbit_hal_microphone_is_recording());
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_microphone_is_recording_obj, microbit_microphone_is_recording);
+
+static mp_obj_t microbit_microphone_stop_recording(mp_obj_t self_in) {
+    (void)self_in;
+    microbit_hal_microphone_stop_recording();
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(microbit_microphone_stop_recording_obj, microbit_microphone_stop_recording);
+
+#if MICROPY_OBJ_REPR == MICROPY_OBJ_REPR_A || MICROPY_OBJ_REPR == MICROPY_OBJ_REPR_B
+
+// The way float objects are defined depends on the object representation.  Here we only
+// support representation A and B which use the following struct for float objects.
+// This is defined in py/objfloat.c and not exposed publicly, so must be defined here.
+
+typedef struct _mp_obj_float_t {
+    mp_obj_base_t base;
+    mp_float_t value;
+} mp_obj_float_t;
+
+static const mp_obj_float_t microbit_microphone_sensitivity_low_obj = {{&mp_type_float}, (mp_float_t)0.079};
+static const mp_obj_float_t microbit_microphone_sensitivity_medium_obj = {{&mp_type_float}, (mp_float_t)0.2};
+static const mp_obj_float_t microbit_microphone_sensitivity_high_obj = {{&mp_type_float}, (mp_float_t)1.0};
+
+#endif
+
 static const mp_rom_map_elem_t microbit_microphone_locals_dict_table[] = {
+    // Methods.
+    { MP_ROM_QSTR(MP_QSTR_set_sensitivity), MP_ROM_PTR(&microbit_microphone_set_sensitivity_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_threshold), MP_ROM_PTR(&microbit_microphone_set_threshold_obj) },
     { MP_ROM_QSTR(MP_QSTR_sound_level), MP_ROM_PTR(&microbit_microphone_sound_level_obj) },
     { MP_ROM_QSTR(MP_QSTR_sound_level_db), MP_ROM_PTR(&microbit_microphone_sound_level_db_obj) },
@@ -166,6 +281,15 @@ static const mp_rom_map_elem_t microbit_microphone_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_is_event), MP_ROM_PTR(&microbit_microphone_is_event_obj) },
     { MP_ROM_QSTR(MP_QSTR_was_event), MP_ROM_PTR(&microbit_microphone_was_event_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_events), MP_ROM_PTR(&microbit_microphone_get_events_obj) },
+    { MP_ROM_QSTR(MP_QSTR_record), MP_ROM_PTR(&microbit_microphone_record_obj) },
+    { MP_ROM_QSTR(MP_QSTR_record_into), MP_ROM_PTR(&microbit_microphone_record_into_obj) },
+    { MP_ROM_QSTR(MP_QSTR_is_recording), MP_ROM_PTR(&microbit_microphone_is_recording_obj) },
+    { MP_ROM_QSTR(MP_QSTR_stop_recording), MP_ROM_PTR(&microbit_microphone_stop_recording_obj) },
+
+    // Constants.
+    { MP_ROM_QSTR(MP_QSTR_SENSITIVITY_LOW), MP_ROM_PTR(&microbit_microphone_sensitivity_low_obj) },
+    { MP_ROM_QSTR(MP_QSTR_SENSITIVITY_MEDIUM), MP_ROM_PTR(&microbit_microphone_sensitivity_medium_obj) },
+    { MP_ROM_QSTR(MP_QSTR_SENSITIVITY_HIGH), MP_ROM_PTR(&microbit_microphone_sensitivity_high_obj) },
 };
 static MP_DEFINE_CONST_DICT(microbit_microphone_locals_dict, microbit_microphone_locals_dict_table);
 

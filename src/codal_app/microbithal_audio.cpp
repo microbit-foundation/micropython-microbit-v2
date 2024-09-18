@@ -53,7 +53,7 @@ public:
     }
 };
 
-static AudioSource data_source;
+static AudioSource raw_source;
 static AudioSource speech_source;
 
 extern "C" {
@@ -86,6 +86,10 @@ void microbit_hal_sound_synth_callback(int event) {
     }
 }
 
+bool microbit_hal_audio_is_playing(void) {
+    return uBit.audio.isPlaying();
+}
+
 bool microbit_hal_audio_is_expression_active(void) {
     return sound_synth_active_count > 0;
 }
@@ -105,23 +109,27 @@ void microbit_hal_audio_stop_expression(void) {
     uBit.audio.soundExpressions.stop();
 }
 
-void microbit_hal_audio_init(uint32_t sample_rate) {
-    if (!data_source.started) {
+void microbit_hal_audio_raw_init(uint32_t sample_rate) {
+    if (!raw_source.started) {
         MicroBitAudio::requestActivation();
-        data_source.started = true;
-        data_source.callback = microbit_hal_audio_ready_callback;
-        data_source.channel = uBit.audio.mixer.addChannel(data_source, sample_rate, 255);
+        raw_source.started = true;
+        raw_source.callback = microbit_hal_audio_raw_ready_callback;
+        raw_source.channel = uBit.audio.mixer.addChannel(raw_source, sample_rate, 255);
     } else {
-        data_source.channel->setSampleRate(sample_rate);
+        raw_source.channel->setSampleRate(sample_rate);
     }
 }
 
-void microbit_hal_audio_write_data(const uint8_t *buf, size_t num_samples) {
-    if ((size_t)data_source.buf.length() != num_samples) {
-        data_source.buf = ManagedBuffer(num_samples);
+void microbit_hal_audio_raw_set_rate(uint32_t sample_rate) {
+    raw_source.channel->setSampleRate(sample_rate);
+}
+
+void microbit_hal_audio_raw_write_data(const uint8_t *buf, size_t num_samples) {
+    if ((size_t)raw_source.buf.length() != num_samples) {
+        raw_source.buf = ManagedBuffer(num_samples);
     }
-    memcpy(data_source.buf.getBytes(), buf, num_samples);
-    data_source.sink->pullRequest();
+    memcpy(raw_source.buf.getBytes(), buf, num_samples);
+    raw_source.sink->pullRequest();
 }
 
 void microbit_hal_audio_speech_init(uint32_t sample_rate) {
