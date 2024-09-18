@@ -66,7 +66,7 @@ void microbit_audio_stop(void) {
     audio_output_buffer_offset = 0;
     audio_source_frame = NULL;
     audio_source_track = NULL;
-    audio_source_iter = NULL;
+    audio_source_iter = MP_OBJ_NULL;
     audio_source_frame_offset = 0;
     audio_current_sound_level = 0;
     microbit_hal_audio_stop_expression();
@@ -92,7 +92,6 @@ static void audio_data_pull_from_source(void) {
 
         if (audio_source_iter == MP_OBJ_NULL) {
             // Audio iterator is already exhausted.
-            microbit_audio_stop();
             return;
         }
 
@@ -111,7 +110,7 @@ static void audio_data_pull_from_source(void) {
         }
         if (frame_obj == MP_OBJ_STOP_ITERATION) {
             // End of audio iterator.
-            microbit_audio_stop();
+            audio_source_iter = MP_OBJ_NULL;
             return;
         }
 
@@ -128,7 +127,7 @@ static void audio_data_pull_from_source(void) {
             microbit_hal_audio_raw_set_rate(audio_source_track->rate);
         } else {
             // Audio iterator did not return an AudioFrame/AudioTrack/AudioRecording.
-            microbit_audio_stop();
+            audio_source_iter = MP_OBJ_NULL;
             mp_sched_exception(mp_obj_new_exception_msg(&mp_type_TypeError, MP_ERROR_TEXT("not an AudioFrame")));
             return;
         }
@@ -144,6 +143,7 @@ static void audio_data_fetcher(mp_sched_node_t *node) {
 
         if (audio_output_buffer_offset == 0) {
             // No output data left, finish output streaming.
+            microbit_audio_stop();
             return;
         }
 
