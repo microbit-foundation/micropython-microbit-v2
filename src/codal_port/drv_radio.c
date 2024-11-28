@@ -93,7 +93,7 @@ void microbit_radio_enable(microbit_radio_config_t *config) {
     while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0) {
     }
 
-    // power should be one of: -30, -20, -16, -12, -8, -4, 0, 4
+    // power should be one of: -30, -20, -16, -12, -8, -4, 0, 4, 8
     NRF_RADIO->TXPOWER = config->power_dbm;
 
     // should be between 0 and 100 inclusive (actual physical freq is 2400MHz + this register)

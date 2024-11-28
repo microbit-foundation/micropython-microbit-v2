@@ -57,7 +57,7 @@ typedef struct _microbit_radio_config_t {
     uint8_t max_payload;    // 1-251 inclusive
     uint8_t queue_len;      // 1-254 inclusive
     uint8_t channel;        // 0-100 inclusive
-    int8_t power_dbm;       // one of: -30, -20, -16, -12, -8, -4, 0, 4
+    int8_t power_dbm;       // one of: -30, -20, -16, -12, -8, -4, 0, 4, 8
     uint32_t base0;         // for BASE0 register
     uint8_t prefix0;        // for PREFIX0 register (lower 8 bits only)
     uint8_t data_rate;      // one of: RADIO_MODE_MODE_Nrf_{250Kbit,1Mbit,2Mbit}
