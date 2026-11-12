@@ -192,6 +192,7 @@ static const mp_rom_map_elem_t microbit_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_ws2812_write), MP_ROM_PTR(&microbit_ws2812_write_obj) },
 
     { MP_ROM_QSTR(MP_QSTR_run_every), MP_ROM_PTR(&microbit_run_every_obj) },
+    { MP_ROM_QSTR(MP_QSTR_press_button), MP_ROM_PTR(&microbit_press_button_obj) },
     { MP_ROM_QSTR(MP_QSTR_scale), MP_ROM_PTR(&microbit_scale_obj) },
 
     { MP_ROM_QSTR(MP_QSTR_pin0), MP_ROM_PTR(&microbit_p0_obj) },
