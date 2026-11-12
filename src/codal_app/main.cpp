@@ -32,6 +32,7 @@ extern "C" void mp_main(void);
 extern "C" void m_printf(...);
 extern "C" void microbit_hal_timer_callback(void);
 extern "C" void microbit_hal_gesture_callback(int);
+extern "C" void microbit_hal_button_callback(int, int);
 extern "C" void microbit_hal_sound_synth_callback(int);
 extern "C" void microbit_radio_irq_handler(void);
 
@@ -43,6 +44,11 @@ void timer_handler(Event evt) {
 
 void gesture_event_handler(Event evt) {
     microbit_hal_gesture_callback(evt.value);
+}
+
+void button_event_handler(Event evt) {
+    // DEVICE_ID_BUTTON_A/B/AB are consecutive, and map to MICROBIT_HAL_BUTTON_A/B/AB.
+    microbit_hal_button_callback(evt.source - DEVICE_ID_BUTTON_A, evt.value);
 }
 
 void sound_synth_event_handler(Event evt) {
@@ -63,6 +69,11 @@ int main() {
     uBit.messageBus.listen(MICROPY_TIMER_EVENT, DEVICE_EVT_ANY, timer_handler, MESSAGE_BUS_LISTENER_IMMEDIATE);
     uBit.messageBus.listen(DEVICE_ID_SERIAL, CODAL_SERIAL_EVT_DELIM_MATCH, serial_interrupt_handler, MESSAGE_BUS_LISTENER_IMMEDIATE);
     uBit.messageBus.listen(DEVICE_ID_GESTURE, DEVICE_EVT_ANY, gesture_event_handler);
+    uBit.messageBus.listen(DEVICE_ID_BUTTON_A, DEVICE_EVT_ANY, button_event_handler, MESSAGE_BUS_LISTENER_IMMEDIATE);
+    uBit.messageBus.listen(DEVICE_ID_BUTTON_B, DEVICE_EVT_ANY, button_event_handler, MESSAGE_BUS_LISTENER_IMMEDIATE);
+    // Listening to buttonAB makes CODAL route A/B click events through the MultiButton,
+    // which suppresses the individual A and B clicks when both are pressed together.
+    uBit.messageBus.listen(DEVICE_ID_BUTTON_AB, DEVICE_EVT_ANY, button_event_handler, MESSAGE_BUS_LISTENER_IMMEDIATE);
     uBit.messageBus.listen(DEVICE_ID_SOUND_EMOJI_SYNTHESIZER_0, DEVICE_EVT_ANY, sound_synth_event_handler);
 
     // 6ms follows the micro:bit v1 value

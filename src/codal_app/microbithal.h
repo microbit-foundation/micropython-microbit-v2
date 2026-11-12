@@ -87,6 +87,20 @@ extern "C" {
 #define MICROBIT_HAL_ACCELEROMETER_EVT_SHAKE        (11)
 #define MICROBIT_HAL_ACCELEROMETER_EVT_2G           (12)
 
+// Button ids, used by microbit_hal_button_state() (A and B only) and
+// microbit_hal_button_callback() (A, B, and A+B pressed together).
+#define MICROBIT_HAL_BUTTON_A                       (0)
+#define MICROBIT_HAL_BUTTON_B                       (1)
+#define MICROBIT_HAL_BUTTON_AB                      (2)
+
+// Button events, passed to microbit_hal_button_callback().
+#define MICROBIT_HAL_BUTTON_EVT_DOWN                (1)
+#define MICROBIT_HAL_BUTTON_EVT_UP                  (2)
+#define MICROBIT_HAL_BUTTON_EVT_CLICK               (3)
+#define MICROBIT_HAL_BUTTON_EVT_LONG_CLICK          (4)
+#define MICROBIT_HAL_BUTTON_EVT_HOLD                (5)
+#define MICROBIT_HAL_BUTTON_EVT_DOUBLE_CLICK        (6)
+
 // Microphone events, passed to microbit_hal_level_detector_callback().
 #define MICROBIT_HAL_MICROPHONE_EVT_THRESHOLD_LOW   (1)
 #define MICROBIT_HAL_MICROPHONE_EVT_THRESHOLD_HIGH  (2)
@@ -146,6 +160,7 @@ int microbit_hal_spi_init(int sclk, int mosi, int miso, int frequency, int bits,
 int microbit_hal_spi_transfer(size_t len, const uint8_t *src, uint8_t *dest);
 
 int microbit_hal_button_state(int button, int *was_pressed, int *num_presses);
+void microbit_hal_button_callback(int button, int event);
 
 void microbit_hal_display_enable(int value);
 int microbit_hal_display_get_pixel(int x, int y);

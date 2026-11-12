@@ -91,6 +91,7 @@ void mp_main(void) {
 
         mp_printf(MP_PYTHON_PRINTER, "MPY: soft reboot\n");
         microbit_soft_timer_deinit();
+        microbit_button_deinit();
         gc_sweep_all();
         mp_deinit();
     }
@@ -148,6 +149,7 @@ void microbit_pyexec_file(const char *filename) {
         microbit_outer_nlr_will_handle_soft_timer_exceptions = false;
         mp_hal_set_interrupt_char(-1); // disable interrupt
         microbit_soft_timer_deinit(); // stop any background timers
+        microbit_button_deinit(); // stop any press_button handlers
         mp_handle_pending(true); // handle any pending exceptions (and any callbacks)
         nlr_pop();
     } else {
@@ -155,13 +157,14 @@ void microbit_pyexec_file(const char *filename) {
         microbit_outer_nlr_will_handle_soft_timer_exceptions = false;
         mp_hal_set_interrupt_char(-1); // disable interrupt
         microbit_soft_timer_deinit(); // stop any background timers
+        microbit_button_deinit(); // stop any press_button handlers
         mp_handle_pending(false); // clear any pending exceptions (and run any callbacks)
 
         mp_obj_t exc_obj = MP_OBJ_FROM_PTR(nlr.ret_val);
         mp_const_obj_t exc_type = MP_OBJ_FROM_PTR(((mp_obj_base_t *)nlr.ret_val)->type);
 
-        // Check if the exception was raised from a run_every callback, and if so
-        // use the exception raised by the run_every as the one to display here.
+        // Check if the exception was raised from a run_every or press_button callback,
+        // and if so use the exception raised by the callback as the one to display here.
         if (exc_type == &mp_type_SystemExit) {
             mp_obj_exception_t *exc = MP_OBJ_TO_PTR(exc_obj);
             if (exc->args->len == 2
