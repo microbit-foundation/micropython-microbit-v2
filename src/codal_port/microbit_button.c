@@ -227,6 +227,16 @@ void microbit_hal_button_callback(int button, int event) {
     }
 }
 
+// Return true if any press_button handler is registered.
+bool microbit_button_has_handlers(void) {
+    for (size_t i = 0; i < MP_ARRAY_SIZE(MP_STATE_PORT(button_press_handler)); ++i) {
+        if (MP_STATE_PORT(button_press_handler)[i] != MP_OBJ_NULL) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // Remove all press_button handlers, eg at the end of a script or on soft reset.
 void microbit_button_deinit(void) {
     for (size_t i = 0; i < MP_ARRAY_SIZE(MP_STATE_PORT(button_press_handler)); ++i) {

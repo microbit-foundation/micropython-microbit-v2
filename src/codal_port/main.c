@@ -146,6 +146,15 @@ void microbit_pyexec_file(const char *filename) {
         mp_hal_set_interrupt_char(CHAR_CTRL_C); // allow ctrl-C to interrupt us
         microbit_outer_nlr_will_handle_soft_timer_exceptions = true;
         mp_call_function_0(module_fun);
+
+        // If the script registered press_button handlers then keep running them (and any
+        // run_every timers) after the script has finished, like MakeCode does.  Ctrl-C
+        // stops this, via KeyboardInterrupt raised from within mp_hal_delay_ms().  A script
+        // that only uses run_every still returns to the REPL straight away, as before.
+        while (microbit_button_has_handlers()) {
+            mp_hal_delay_ms(100);
+        }
+
         microbit_outer_nlr_will_handle_soft_timer_exceptions = false;
         mp_hal_set_interrupt_char(-1); // disable interrupt
         microbit_soft_timer_deinit(); // stop any background timers
